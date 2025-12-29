@@ -12,6 +12,7 @@ export const mockOffers: Offer[] = [
     isMemberOnly: false,
     distance: '0.2 mi',
     discount: 'BOGO',
+    category: 'Food & Drink',
   },
   {
     id: '2',
@@ -24,6 +25,7 @@ export const mockOffers: Offer[] = [
     isMemberOnly: true,
     distance: '0.8 mi',
     discount: '50% OFF',
+    category: 'Health & Wellness',
   },
   {
     id: '3',
@@ -36,6 +38,7 @@ export const mockOffers: Offer[] = [
     isMemberOnly: false,
     distance: '1.1 mi',
     discount: 'FREE',
+    category: 'Food & Drink',
   },
   {
     id: '4',
@@ -48,6 +51,7 @@ export const mockOffers: Offer[] = [
     isMemberOnly: false,
     distance: '1.5 mi',
     discount: '25% OFF',
+    category: 'Shopping',
   },
   {
     id: '5',
@@ -60,6 +64,7 @@ export const mockOffers: Offer[] = [
     isMemberOnly: true,
     distance: '1.8 mi',
     discount: '30% OFF',
+    category: 'Shopping',
   },
   {
     id: '6',
@@ -72,5 +77,6 @@ export const mockOffers: Offer[] = [
     isMemberOnly: false,
     distance: '2.2 mi',
     discount: 'FREE',
+    category: 'Food & Drink',
   },
 ];

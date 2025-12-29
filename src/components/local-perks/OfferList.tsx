@@ -4,13 +4,23 @@ import * as React from 'react';
 import type { Offer } from '@/lib/types';
 import OfferCard from './OfferCard';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Button } from '@/components/ui/button';
 
 interface OfferListProps {
   offers: Offer[];
   onOfferClick: (offer: Offer) => void;
+  categories: string[];
+  selectedCategory: string;
+  onCategoryChange: (category: string) => void;
 }
 
-export default function OfferList({ offers, onOfferClick }: OfferListProps) {
+export default function OfferList({
+  offers,
+  onOfferClick,
+  categories,
+  selectedCategory,
+  onCategoryChange,
+}: OfferListProps) {
   const hasOffers = offers.length > 0;
   return (
     <div className="p-4 space-y-4 h-full">
@@ -18,6 +28,20 @@ export default function OfferList({ offers, onOfferClick }: OfferListProps) {
         <h2 className="text-2xl font-bold font-headline">Nearby Offers</h2>
         <p className="text-muted-foreground">Special perks waiting for you.</p>
       </div>
+
+      <div className="flex flex-wrap gap-2 pb-4">
+        {categories.map((category) => (
+          <Button
+            key={category}
+            variant={selectedCategory === category ? 'default' : 'outline'}
+            size="sm"
+            onClick={() => onCategoryChange(category)}
+          >
+            {category}
+          </Button>
+        ))}
+      </div>
+
       <div className="grid grid-cols-1 gap-4">
         {hasOffers
           ? offers.map((offer) => (

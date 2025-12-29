@@ -9,4 +9,5 @@ export type Offer = {
   isMemberOnly: boolean;
   distance: string;
   discount: string;
+  category: string;
 };

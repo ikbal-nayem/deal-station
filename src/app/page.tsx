@@ -18,12 +18,15 @@ const ClientMapView = dynamic(() => import('@/components/local-perks/ClientMapVi
 
 
 export default function LocalPerksPage() {
-  const [offers, setOffers] = React.useState<Offer[]>([]);
+  const [allOffers, setAllOffers] = React.useState<Offer[]>([]);
+  const [filteredOffers, setFilteredOffers] = React.useState<Offer[]>([]);
   const [selectedOffer, setSelectedOffer] = React.useState<Offer | null>(null);
   const [isSheetOpen, setSheetOpen] = React.useState(false);
   const { location, error: locationError } = useLocation();
   const [view, setView] = React.useState<'list' | 'map'>('list');
   const { toast } = useToast();
+  const [categories, setCategories] = React.useState<string[]>([]);
+  const [selectedCategory, setSelectedCategory] = React.useState<string>('All');
 
   React.useEffect(() => {
     if (locationError) {
@@ -38,8 +41,19 @@ export default function LocalPerksPage() {
   React.useEffect(() => {
     // Here you would fetch offers based on the user's location.
     // We'll use mock data for this example.
-    setOffers(mockOffers);
+    setAllOffers(mockOffers);
+    setFilteredOffers(mockOffers);
+    const uniqueCategories = ['All', ...Array.from(new Set(mockOffers.map(o => o.category)))];
+    setCategories(uniqueCategories);
   }, [location]);
+
+  React.useEffect(() => {
+    if (selectedCategory === 'All') {
+      setFilteredOffers(allOffers);
+    } else {
+      setFilteredOffers(allOffers.filter(offer => offer.category === selectedCategory));
+    }
+  }, [selectedCategory, allOffers]);
 
   const handleOfferClick = (offer: Offer) => {
     setSelectedOffer(offer);
@@ -87,11 +101,17 @@ export default function LocalPerksPage() {
 
       <main className="flex flex-1 flex-col md:flex-row overflow-hidden">
         <div className={cn('md:w-1/2 lg:w-[400px] h-full overflow-y-auto border-r', view !== 'list' && 'hidden md:flex')}>
-          <OfferList offers={offers} onOfferClick={handleOfferClick} />
+          <OfferList
+            offers={filteredOffers}
+            onOfferClick={handleOfferClick}
+            categories={categories}
+            selectedCategory={selectedCategory}
+            onCategoryChange={setSelectedCategory}
+          />
         </div>
 
         <div className={cn('flex-1 h-full', view !== 'map' && 'hidden md:block')}>
-          <ClientMapView offers={offers} onMarkerClick={handleMarkerClick} center={location} selectedOfferId={selectedOffer?.id} />
+          <ClientMapView offers={filteredOffers} onMarkerClick={handleMarkerClick} center={location} selectedOfferId={selectedOffer?.id} />
         </div>
       </main>
 
