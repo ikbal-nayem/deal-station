@@ -13,6 +13,7 @@ export const mockOffers: Offer[] = [
     distance: '0.2 mi',
     discount: 'BOGO',
     category: 'Food & Drink',
+    organizationId: 'org-daily-grind',
   },
   {
     id: '2',
@@ -26,6 +27,7 @@ export const mockOffers: Offer[] = [
     distance: '0.8 mi',
     discount: '50% OFF',
     category: 'Health & Wellness',
+    organizationId: 'org-serenity-yoga',
   },
   {
     id: '3',
@@ -39,6 +41,7 @@ export const mockOffers: Offer[] = [
     distance: '1.1 mi',
     discount: 'FREE',
     category: 'Food & Drink',
+    organizationId: 'org-bellas-trattoria',
   },
   {
     id: '4',
@@ -52,6 +55,7 @@ export const mockOffers: Offer[] = [
     distance: '1.5 mi',
     discount: '25% OFF',
     category: 'Shopping',
+    organizationId: 'org-book-nook',
   },
   {
     id: '5',
@@ -65,6 +69,7 @@ export const mockOffers: Offer[] = [
     distance: '1.8 mi',
     discount: '30% OFF',
     category: 'Shopping',
+    organizationId: 'org-chic-boutique',
   },
   {
     id: '6',
@@ -78,5 +83,6 @@ export const mockOffers: Offer[] = [
     distance: '2.2 mi',
     discount: 'FREE',
     category: 'Food & Drink',
+    organizationId: 'org-scoops-ahoy',
   },
 ];

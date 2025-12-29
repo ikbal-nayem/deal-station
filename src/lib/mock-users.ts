@@ -1,5 +1,6 @@
 
 import { User } from './types';
+import { mockOrganizations } from './mock-organizations';
 
 export const mockUsers: User[] = [
   {
@@ -18,10 +19,25 @@ export const mockUsers: User[] = [
   },
   {
     id: 'org-1',
-    name: 'Charlie (Org)',
+    name: 'Charlie (Org Owner)',
     email: 'org@example.com',
     password: 'password',
     role: 'Organization',
-    organizationId: 'org-chic-boutique',
+    organizationId: mockOrganizations[0].id,
+  },
+  {
+    id: 'user-2',
+    name: 'David (Org Staff)',
+    email: 'staff@dailygrind.com',
+    password: 'password',
+    role: 'Organization',
+    organizationId: mockOrganizations[0].id,
+  },
+   {
+    id: 'user-3',
+    name: 'Eve (End User)',
+    email: 'eve@example.com',
+    password: 'password',
+    role: 'End User',
   },
 ];

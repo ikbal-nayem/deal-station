@@ -1,4 +1,5 @@
 
+
 export type Offer = {
   id: string;
   title: string;
@@ -11,6 +12,7 @@ export type Offer = {
   distance: string;
   discount: string;
   category: string;
+  organizationId: string;
 };
 
 export type UserRole = 'End User' | 'Admin' | 'Organization';
@@ -21,5 +23,12 @@ export type User = {
   email: string;
   password?: string; // Should not be stored in frontend state in a real app
   role: UserRole;
-  organizationId?: string; // if role is 'Organization'
+  organizationId?: string; // if role is 'Organization' or if user is assigned to one
 };
+
+export type Organization = {
+    id: string;
+    name: string;
+    ownerEmail: string;
+    createdAt: string;
+}
