@@ -1,9 +1,11 @@
 'use client';
 
 import * as React from 'react';
-import { Map, AdvancedMarker, Pin } from '@vis.gl/react-google-maps';
+import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
+import 'leaflet/dist/leaflet.css';
+import 'leaflet-defaulticon-compatibility/dist/leaflet-defaulticon-compatibility.css';
+import "leaflet-defaulticon-compatibility";
 import type { Offer } from '@/lib/types';
-import { Star } from 'lucide-react';
 
 interface MapViewProps {
   offers: Offer[];
@@ -12,46 +14,37 @@ interface MapViewProps {
   selectedOfferId?: string;
 }
 
-export default function MapView({ offers, onMarkerClick, center, selectedOfferId }: MapViewProps) {
-  const mapId = process.env.NEXT_PUBLIC_GOOGLE_MAP_ID || 'DEMO_MAP_ID';
-  
-  const mapRef = React.useRef(null);
+const ChangeView = ({ center, zoom }: { center: [number, number]; zoom: number }) => {
+  const map = useMap();
+  map.setView(center, zoom);
+  return null;
+}
 
-  React.useEffect(() => {
-    if (mapRef.current && center) {
-        // You can add more complex map interactions here
-    }
-  }, [center]);
+export default function MapView({ offers, onMarkerClick, center, selectedOfferId }: MapViewProps) {
+  const mapRef = React.useRef(null);
+  
+  const position: [number, number] = center ? [center.lat, center.lng] : [37.7749, -122.4194];
 
   return (
-    <div style={{ height: '100%', width: '100%' }}>
-      <Map
-        ref={mapRef}
-        defaultZoom={12}
-        defaultCenter={center}
-        center={center}
-        gestureHandling={'greedy'}
-        disableDefaultUI={true}
-        mapId={mapId}
-      >
-        {offers.map((offer) => (
-          <AdvancedMarker
-            key={offer.id}
-            position={{ lat: offer.latitude, lng: offer.longitude }}
-            onClick={() => onMarkerClick(offer)}
-            title={offer.title}
-          >
-            <Pin
-              background={'hsl(var(--primary))'}
-              borderColor={'hsl(var(--primary-foreground))'}
-              glyphColor={'hsl(var(--primary-foreground))'}
-              scale={selectedOfferId === offer.id ? 1.2 : 1}
-            >
-              {offer.isMemberOnly && <Star className="w-4 h-4" />}
-            </Pin>
-          </AdvancedMarker>
-        ))}
-      </Map>
-    </div>
+    <MapContainer center={position} zoom={13} style={{ height: '100%', width: '100%' }} ref={mapRef}>
+      <TileLayer
+        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+      />
+      {center && <ChangeView center={position} zoom={13} />}
+      {offers.map((offer) => (
+        <Marker
+          key={offer.id}
+          position={[offer.latitude, offer.longitude]}
+          eventHandlers={{
+            click: () => {
+              onMarkerClick(offer);
+            },
+          }}
+        >
+          <Popup>{offer.title}</Popup>
+        </Marker>
+      ))}
+    </MapContainer>
   );
 }
