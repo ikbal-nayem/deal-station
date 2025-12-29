@@ -3,6 +3,7 @@ import './globals.css';
 import { Toaster } from "@/components/ui/toaster"
 import { AuthProvider } from '@/context/AuthContext';
 import { ThemeProvider } from '@/components/ThemeProvider';
+import NextTopLoader from 'nextjs-toploader';
 
 export const metadata: Metadata = {
   title: 'LocalPerks',
@@ -30,6 +31,7 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <AuthProvider>
+            <NextTopLoader color="hsl(var(--primary))" showSpinner={false} />
             {children}
             <Toaster />
           </AuthProvider>
