@@ -98,6 +98,11 @@ export default function LoginPage() {
           </form>
         </CardContent>
         <CardFooter className="flex flex-col gap-4 text-center text-sm">
+           <p>
+            <Link href="/" className="text-sm text-muted-foreground hover:text-primary">
+              Back to Home
+            </Link>
+          </p>
           <p>
             Don't have an account?{' '}
             <Link href="/register" className="font-semibold text-primary hover:underline">

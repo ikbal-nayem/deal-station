@@ -65,10 +65,13 @@ export default function ForgotPasswordPage() {
             </Button>
           </form>
         </CardContent>
-        <CardContent className="mt-4 text-center text-sm">
+        <CardContent className="mt-4 text-center text-sm flex flex-col gap-4">
           <Link href="/login" className="font-semibold text-primary hover:underline">
             Back to Login
           </Link>
+           <Link href="/" className="text-sm text-muted-foreground hover:text-primary">
+              Back to Home
+            </Link>
         </CardContent>
       </Card>
     </div>

@@ -95,7 +95,12 @@ export default function RegisterPage() {
             </Button>
           </form>
         </CardContent>
-        <CardContent className="mt-4 text-center text-sm">
+        <CardContent className="mt-4 text-center text-sm flex flex-col gap-4">
+           <p>
+            <Link href="/" className="text-sm text-muted-foreground hover:text-primary">
+              Back to Home
+            </Link>
+          </p>
           <p>
             Already have an account?{' '}
             <Link href="/login" className="font-semibold text-primary hover:underline">
