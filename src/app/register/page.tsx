@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Button } from '@/components/ui/button';
@@ -15,6 +16,7 @@ import { UserPlus } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import Header from '@/components/layout/Header';
 
 export default function RegisterPage() {
   const [email, setEmail] = useState('');
@@ -41,74 +43,77 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="flex h-screen w-full items-center justify-center bg-background px-4">
-      <Card className="w-full max-w-sm">
-        <CardHeader className="text-center">
-          <CardTitle className="text-2xl font-bold font-headline">
-            <UserPlus className="inline-block mr-2" />
-            Create Account
-          </CardTitle>
-          <CardDescription>
-            Join LocalPerks to unlock exclusive deals.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleRegister} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="name">Name</Label>
-              <Input
-                id="name"
-                type="text"
-                placeholder="John Doe"
-                required
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                disabled={isLoading}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="m@example.com"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                disabled={isLoading}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
-              <Input
-                id="password"
-                type="password"
-                required
-                minLength={6}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                disabled={isLoading}
-              />
-            </div>
-            <Button type="submit" className="w-full" disabled={isLoading}>
-              {isLoading ? 'Creating Account...' : 'Register'}
-            </Button>
-          </form>
-        </CardContent>
-        <CardContent className="mt-4 text-center text-sm flex flex-col gap-4">
-           <p>
-            <Link href="/" className="text-sm text-muted-foreground hover:text-primary">
-              Back to Home
-            </Link>
-          </p>
-          <p>
-            Already have an account?{' '}
-            <Link href="/login" className="font-semibold text-primary hover:underline">
-              Login
-            </Link>
-          </p>
-        </CardContent>
-      </Card>
+    <div className="flex h-screen w-full flex-col bg-background">
+      <Header />
+      <div className="flex flex-1 items-center justify-center px-4">
+        <Card className="w-full max-w-sm">
+          <CardHeader className="text-center">
+            <CardTitle className="text-2xl font-bold font-headline">
+              <UserPlus className="inline-block mr-2" />
+              Create Account
+            </CardTitle>
+            <CardDescription>
+              Join LocalPerks to unlock exclusive deals.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleRegister} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="name">Name</Label>
+                <Input
+                  id="name"
+                  type="text"
+                  placeholder="John Doe"
+                  required
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  disabled={isLoading}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="email">Email</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder="m@example.com"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  disabled={isLoading}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="password">Password</Label>
+                <Input
+                  id="password"
+                  type="password"
+                  required
+                  minLength={6}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  disabled={isLoading}
+                />
+              </div>
+              <Button type="submit" className="w-full" disabled={isLoading}>
+                {isLoading ? 'Creating Account...' : 'Register'}
+              </Button>
+            </form>
+          </CardContent>
+          <CardContent className="mt-4 text-center text-sm flex flex-col gap-4">
+            <p>
+              <Link href="/" className="text-sm text-muted-foreground hover:text-primary">
+                Back to Home
+              </Link>
+            </p>
+            <p>
+              Already have an account?{' '}
+              <Link href="/login" className="font-semibold text-primary hover:underline">
+                Login
+              </Link>
+            </p>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }

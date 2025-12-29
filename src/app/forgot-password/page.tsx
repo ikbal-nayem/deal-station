@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Button } from '@/components/ui/button';
@@ -14,6 +15,7 @@ import { useToast } from '@/hooks/use-toast';
 import { KeyRound } from 'lucide-react';
 import Link from 'next/link';
 import { useState } from 'react';
+import Header from '@/components/layout/Header';
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState('');
@@ -35,45 +37,48 @@ export default function ForgotPasswordPage() {
   };
 
   return (
-    <div className="flex h-screen w-full items-center justify-center bg-background px-4">
-      <Card className="w-full max-w-sm">
-        <CardHeader className="text-center">
-          <CardTitle className="text-2xl font-bold font-headline">
-            <KeyRound className="inline-block mr-2" />
-            Forgot Password
-          </CardTitle>
-          <CardDescription>
-            Enter your email to receive a password reset link.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleReset} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="m@example.com"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                disabled={isLoading}
-              />
-            </div>
-            <Button type="submit" className="w-full" disabled={isLoading}>
-              {isLoading ? 'Sending...' : 'Send Reset Link'}
-            </Button>
-          </form>
-        </CardContent>
-        <CardContent className="mt-4 text-center text-sm flex flex-col gap-4">
-          <Link href="/login" className="font-semibold text-primary hover:underline">
-            Back to Login
-          </Link>
-           <Link href="/" className="text-sm text-muted-foreground hover:text-primary">
-              Back to Home
+    <div className="flex h-screen w-full flex-col bg-background">
+       <Header />
+       <div className="flex flex-1 items-center justify-center px-4">
+        <Card className="w-full max-w-sm">
+          <CardHeader className="text-center">
+            <CardTitle className="text-2xl font-bold font-headline">
+              <KeyRound className="inline-block mr-2" />
+              Forgot Password
+            </CardTitle>
+            <CardDescription>
+              Enter your email to receive a password reset link.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleReset} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="email">Email</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder="m@example.com"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  disabled={isLoading}
+                />
+              </div>
+              <Button type="submit" className="w-full" disabled={isLoading}>
+                {isLoading ? 'Sending...' : 'Send Reset Link'}
+              </Button>
+            </form>
+          </CardContent>
+          <CardContent className="mt-4 text-center text-sm flex flex-col gap-4">
+            <Link href="/login" className="font-semibold text-primary hover:underline">
+              Back to Login
             </Link>
-        </CardContent>
-      </Card>
+            <Link href="/" className="text-sm text-muted-foreground hover:text-primary">
+                Back to Home
+              </Link>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }
