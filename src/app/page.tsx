@@ -98,7 +98,7 @@ export default function LocalPerksPage() {
       <OfferDetailsSheet
         offer={selectedOffer}
         isOpen={isSheetOpen}
-        onOpenChange={onOpenChange}
+        onOpenChange={onSheetOpenChange}
       />
     </div>
   );
