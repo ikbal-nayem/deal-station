@@ -31,4 +31,7 @@ export type Organization = {
     name: string;
     ownerEmail: string;
     createdAt: string;
+    website?: string;
+    phone?: string;
+    address?: string;
 }

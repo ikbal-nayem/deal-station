@@ -13,6 +13,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import Link from 'next/link';
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 import { mockOrganizations as initialOrgs } from "@/lib/mock-organizations";
 import type { Organization } from "@/lib/types";
@@ -24,20 +25,35 @@ export default function OrganizationsPage() {
     const [isDialogOpen, setDialogOpen] = useState(false);
     const [currentOrg, setCurrentOrg] = useState<Organization | null>(null);
     
+    // Form state
     const [orgName, setOrgName] = useState('');
     const [orgUserEmail, setOrgUserEmail] = useState('');
+    const [orgWebsite, setOrgWebsite] = useState('');
+    const [orgPhone, setOrgPhone] = useState('');
+    const [orgAddress, setOrgAddress] = useState('');
+
+
+    const clearForm = () => {
+        setOrgName('');
+        setOrgUserEmail('');
+        setOrgWebsite('');
+        setOrgPhone('');
+        setOrgAddress('');
+        setCurrentOrg(null);
+    }
 
     const handleEditClick = (org: Organization) => {
         setCurrentOrg(org);
         setOrgName(org.name);
         setOrgUserEmail(org.ownerEmail);
+        setOrgWebsite(org.website || '');
+        setOrgPhone(org.phone || '');
+        setOrgAddress(org.address || '');
         setDialogOpen(true);
     };
 
     const handleAddNewClick = () => {
-        setCurrentOrg(null);
-        setOrgName('');
-        setOrgUserEmail('');
+        clearForm();
         setDialogOpen(true);
     };
     
@@ -54,7 +70,8 @@ export default function OrganizationsPage() {
         
         if (currentOrg) {
             // Update existing organization
-            setOrganizations(orgs => orgs.map(o => o.id === currentOrg.id ? { ...o, name: orgName, ownerEmail: orgUserEmail } : o));
+            const updatedOrg = { ...currentOrg, name: orgName, ownerEmail: orgUserEmail, website: orgWebsite, phone: orgPhone, address: orgAddress };
+            setOrganizations(orgs => orgs.map(o => o.id === currentOrg.id ? updatedOrg : o));
             toast({
                 title: "Organization Updated",
                 description: `${orgName} has been successfully updated.`,
@@ -66,6 +83,9 @@ export default function OrganizationsPage() {
                 name: orgName,
                 ownerEmail: orgUserEmail,
                 createdAt: new Date().toISOString(),
+                website: orgWebsite,
+                phone: orgPhone,
+                address: orgAddress,
             };
             setOrganizations(orgs => [newOrg, ...orgs]);
             toast({
@@ -75,9 +95,7 @@ export default function OrganizationsPage() {
         }
 
         setDialogOpen(false);
-        setOrgName('');
-        setOrgUserEmail('');
-        setCurrentOrg(null);
+        clearForm();
     };
 
     return (
@@ -91,13 +109,14 @@ export default function OrganizationsPage() {
                             Add Organization
                         </Button>
                     </DialogTrigger>
-                    <DialogContent className="sm:max-w-[425px]">
+                    <DialogContent className="sm:max-w-lg">
                         <DialogHeader>
                             <DialogTitle>{currentOrg ? 'Edit Organization' : 'Add New Organization'}</DialogTitle>
                             <DialogDescription>
                                 {currentOrg ? 'Update the details of the existing organization.' : 'Create a new organization and assign an initial user.'}
                             </DialogDescription>
                         </DialogHeader>
+                        <ScrollArea className="max-h-[70vh] pr-6">
                         <form onSubmit={handleFormSubmit} className="grid gap-4 py-4">
                             <div className="grid grid-cols-4 items-center gap-4">
                                 <Label htmlFor="orgName" className="text-right">Name</Label>
@@ -122,13 +141,45 @@ export default function OrganizationsPage() {
                                     required
                                 />
                             </div>
-                            <DialogFooter>
+                             <div className="grid grid-cols-4 items-center gap-4">
+                                <Label htmlFor="orgWebsite" className="text-right">Website</Label>
+                                <Input
+                                    id="orgWebsite"
+                                    value={orgWebsite}
+                                    onChange={(e) => setOrgWebsite(e.target.value)}
+                                    className="col-span-3"
+                                    placeholder="https://example.com"
+                                />
+                            </div>
+                             <div className="grid grid-cols-4 items-center gap-4">
+                                <Label htmlFor="orgPhone" className="text-right">Phone</Label>
+                                <Input
+                                    id="orgPhone"
+                                    value={orgPhone}
+                                    onChange={(e) => setOrgPhone(e.target.value)}
+                                    className="col-span-3"
+                                    placeholder="555-123-4567"
+                                />
+                            </div>
+                             <div className="grid grid-cols-4 items-center gap-4">
+                                <Label htmlFor="orgAddress" className="text-right">Address</Label>
+                                <Input
+                                    id="orgAddress"
+                                    value={orgAddress}
+                                    onChange={(e) => setOrgAddress(e.target.value)}
+                                    className="col-span-3"
+                                    placeholder="123 Main St, Anytown, USA"
+                                />
+                            </div>
+                           
+                            <DialogFooter className="mt-4">
                                 <DialogClose asChild>
                                     <Button type="button" variant="secondary">Cancel</Button>
                                 </DialogClose>
                                 <Button type="submit">{currentOrg ? 'Save Changes' : 'Create Organization'}</Button>
                             </DialogFooter>
                         </form>
+                        </ScrollArea>
                     </DialogContent>
                 </Dialog>
             </div>
@@ -143,8 +194,9 @@ export default function OrganizationsPage() {
                         <TableHeader>
                             <TableRow>
                                 <TableHead>Name</TableHead>
-                                <TableHead>Owner Email</TableHead>
-                                <TableHead>Created At</TableHead>
+                                <TableHead className="hidden md:table-cell">Owner Email</TableHead>
+                                <TableHead className="hidden lg:table-cell">Phone</TableHead>
+                                <TableHead className="hidden lg:table-cell">Created At</TableHead>
                                 <TableHead className="text-right">Actions</TableHead>
                             </TableRow>
                         </TableHeader>
@@ -152,8 +204,9 @@ export default function OrganizationsPage() {
                             {organizations.map((org) => (
                                 <TableRow key={org.id}>
                                     <TableCell className="font-medium">{org.name}</TableCell>
-                                    <TableCell>{org.ownerEmail}</TableCell>
-                                    <TableCell>{format(new Date(org.createdAt), "PPP")}</TableCell>
+                                    <TableCell className="hidden md:table-cell">{org.ownerEmail}</TableCell>
+                                    <TableCell className="hidden lg:table-cell">{org.phone}</TableCell>
+                                    <TableCell className="hidden lg:table-cell">{format(new Date(org.createdAt), "PPP")}</TableCell>
                                     <TableCell className="text-right">
                                         <DropdownMenu>
                                             <DropdownMenuTrigger asChild>
