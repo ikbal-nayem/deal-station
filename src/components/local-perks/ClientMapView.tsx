@@ -1,8 +1,8 @@
 'use client';
 
 import * as React from 'react';
-import type { Offer } from '@/lib/types';
 import MapView from './MapView';
+import type { Offer } from '@/lib/types';
 
 interface ClientMapViewProps {
   offers: Offer[];
@@ -11,17 +11,15 @@ interface ClientMapViewProps {
   selectedOfferId?: string;
 }
 
-function ClientMapView({ offers, onMarkerClick, center, selectedOfferId }: ClientMapViewProps) {
-  const Map = React.useMemo(() => (
+const ClientMapView = ({ offers, onMarkerClick, center, selectedOfferId }: ClientMapViewProps) => {
+  return (
       <MapView
           offers={offers}
           onMarkerClick={onMarkerClick}
           center={center}
           selectedOfferId={selectedOfferId}
       />
-  ), [offers, onMarkerClick, center, selectedOfferId]);
+  );
+};
 
-  return Map;
-}
-
-export default React.memo(ClientMapView);
+export default ClientMapView;
