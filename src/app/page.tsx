@@ -12,7 +12,7 @@ import { List, Map as MapIcon } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import dynamic from 'next/dynamic';
 
-const MapView = dynamic(() => import('@/components/local-perks/MapView'), {
+const ClientMapView = dynamic(() => import('@/components/local-perks/ClientMapView'), {
   ssr: false,
 });
 
@@ -91,7 +91,7 @@ export default function LocalPerksPage() {
         </div>
 
         <div className={cn('flex-1 h-full', view !== 'map' && 'hidden md:block')}>
-          <MapView offers={offers} onMarkerClick={handleMarkerClick} center={location} selectedOfferId={selectedOffer?.id} />
+          <ClientMapView offers={offers} onMarkerClick={handleMarkerClick} center={location} selectedOfferId={selectedOffer?.id} />
         </div>
       </main>
 
