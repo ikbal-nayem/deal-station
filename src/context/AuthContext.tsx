@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { type User } from '@/lib/types';
 import { mockUsers } from '@/lib/mock-users';
@@ -9,6 +9,7 @@ import { mockUsers } from '@/lib/mock-users';
 interface AuthContextType {
   isLoggedIn: boolean;
   user: User | null;
+  isLoading: boolean;
   login: (email: string, pass: string) => Promise<void>;
   logout: () => void;
 }
@@ -17,7 +18,22 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
+
+  useEffect(() => {
+    // Simulate checking for a logged-in user from a session
+    try {
+      const storedUser = sessionStorage.getItem('localperks-user');
+      if (storedUser) {
+        setUser(JSON.parse(storedUser));
+      }
+    } catch (error) {
+      console.error("Failed to parse user from session storage", error);
+      sessionStorage.removeItem('localperks-user');
+    }
+    setIsLoading(false);
+  }, []);
 
   const login = async (email: string, pass: string) => {
     console.log('Attempting login with:', email);
@@ -28,8 +44,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     );
 
     if (foundUser) {
-      setUser(foundUser);
-      router.push('/');
+      const { password, ...userToStore } = foundUser;
+      setUser(userToStore as User);
+      sessionStorage.setItem('localperks-user', JSON.stringify(userToStore));
+      
+      if (userToStore.role === 'Admin') {
+        router.push('/admin');
+      } else if (userToStore.role === 'Organization') {
+        router.push('/dashboard');
+      } else {
+        router.push('/');
+      }
+
     } else {
       throw new Error('Invalid credentials');
     }
@@ -37,10 +63,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = () => {
     setUser(null);
+    sessionStorage.removeItem('localperks-user');
     router.push('/login');
   };
 
-  const value = { isLoggedIn: !!user, user, login, logout };
+  const value = { isLoggedIn: !!user, user, isLoading, login, logout };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
