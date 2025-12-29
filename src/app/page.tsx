@@ -13,6 +13,7 @@ import { useToast } from '@/hooks/use-toast';
 import dynamic from 'next/dynamic';
 import { useAuth } from '@/context/AuthContext';
 import Link from 'next/link';
+import { ThemeToggle } from '@/components/ThemeToggle';
 
 const ClientMapView = dynamic(() => import('@/components/local-perks/ClientMapView'), {
   ssr: false,
@@ -92,6 +93,7 @@ export default function LocalPerksPage() {
       <header className="flex shrink-0 items-center justify-between border-b p-2">
         <h1 className="text-xl font-bold font-headline px-2">LocalPerks</h1>
         <div className="flex items-center gap-2">
+          <ThemeToggle />
           <div className="flex items-center gap-1 rounded-md bg-muted p-1 md:hidden">
             <Button
               variant={view === 'list' ? 'default' : 'ghost'}
