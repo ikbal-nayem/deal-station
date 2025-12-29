@@ -8,9 +8,11 @@ import { mockOffers } from '@/lib/mock-data';
 import { useLocation } from '@/hooks/use-location';
 import OfferList from '@/components/local-perks/OfferList';
 import OfferDetailsSheet from '@/components/local-perks/OfferDetailsSheet';
-import { List, Map as MapIcon } from 'lucide-react';
+import { List, LogIn, Map as MapIcon, UserPlus } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import dynamic from 'next/dynamic';
+import { useAuth } from '@/context/AuthContext';
+import Link from 'next/link';
 
 const ClientMapView = dynamic(() => import('@/components/local-perks/ClientMapView'), {
   ssr: false,
@@ -27,6 +29,8 @@ export default function LocalPerksPage() {
   const { toast } = useToast();
   const [categories, setCategories] = React.useState<string[]>([]);
   const [selectedCategory, setSelectedCategory] = React.useState<string>('All');
+  const { isLoggedIn, logout } = useAuth();
+  const router = useRouter();
 
   React.useEffect(() => {
     if (locationError) {
@@ -56,11 +60,19 @@ export default function LocalPerksPage() {
   }, [selectedCategory, allOffers]);
 
   const handleOfferClick = (offer: Offer) => {
+    if (offer.isMemberOnly && !isLoggedIn) {
+      router.push('/login');
+      return;
+    }
     setSelectedOffer(offer);
     setSheetOpen(true);
   };
 
   const handleMarkerClick = (offer: Offer) => {
+     if (offer.isMemberOnly && !isLoggedIn) {
+      router.push('/login');
+      return;
+    }
     setSelectedOffer(offer);
     setSheetOpen(true);
   }
@@ -77,25 +89,43 @@ export default function LocalPerksPage() {
 
   return (
     <div className="flex h-screen w-full flex-col bg-background text-foreground">
-      <header className="flex shrink-0 items-center justify-between border-b p-2 md:hidden">
+      <header className="flex shrink-0 items-center justify-between border-b p-2">
         <h1 className="text-xl font-bold font-headline px-2">LocalPerks</h1>
-        <div className="flex items-center gap-1 rounded-md bg-muted p-1">
-          <Button
-            variant={view === 'list' ? 'default' : 'ghost'}
-            size="sm"
-            onClick={() => setView('list')}
-            className="h-8 px-3"
-          >
-            <List className="h-4 w-4" />
-          </Button>
-          <Button
-            variant={view === 'map' ? 'default' : 'ghost'}
-            size="sm"
-            onClick={() => setView('map')}
-            className="h-8 px-3"
-          >
-            <MapIcon className="h-4 w-4" />
-          </Button>
+        <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1 rounded-md bg-muted p-1 md:hidden">
+            <Button
+              variant={view === 'list' ? 'default' : 'ghost'}
+              size="sm"
+              onClick={() => setView('list')}
+              className="h-8 px-3"
+            >
+              <List className="h-4 w-4" />
+            </Button>
+            <Button
+              variant={view === 'map' ? 'default' : 'ghost'}
+              size="sm"
+              onClick={() => setView('map')}
+              className="h-8 px-3"
+            >
+              <MapIcon className="h-4 w-4" />
+            </Button>
+          </div>
+          {isLoggedIn ? (
+            <Button variant="outline" onClick={logout}>Logout</Button>
+          ) : (
+            <div className="flex items-center gap-2">
+              <Button asChild variant="ghost" size="sm">
+                <Link href="/login">
+                  <LogIn className="mr-2 h-4 w-4" /> Login
+                </Link>
+              </Button>
+              <Button asChild size="sm">
+                <Link href="/register">
+                  <UserPlus className="mr-2 h-4 w-4" /> Register
+                </Link>
+              </Button>
+            </div>
+          )}
         </div>
       </header>
 
@@ -123,3 +153,5 @@ export default function LocalPerksPage() {
     </div>
   );
 }
+
+import { useRouter } from 'next/navigation';

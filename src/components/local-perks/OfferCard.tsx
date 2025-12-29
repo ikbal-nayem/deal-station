@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import Image from 'next/image';
-import { Star, MapPin } from 'lucide-react';
+import { Star, MapPin, Lock } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -17,6 +17,8 @@ import { Badge } from '@/components/ui/badge';
 
 import type { Offer } from '@/lib/types';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
+import { useAuth } from '@/context/AuthContext';
+import { useRouter } from 'next/navigation';
 
 interface OfferCardProps {
   offer: Offer;
@@ -24,16 +26,24 @@ interface OfferCardProps {
 }
 
 export default function OfferCard({ offer, onOfferClick }: OfferCardProps) {
-  // Simulate authentication state. In a real app, this would come from a context or auth hook.
-  const isLoggedIn = false;
+  const { isLoggedIn } = useAuth();
+  const router = useRouter();
   const showLoginOverlay = offer.isMemberOnly && !isLoggedIn;
 
   const placeholderImage = PlaceHolderImages[0];
 
+  const handleCardClick = () => {
+    if (showLoginOverlay) {
+        router.push('/login');
+    } else {
+        onOfferClick(offer);
+    }
+  }
+
   return (
     <Card
       className="relative overflow-hidden hover:shadow-lg transition-shadow duration-300 cursor-pointer w-full"
-      onClick={() => onOfferClick(offer)}
+      onClick={handleCardClick}
       role="button"
       aria-label={`View details for ${offer.title}`}
     >
@@ -80,10 +90,10 @@ export default function OfferCard({ offer, onOfferClick }: OfferCardProps) {
       {showLoginOverlay && (
         <div className="absolute inset-0 bg-background/80 dark:bg-background/60 backdrop-blur-sm flex flex-col items-center justify-center p-4 text-center">
             <div className="p-4 bg-card rounded-lg shadow-xl">
-                <Star className="w-8 h-8 mx-auto text-accent mb-2" />
+                <Lock className="w-8 h-8 mx-auto text-accent mb-2" />
                 <h3 className="font-bold font-headline text-lg text-foreground">Member Exclusive</h3>
-                <p className="text-muted-foreground text-sm mb-4">This is a special offer for our members.</p>
-                <Button onClick={(e) => { e.stopPropagation(); alert("Redirecting to login..."); }}>
+                <p className="text-muted-foreground text-sm mb-4">Login to unlock this special offer.</p>
+                <Button onClick={(e) => { e.stopPropagation(); router.push('/login'); }}>
                     Login to View
                 </Button>
             </div>
