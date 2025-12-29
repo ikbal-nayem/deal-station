@@ -32,17 +32,16 @@ export default function LoginPage() {
     e.preventDefault();
     setIsLoading(true);
     try {
-      // This is where you would integrate with your actual backend
       await login(email, password);
       toast({
         title: 'Login Successful',
-        description: "Welcome back!",
+        description: 'Welcome back!',
       });
-      // The router.push('/') is handled inside the login function upon success
-    } catch (error) {
+      // The router.push is handled inside the AuthContext's login function
+    } catch (error: any) {
       toast({
         title: 'Login Failed',
-        description: 'Please check your email and password.',
+        description: error.message || 'Please check your email and password.',
         variant: 'destructive',
       });
       setIsLoading(false);
@@ -60,7 +59,7 @@ export default function LoginPage() {
               Login
             </CardTitle>
             <CardDescription>
-              Enter your credentials to access your account.
+              Use 'user@example.com', 'admin@example.com', or 'org@example.com' with password 'password'.
             </CardDescription>
           </CardHeader>
           <CardContent>
