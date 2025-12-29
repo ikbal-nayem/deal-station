@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import Map, { Marker, Popup } from 'react-map-gl';
+import Map, { Marker, Popup } from 'react-map-gl/maplibre';
 import type { Offer } from '@/lib/types';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { MapPin } from 'lucide-react';
