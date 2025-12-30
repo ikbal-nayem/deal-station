@@ -11,6 +11,7 @@ import Header from '@/components/layout/Header';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { usePathname } from 'next/navigation';
 import Logo from '@/components/layout/Logo';
+import SplashScreen from '@/components/layout/SplashScreen';
 
 export default function AdminLayout({ children }: { children: ReactNode }) {
   const { user, isLoggedIn, isLoading } = useAuth();
@@ -31,11 +32,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
   }, [isLoggedIn, user, router, isLoading]);
 
   if (isLoading || !isLoggedIn || user?.role !== 'Admin') {
-    return (
-        <div className="flex h-screen w-full items-center justify-center">
-            <div className="text-xl">Loading...</div>
-        </div>
-    );
+    return <SplashScreen />;
   }
 
   return (

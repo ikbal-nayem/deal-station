@@ -8,6 +8,7 @@ import { SidebarProvider, Sidebar, SidebarContent, SidebarHeader, SidebarMenu, S
 import Link from 'next/link';
 import { LayoutDashboard, ShoppingBag, GitBranchPlus, Building } from 'lucide-react';
 import Header from '@/components/layout/Header';
+import SplashScreen from '@/components/layout/SplashScreen';
 
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {
@@ -21,11 +22,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
   }, [isLoggedIn, user, router, isLoading]);
 
   if (isLoading || !isLoggedIn || user?.role !== 'Organization') {
-     return (
-        <div className="flex h-screen w-full items-center justify-center">
-            <div className="text-xl">Loading...</div>
-        </div>
-    );
+     return <SplashScreen />;
   }
 
   return (

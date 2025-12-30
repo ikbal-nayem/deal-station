@@ -6,6 +6,7 @@ import Header from "@/components/layout/Header";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
+import SplashScreen from "@/components/layout/SplashScreen";
 
 export default function SettingsLayout({ children }: { children: ReactNode }) {
     const { isLoggedIn, isLoading } = useAuth();
@@ -18,11 +19,7 @@ export default function SettingsLayout({ children }: { children: ReactNode }) {
     }, [isLoggedIn, router, isLoading]);
 
     if (isLoading || !isLoggedIn) {
-        return (
-            <div className="flex h-screen w-full items-center justify-center">
-                <div className="text-xl">Loading...</div>
-            </div>
-        );
+        return <SplashScreen />;
     }
 
     return (
