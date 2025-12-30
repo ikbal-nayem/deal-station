@@ -8,7 +8,7 @@ import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogTrigger, DialogClose, DialogDescription as FormDialogDescription } from "@/components/ui/dialog";
-import { Form, FormField, FormLabel, FormControl, FormMessage, FormDescription, FormItem } from "@/components/ui/form";
+import { Form, FormField, FormLabel, FormControl, FormMessage, FormItem } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
 import { PlusCircle, MoreHorizontal, Edit, Trash2, Tag, Star } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
@@ -25,6 +25,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { FormSelect } from "@/components/ui/form-select";
 import { FormTextarea } from "@/components/ui/form-textarea";
+import { FormSwitch } from "@/components/ui/form-switch";
 
 const offerFormSchema = z.object({
   title: z.string().min(3, "Title must be at least 3 characters."),
@@ -186,7 +187,7 @@ export default function AdminOffersPage() {
                                         required
                                     />
 
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
                                         <FormSelect
                                             control={form.control}
                                             name="categoryId"
@@ -196,25 +197,11 @@ export default function AdminOffersPage() {
                                         >
                                             {mockCategories.map(cat => (<SelectItem key={cat.id} value={cat.id}>{cat.name}</SelectItem>))}
                                         </FormSelect>
-                                        <FormField
+                                        <FormSwitch
                                             control={form.control}
                                             name="isMemberOnly"
-                                            render={({ field }) => (
-                                                <FormItem className="flex flex-row items-end space-x-3 rounded-md border p-3">
-                                                <FormControl>
-                                                    <Checkbox
-                                                        checked={field.value}
-                                                        onCheckedChange={field.onChange}
-                                                    />
-                                                </FormControl>
-                                                <div className="space-y-1 leading-none">
-                                                    <FormLabel>Member Only</FormLabel>
-                                                    <FormDescription>
-                                                    Is this offer exclusive to members?
-                                                    </FormDescription>
-                                                </div>
-                                                </FormItem>
-                                            )}
+                                            label="Member Only"
+                                            description="Is this offer exclusive to members?"
                                         />
                                     </div>
 
