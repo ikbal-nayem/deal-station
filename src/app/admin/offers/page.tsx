@@ -7,8 +7,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogTrigger, DialogClose, DialogDescription } from "@/components/ui/dialog";
-import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogTrigger, DialogClose, DialogDescription as FormDialogDescription } from "@/components/ui/dialog";
+import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage, FormDescription } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
 import { PlusCircle, MoreHorizontal, Edit, Trash2, Tag, Star } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
@@ -149,7 +149,7 @@ export default function AdminOffersPage() {
                             <form onSubmit={form.handleSubmit(handleFormSubmit)} className="space-y-4">
                                 <DialogHeader>
                                     <DialogTitle>{currentOffer ? 'Edit Offer' : 'Add New Offer'}</DialogTitle>
-                                    <DialogDescription>Fill out the form below to create or update an offer.</DialogDescription>
+                                    <FormDialogDescription>Fill out the form below to create or update an offer.</FormDialogDescription>
                                 </DialogHeader>
 
                                 <ScrollArea className="max-h-[70vh] -mr-6 pr-6">
