@@ -92,12 +92,12 @@
 
 @layer utilities {
   @keyframes wave {
-    0%, 100% {
-      transform: scale(1);
-      opacity: 1;
+    0% {
+      transform: scale(0);
+      opacity: 0.8;
     }
-    50% {
-      transform: scale(2.5);
+    100% {
+      transform: scale(3);
       opacity: 0;
     }
   }
@@ -112,8 +112,8 @@
     content: '';
     position: absolute;
     border-radius: 50%;
-    background-color: hsl(var(--primary) / 0.3);
-    animation: wave 2s infinite;
+    background-color: hsl(var(--primary) / 0.4);
+    animation: wave 2.5s infinite cubic-bezier(0.1, 0.7, 0.4, 1);
   }
   .animate-wave::before {
     width: 2rem;
@@ -122,6 +122,6 @@
   .animate-wave::after {
     width: 2rem;
     height: 2rem;
-    animation-delay: -1s;
+    animation-delay: -1.25s;
   }
 }
