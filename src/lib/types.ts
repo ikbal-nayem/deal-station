@@ -34,4 +34,7 @@ export type Organization = {
     website?: string;
     phone?: string;
     address?: string;
+    logoUrl?: string;
 }
+
+    

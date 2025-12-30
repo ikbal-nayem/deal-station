@@ -1,12 +1,16 @@
 
 'use client';
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogTrigger, DialogClose } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
 import { PlusCircle, MoreHorizontal, Edit, Trash2, Eye } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -14,46 +18,66 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel,
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import Link from 'next/link';
 import { ScrollArea } from "@/components/ui/scroll-area";
+import Image from 'next/image';
 
 import { mockOrganizations as initialOrgs } from "@/lib/mock-organizations";
 import type { Organization } from "@/lib/types";
 import { format } from "date-fns";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+
+
+const orgFormSchema = z.object({
+  name: z.string().min(2, { message: "Organization name must be at least 2 characters." }),
+  ownerEmail: z.string().email({ message: "Please enter a valid email address." }),
+  website: z.string().url({ message: "Please enter a valid URL." }).optional().or(z.literal('')),
+  phone: z.string().optional(),
+  address: z.string().optional(),
+  logoUrl: z.string().url({ message: "Please enter a valid image URL." }).optional().or(z.literal('')),
+});
+
+type OrgFormValues = z.infer<typeof orgFormSchema>;
 
 export default function OrganizationsPage() {
     const { toast } = useToast();
     const [organizations, setOrganizations] = useState<Organization[]>(initialOrgs);
     const [isDialogOpen, setDialogOpen] = useState(false);
-    const [currentOrg, setCurrentOrg] = useState<Organization | null>(null);
+    const [currentOrgId, setCurrentOrgId] = useState<string | null>(null);
     
-    // Form state
-    const [orgName, setOrgName] = useState('');
-    const [orgUserEmail, setOrgUserEmail] = useState('');
-    const [orgWebsite, setOrgWebsite] = useState('');
-    const [orgPhone, setOrgPhone] = useState('');
-    const [orgAddress, setOrgAddress] = useState('');
+    const form = useForm<OrgFormValues>({
+        resolver: zodResolver(orgFormSchema),
+        defaultValues: {
+            name: '',
+            ownerEmail: '',
+            website: '',
+            phone: '',
+            address: '',
+            logoUrl: '',
+        }
+    });
 
-
-    const clearForm = () => {
-        setOrgName('');
-        setOrgUserEmail('');
-        setOrgWebsite('');
-        setOrgPhone('');
-        setOrgAddress('');
-        setCurrentOrg(null);
-    }
+    useEffect(() => {
+        if (!isDialogOpen) {
+            form.reset();
+            setCurrentOrgId(null);
+        }
+    }, [isDialogOpen, form]);
 
     const handleEditClick = (org: Organization) => {
-        setCurrentOrg(org);
-        setOrgName(org.name);
-        setOrgUserEmail(org.ownerEmail);
-        setOrgWebsite(org.website || '');
-        setOrgPhone(org.phone || '');
-        setOrgAddress(org.address || '');
+        setCurrentOrgId(org.id);
+        form.reset({
+            name: org.name,
+            ownerEmail: org.ownerEmail,
+            website: org.website || '',
+            phone: org.phone || '',
+            address: org.address || '',
+            logoUrl: org.logoUrl || '',
+        });
         setDialogOpen(true);
     };
 
     const handleAddNewClick = () => {
-        clearForm();
+        setCurrentOrgId(null);
+        form.reset();
         setDialogOpen(true);
     };
     
@@ -65,37 +89,30 @@ export default function OrganizationsPage() {
         })
     };
 
-    const handleFormSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-        
-        if (currentOrg) {
+    const handleFormSubmit = (values: OrgFormValues) => {
+        if (currentOrgId) {
             // Update existing organization
-            const updatedOrg = { ...currentOrg, name: orgName, ownerEmail: orgUserEmail, website: orgWebsite, phone: orgPhone, address: orgAddress };
-            setOrganizations(orgs => orgs.map(o => o.id === currentOrg.id ? updatedOrg : o));
+            const updatedOrg = { ...values, id: currentOrgId, createdAt: organizations.find(o=>o.id === currentOrgId)!.createdAt };
+            setOrganizations(orgs => orgs.map(o => o.id === currentOrgId ? updatedOrg : o));
             toast({
                 title: "Organization Updated",
-                description: `${orgName} has been successfully updated.`,
+                description: `${values.name} has been successfully updated.`,
             });
         } else {
             // Add new organization
             const newOrg: Organization = {
                 id: `org-${Date.now()}`,
-                name: orgName,
-                ownerEmail: orgUserEmail,
                 createdAt: new Date().toISOString(),
-                website: orgWebsite,
-                phone: orgPhone,
-                address: orgAddress,
+                ...values,
             };
             setOrganizations(orgs => [newOrg, ...orgs]);
             toast({
                 title: "Organization Added",
-                description: `${orgName} has been created.`,
+                description: `${values.name} has been created.`,
             });
         }
 
         setDialogOpen(false);
-        clearForm();
     };
 
     return (
@@ -110,76 +127,104 @@ export default function OrganizationsPage() {
                         </Button>
                     </DialogTrigger>
                     <DialogContent className="sm:max-w-lg">
-                        <DialogHeader>
-                            <DialogTitle>{currentOrg ? 'Edit Organization' : 'Add New Organization'}</DialogTitle>
-                            <DialogDescription>
-                                {currentOrg ? 'Update the details of the existing organization.' : 'Create a new organization and assign an initial user.'}
-                            </DialogDescription>
-                        </DialogHeader>
-                        <ScrollArea className="max-h-[70vh] pr-6">
-                        <form onSubmit={handleFormSubmit} className="grid gap-4 py-4">
-                            <div className="grid grid-cols-4 items-center gap-4">
-                                <Label htmlFor="orgName" className="text-right">Name</Label>
-                                <Input 
-                                    id="orgName"
-                                    value={orgName}
-                                    onChange={(e) => setOrgName(e.target.value)}
-                                    className="col-span-3"
-                                    placeholder="e.g., The Daily Grind"
-                                    required
-                                />
-                            </div>
-                            <div className="grid grid-cols-4 items-center gap-4">
-                                <Label htmlFor="orgUserEmail" className="text-right">Owner Email</Label>
-                                <Input
-                                    id="orgUserEmail"
-                                    type="email"
-                                    value={orgUserEmail}
-                                    onChange={(e) => setOrgUserEmail(e.target.value)}
-                                    className="col-span-3"
-                                    placeholder="user@organization.com"
-                                    required
-                                />
-                            </div>
-                             <div className="grid grid-cols-4 items-center gap-4">
-                                <Label htmlFor="orgWebsite" className="text-right">Website</Label>
-                                <Input
-                                    id="orgWebsite"
-                                    value={orgWebsite}
-                                    onChange={(e) => setOrgWebsite(e.target.value)}
-                                    className="col-span-3"
-                                    placeholder="https://example.com"
-                                />
-                            </div>
-                             <div className="grid grid-cols-4 items-center gap-4">
-                                <Label htmlFor="orgPhone" className="text-right">Phone</Label>
-                                <Input
-                                    id="orgPhone"
-                                    value={orgPhone}
-                                    onChange={(e) => setOrgPhone(e.target.value)}
-                                    className="col-span-3"
-                                    placeholder="555-123-4567"
-                                />
-                            </div>
-                             <div className="grid grid-cols-4 items-center gap-4">
-                                <Label htmlFor="orgAddress" className="text-right">Address</Label>
-                                <Input
-                                    id="orgAddress"
-                                    value={orgAddress}
-                                    onChange={(e) => setOrgAddress(e.target.value)}
-                                    className="col-span-3"
-                                    placeholder="123 Main St, Anytown, USA"
-                                />
-                            </div>
-                           
-                            <DialogFooter className="mt-4">
-                                <DialogClose asChild>
-                                    <Button type="button" variant="secondary">Cancel</Button>
-                                </DialogClose>
-                                <Button type="submit">{currentOrg ? 'Save Changes' : 'Create Organization'}</Button>
-                            </DialogFooter>
-                        </form>
-                        </ScrollArea>
+                         <Form {...form}>
+                            <form onSubmit={form.handleSubmit(handleFormSubmit)}>
+                                <DialogHeader>
+                                    <DialogTitle>{currentOrgId ? 'Edit Organization' : 'Add New Organization'}</DialogTitle>
+                                    <DialogDescription>
+                                        {currentOrgId ? 'Update the details of the existing organization.' : 'Create a new organization and assign an initial user.'}
+                                    </DialogDescription>
+                                </DialogHeader>
+                                <ScrollArea className="max-h-[70vh] pr-6">
+                                <div className="grid gap-4 py-4">
+                                     <FormField
+                                        control={form.control}
+                                        name="name"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel>Name</FormLabel>
+                                                <FormControl>
+                                                    <Input placeholder="e.g., The Daily Grind" {...field} />
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                    <FormField
+                                        control={form.control}
+                                        name="ownerEmail"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel>Owner Email</FormLabel>
+                                                <FormControl>
+                                                    <Input type="email" placeholder="user@organization.com" {...field} />
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                     <FormField
+                                        control={form.control}
+                                        name="logoUrl"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel>Logo URL</FormLabel>
+                                                <FormControl>
+                                                    <Input placeholder="https://example.com/logo.png" {...field} />
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                    <FormField
+                                        control={form.control}
+                                        name="website"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel>Website</FormLabel>
+                                                <FormControl>
+                                                    <Input placeholder="https://example.com" {...field} />
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                    <FormField
+                                        control={form.control}
+                                        name="phone"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel>Phone</FormLabel>
+                                                <FormControl>
+                                                    <Input placeholder="555-123-4567" {...field} />
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                    <FormField
+                                        control={form.control}
+                                        name="address"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel>Address</FormLabel>
+                                                <FormControl>
+                                                    <Input placeholder="123 Main St, Anytown, USA" {...field} />
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                </div>
+                                </ScrollArea>
+                                <DialogFooter className="mt-4">
+                                    <DialogClose asChild>
+                                        <Button type="button" variant="secondary">Cancel</Button>
+                                    </DialogClose>
+                                    <Button type="submit">{currentOrgId ? 'Save Changes' : 'Create Organization'}</Button>
+                                </DialogFooter>
+                            </form>
+                        </Form>
                     </DialogContent>
                 </Dialog>
             </div>
@@ -203,7 +248,15 @@ export default function OrganizationsPage() {
                         <TableBody>
                             {organizations.map((org) => (
                                 <TableRow key={org.id}>
-                                    <TableCell className="font-medium">{org.name}</TableCell>
+                                    <TableCell className="font-medium">
+                                        <div className="flex items-center gap-3">
+                                            <Avatar>
+                                                <AvatarImage src={org.logoUrl} alt={org.name} />
+                                                <AvatarFallback>{org.name.charAt(0)}</AvatarFallback>
+                                            </Avatar>
+                                            <span>{org.name}</span>
+                                        </div>
+                                    </TableCell>
                                     <TableCell className="hidden md:table-cell">{org.ownerEmail}</TableCell>
                                     <TableCell className="hidden lg:table-cell">{org.phone}</TableCell>
                                     <TableCell className="hidden lg:table-cell">{format(new Date(org.createdAt), "PPP")}</TableCell>
@@ -262,3 +315,5 @@ export default function OrganizationsPage() {
         </div>
     );
 }
+
+    

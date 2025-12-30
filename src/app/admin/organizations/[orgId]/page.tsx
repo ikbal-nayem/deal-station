@@ -4,7 +4,7 @@
 import { useParams } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { ChevronLeft, UserPlus, Trash2, Globe, Phone, Mail, Building } from 'lucide-react';
+import { ChevronLeft, UserPlus, Trash2, Globe, Phone, Mail, Building, GitBranchPlus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -19,6 +19,8 @@ import { mockOffers } from '@/lib/mock-data';
 import type { Organization, User, Offer } from '@/lib/types';
 import { format } from 'date-fns';
 import { Separator } from '@/components/ui/separator';
+import Image from 'next/image';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 export default function OrganizationDetailPage() {
     const params = useParams();
@@ -99,8 +101,16 @@ export default function OrganizationDetailPage() {
                         Back to Organizations
                     </Link>
                 </Button>
-                <h1 className="text-3xl font-bold">{organization.name}</h1>
-                <p className="text-muted-foreground">Detailed view and management portal.</p>
+                <div className="flex items-center gap-4">
+                    <Avatar className="h-16 w-16">
+                        <AvatarImage src={organization.logoUrl} alt={organization.name} />
+                        <AvatarFallback>{organization.name.charAt(0)}</AvatarFallback>
+                    </Avatar>
+                    <div>
+                        <h1 className="text-3xl font-bold">{organization.name}</h1>
+                        <p className="text-muted-foreground">Detailed view and management portal.</p>
+                    </div>
+                </div>
             </div>
 
             <div className="grid gap-6 lg:grid-cols-3">
@@ -130,6 +140,18 @@ export default function OrganizationDetailPage() {
                              <p className="text-xs text-muted-foreground">
                                 Joined on {format(new Date(organization.createdAt), 'PPP')}
                              </p>
+                        </CardContent>
+                    </Card>
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>Branch Management</CardTitle>
+                            <CardDescription>Manage the organization's locations.</CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                            <Button className="w-full">
+                                <GitBranchPlus className="mr-2 h-4 w-4" />
+                                Manage Branches
+                            </Button>
                         </CardContent>
                     </Card>
                 </div>
@@ -247,3 +269,5 @@ export default function OrganizationDetailPage() {
         </div>
     );
 }
+
+    
