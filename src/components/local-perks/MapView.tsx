@@ -59,6 +59,11 @@ export default function MapView({ offers, onMarkerClick, center, selectedOfferId
       style={{ width: '100%', height: '100%' }}
       mapStyle="https://basemaps.cartocdn.com/gl/voyager-gl-style/style.json"
     >
+      {center && (
+        <Marker longitude={center.lng} latitude={center.lat}>
+           <div className="w-4 h-4 rounded-full bg-blue-500 border-2 border-white shadow-md" title="Your Location"></div>
+        </Marker>
+      )}
       {markers}
 
       {popupInfo && (
