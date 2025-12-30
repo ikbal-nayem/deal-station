@@ -4,22 +4,41 @@
 import { useParams } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { ChevronLeft, UserPlus, Trash2, Globe, Phone, Mail, Building, GitBranchPlus } from 'lucide-react';
+import { ChevronLeft, UserPlus, Trash2, Globe, Phone, Mail, Building, GitBranchPlus, Edit, MoreHorizontal, PlusCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Label } from '@/components/ui/label';
-import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogTrigger, DialogClose } from "@/components/ui/dialog";
+import { Form } from "@/components/ui/form";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 
 import { mockOrganizations } from '@/lib/mock-organizations';
 import { mockUsers as initialUsers } from '@/lib/mock-users';
 import { mockOffers } from '@/lib/mock-data';
-import type { Organization, User, Offer } from '@/lib/types';
+import type { Organization, User, Offer, Branch } from '@/lib/types';
 import { format } from 'date-fns';
 import { Separator } from '@/components/ui/separator';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { FormInput } from '@/components/ui/form-input';
+
+const userFormSchema = z.object({
+  firstName: z.string().min(2, "First name is required"),
+  lastName: z.string().min(2, "Last name is required"),
+  email: z.string().email("Invalid email address"),
+  phone: z.string().optional(),
+});
+type UserFormValues = z.infer<typeof userFormSchema>;
+
+const branchFormSchema = z.object({
+  name: z.string().min(2, "Branch name is required"),
+  address: z.string().min(5, "Address is required"),
+});
+type BranchFormValues = z.infer<typeof branchFormSchema>;
 
 export default function OrganizationDetailPage() {
     const params = useParams();
@@ -29,10 +48,15 @@ export default function OrganizationDetailPage() {
     const [organization, setOrganization] = useState<Organization | null>(null);
     const [users, setUsers] = useState<User[]>([]);
     const [offers, setOffers] = useState<Offer[]>([]);
+    const [branches, setBranches] = useState<Branch[]>([]);
 
-    const [newUserEmail, setNewUserEmail] = useState('');
-    const [newUserFirstName, setNewUserFirstName] = useState('');
-    const [newUserLastName, setNewUserLastName] = useState('');
+    const [isUserDialogOpen, setUserDialogOpen] = useState(false);
+    const [currentUser, setCurrentUser] = useState<User | null>(null);
+    const [isBranchDialogOpen, setBranchDialogOpen] = useState(false);
+    const [currentBranch, setCurrentBranch] = useState<Branch | null>(null);
+
+    const userForm = useForm<UserFormValues>({ resolver: zodResolver(userFormSchema) });
+    const branchForm = useForm<BranchFormValues>({ resolver: zodResolver(branchFormSchema) });
 
     useEffect(() => {
         const foundOrg = mockOrganizations.find(o => o.id === orgId);
@@ -40,58 +64,77 @@ export default function OrganizationDetailPage() {
             setOrganization(foundOrg);
             setUsers(initialUsers.filter(u => u.organizationId === orgId));
             setOffers(mockOffers.filter(o => o.organizationId === orgId));
+            // Mock branches for the org
+            setBranches([
+                { id: 'branch-1', name: `${foundOrg.name} - Main`, address: foundOrg.address || '123 Main St', organizationId: orgId },
+                { id: 'branch-2', name: `${foundOrg.name} - Downtown`, address: '456 Downtown Ave', organizationId: orgId },
+            ]);
         }
     }, [orgId]);
 
-    const handleAddUser = (e: React.FormEvent) => {
-        e.preventDefault();
-        if (!organization) return;
-        
-        const newUser: User = {
-            id: `user-${Date.now()}`,
-            firstName: newUserFirstName,
-            lastName: newUserLastName,
-            email: newUserEmail,
-            role: 'Organization',
-            organizationId: organization.id,
-        };
+    // User handlers
+    const handleAddNewUser = () => {
+        setCurrentUser(null);
+        userForm.reset({ firstName: '', lastName: '', email: '', phone: '' });
+        setUserDialogOpen(true);
+    };
 
-        setUsers(currentUsers => [...currentUsers, newUser]);
-        toast({
-            title: "User Added",
-            description: `${newUserFirstName} ${newUserLastName} has been added to ${organization.name}.`,
-        });
-        setNewUserFirstName('');
-        setNewUserLastName('');
-        setNewUserEmail('');
+    const handleEditUser = (user: User) => {
+        setCurrentUser(user);
+        userForm.reset({ firstName: user.firstName, lastName: user.lastName, email: user.email, phone: user.phone || '' });
+        setUserDialogOpen(true);
+    };
+
+    const handleUserFormSubmit = (values: UserFormValues) => {
+        if (currentUser) {
+            setUsers(users.map(u => u.id === currentUser.id ? { ...u, ...values } : u));
+            toast({ title: "User Updated", description: "The user's details have been updated." });
+        } else {
+            const newUser: User = { id: `user-${Date.now()}`, ...values, role: 'Organization', organizationId: orgId };
+            setUsers([newUser, ...users]);
+            toast({ title: "User Added", description: `${values.firstName} has been added.` });
+        }
+        setUserDialogOpen(false);
     };
 
     const handleRemoveUser = (userId: string) => {
-        const userToRemove = users.find(u => u.id === userId);
-        if (!userToRemove) return;
-
-        setUsers(currentUsers => currentUsers.filter(u => u.id !== userId));
-        toast({
-            title: "User Removed",
-            description: `${userToRemove.firstName} ${userToRemove.lastName} has been removed from the organization.`,
-        });
+        setUsers(users.filter(u => u.id !== userId));
+        toast({ title: "User Removed", description: "The user has been removed." });
     };
 
+    // Branch handlers
+    const handleAddNewBranch = () => {
+        setCurrentBranch(null);
+        branchForm.reset({ name: '', address: '' });
+        setBranchDialogOpen(true);
+    };
+
+    const handleEditBranch = (branch: Branch) => {
+        setCurrentBranch(branch);
+        branchForm.reset({ name: branch.name, address: branch.address });
+        setBranchDialogOpen(true);
+    };
+
+    const handleBranchFormSubmit = (values: BranchFormValues) => {
+        if (currentBranch) {
+            setBranches(branches.map(b => b.id === currentBranch.id ? { ...b, ...values } : b));
+            toast({ title: "Branch Updated", description: "The branch has been updated." });
+        } else {
+            const newBranch: Branch = { id: `branch-${Date.now()}`, ...values, organizationId: orgId };
+            setBranches([newBranch, ...branches]);
+            toast({ title: "Branch Added", description: `${values.name} has been added.` });
+        }
+        setBranchDialogOpen(false);
+    };
+
+    const handleRemoveBranch = (branchId: string) => {
+        setBranches(branches.filter(b => b.id !== branchId));
+        toast({ title: "Branch Removed", description: "The branch has been removed." });
+    };
+
+
     if (!organization) {
-        return (
-            <div className="p-6">
-                <Link href="/admin/organizations" className="flex items-center text-sm text-muted-foreground hover:underline mb-4">
-                    <ChevronLeft className="mr-2 h-4 w-4" />
-                    Back to Organizations
-                </Link>
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Organization Not Found</CardTitle>
-                        <CardDescription>The organization you are looking for does not exist or could not be loaded.</CardDescription>
-                    </CardHeader>
-                </Card>
-            </div>
-        );
+        return <div className="p-6 text-center">Loading organization details...</div>;
     }
 
     return (
@@ -144,106 +187,118 @@ export default function OrganizationDetailPage() {
                              </p>
                         </CardContent>
                     </Card>
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>Branch Management</CardTitle>
-                            <CardDescription>Manage the organization's locations.</CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                            <Button className="w-full">
-                                <GitBranchPlus />
-                                Manage Branches
-                            </Button>
-                        </CardContent>
-                    </Card>
                 </div>
                  <div className="lg:col-span-2 flex flex-col gap-6">
+                    {/* User Management Card */}
                     <Card>
-                        <CardHeader>
+                        <CardHeader className="flex flex-row justify-between items-start">
+                           <div>
                             <CardTitle>Manage Users</CardTitle>
-                            <CardDescription>Add or remove users for this organization.</CardDescription>
+                            <CardDescription>Add, edit, or remove users for this organization.</CardDescription>
+                           </div>
+                           <Dialog open={isUserDialogOpen} onOpenChange={setUserDialogOpen}>
+                               <DialogTrigger asChild><Button onClick={handleAddNewUser}><UserPlus /> Add User</Button></DialogTrigger>
+                               <DialogContent>
+                                   <Form {...userForm}>
+                                       <form onSubmit={userForm.handleSubmit(handleUserFormSubmit)} className="space-y-4">
+                                            <DialogHeader><DialogTitle>{currentUser ? 'Edit User' : 'Add New User'}</DialogTitle></DialogHeader>
+                                            <FormInput control={userForm.control} name="firstName" label="First Name" placeholder="John" />
+                                            <FormInput control={userForm.control} name="lastName" label="Last Name" placeholder="Doe" />
+                                            <FormInput control={userForm.control} name="email" label="Email" type="email" placeholder="user@example.com" />
+                                            <FormInput control={userForm.control} name="phone" label="Phone (Optional)" placeholder="555-123-4567" />
+                                            <DialogFooter>
+                                                <DialogClose asChild><Button type="button" variant="secondary">Cancel</Button></DialogClose>
+                                                <Button type="submit">{currentUser ? 'Save Changes' : 'Add User'}</Button>
+                                            </DialogFooter>
+                                       </form>
+                                   </Form>
+                               </DialogContent>
+                           </Dialog>
                         </CardHeader>
                         <CardContent>
-                            <form onSubmit={handleAddUser} className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-end mb-6">
-                                <div className="space-y-2">
-                                    <Label htmlFor="newUserFirstName">First Name</Label>
-                                    <Input
-                                        id="newUserFirstName"
-                                        placeholder="John"
-                                        value={newUserFirstName}
-                                        onChange={(e) => setNewUserFirstName(e.target.value)}
-                                        required
-                                    />
-                                </div>
-                                <div className="space-y-2">
-                                    <Label htmlFor="newUserLastName">Last Name</Label>
-                                    <Input
-                                        id="newUserLastName"
-                                        placeholder="Doe"
-                                        value={newUserLastName}
-                                        onChange={(e) => setNewUserLastName(e.target.value)}
-                                        required
-                                    />
-                                </div>
-                                <div className="space-y-2 sm:col-span-2">
-                                    <Label htmlFor="newUserEmail">Email</Label>
-                                    <Input
-                                        id="newUserEmail"
-                                        type="email"
-                                        placeholder="user@example.com"
-                                        value={newUserEmail}
-                                        onChange={(e) => setNewUserEmail(e.target.value)}
-                                        required
-                                    />
-                                </div>
-                                <Button type="submit" className="w-full sm:col-span-2">
-                                    <UserPlus /> Add User
-                                </Button>
-                            </form>
-
                             <Table>
-                                <TableHeader>
-                                    <TableRow>
-                                        <TableHead>Name</TableHead>
-                                        <TableHead>Email</TableHead>
-                                        <TableHead className="text-right w-[100px]">Actions</TableHead>
-                                    </TableRow>
-                                </TableHeader>
+                                <TableHeader><TableRow><TableHead>Name</TableHead><TableHead>Email</TableHead><TableHead>Phone</TableHead><TableHead className="text-right">Actions</TableHead></TableRow></TableHeader>
                                 <TableBody>
                                     {users.map(user => (
                                         <TableRow key={user.id}>
                                             <TableCell>{user.firstName} {user.lastName}</TableCell>
                                             <TableCell>{user.email}</TableCell>
+                                            <TableCell>{user.phone || '-'}</TableCell>
                                             <TableCell className="text-right">
-                                            <AlertDialog>
-                                                    <AlertDialogTrigger asChild>
-                                                        <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-destructive">
-                                                            <Trash2/>
-                                                        </Button>
-                                                    </AlertDialogTrigger>
-                                                    <AlertDialogContent>
-                                                        <AlertDialogHeader>
-                                                            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                                                            <AlertDialogDescription>
-                                                                This will remove {user.firstName} {user.lastName} from the organization. This action cannot be undone.
-                                                            </AlertDialogDescription>
-                                                        </AlertDialogHeader>
-                                                        <AlertDialogFooter>
-                                                            <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                                            <AlertDialogAction onClick={() => handleRemoveUser(user.id)} className="bg-destructive hover:bg-destructive/90">
-                                                                Remove User
-                                                            </AlertDialogAction>
-                                                        </AlertDialogFooter>
-                                                    </AlertDialogContent>
-                                                </AlertDialog>
+                                                 <DropdownMenu>
+                                                    <DropdownMenuTrigger asChild><Button variant="ghost" className="h-8 w-8 p-0"><MoreHorizontal /></Button></DropdownMenuTrigger>
+                                                    <DropdownMenuContent align="end">
+                                                        <DropdownMenuItem onClick={() => handleEditUser(user)}><Edit className="mr-2"/> Edit</DropdownMenuItem>
+                                                        <AlertDialog>
+                                                            <AlertDialogTrigger asChild><Button variant="ghost" className="w-full justify-start text-sm text-destructive hover:text-destructive px-2 py-1.5 h-auto font-normal"><Trash2 className="mr-2"/> Delete</Button></AlertDialogTrigger>
+                                                            <AlertDialogContent>
+                                                                <AlertDialogHeader><AlertDialogTitle>Are you sure?</AlertDialogTitle><AlertDialogDescription>This will remove {user.firstName} from the organization.</AlertDialogDescription></AlertDialogHeader>
+                                                                <AlertDialogFooter><AlertDialogCancel>Cancel</AlertDialogCancel><AlertDialogAction onClick={() => handleRemoveUser(user.id)} className="bg-destructive hover:bg-destructive/90">Remove</AlertDialogAction></AlertDialogFooter>
+                                                            </AlertDialogContent>
+                                                        </AlertDialog>
+                                                    </DropdownMenuContent>
+                                                 </DropdownMenu>
                                             </TableCell>
                                         </TableRow>
                                     ))}
                                 </TableBody>
                             </Table>
-                            {users.length === 0 && (
-                                <p className="text-center text-muted-foreground py-4 col-span-3">No users found for this organization.</p>
-                            )}
+                            {users.length === 0 && <p className="text-center text-muted-foreground py-4">No users found.</p>}
+                        </CardContent>
+                    </Card>
+
+                    {/* Branch Management Card */}
+                    <Card>
+                        <CardHeader className="flex flex-row justify-between items-start">
+                           <div>
+                            <CardTitle>Manage Branches</CardTitle>
+                            <CardDescription>Manage the organization's locations.</CardDescription>
+                           </div>
+                            <Dialog open={isBranchDialogOpen} onOpenChange={setBranchDialogOpen}>
+                                <DialogTrigger asChild><Button onClick={handleAddNewBranch}><PlusCircle /> Add Branch</Button></DialogTrigger>
+                                <DialogContent>
+                                   <Form {...branchForm}>
+                                       <form onSubmit={branchForm.handleSubmit(handleBranchFormSubmit)} className="space-y-4">
+                                            <DialogHeader><DialogTitle>{currentBranch ? 'Edit Branch' : 'Add New Branch'}</DialogTitle></DialogHeader>
+                                            <FormInput control={branchForm.control} name="name" label="Branch Name" placeholder="e.g., Downtown Cafe" />
+                                            <FormInput control={branchForm.control} name="address" label="Address" placeholder="123 Main St, Anytown, USA" />
+                                            <DialogFooter>
+                                                <DialogClose asChild><Button type="button" variant="secondary">Cancel</Button></DialogClose>
+                                                <Button type="submit">{currentBranch ? 'Save Changes' : 'Add Branch'}</Button>
+                                            </DialogFooter>
+                                       </form>
+                                   </Form>
+                               </DialogContent>
+                            </Dialog>
+                        </CardHeader>
+                        <CardContent>
+                             <Table>
+                                <TableHeader><TableRow><TableHead>Name</TableHead><TableHead>Address</TableHead><TableHead className="text-right">Actions</TableHead></TableRow></TableHeader>
+                                <TableBody>
+                                    {branches.map(branch => (
+                                        <TableRow key={branch.id}>
+                                            <TableCell>{branch.name}</TableCell>
+                                            <TableCell>{branch.address}</TableCell>
+                                            <TableCell className="text-right">
+                                                <DropdownMenu>
+                                                    <DropdownMenuTrigger asChild><Button variant="ghost" className="h-8 w-8 p-0"><MoreHorizontal /></Button></DropdownMenuTrigger>
+                                                    <DropdownMenuContent align="end">
+                                                        <DropdownMenuItem onClick={() => handleEditBranch(branch)}><Edit className="mr-2"/> Edit</DropdownMenuItem>
+                                                        <AlertDialog>
+                                                            <AlertDialogTrigger asChild><Button variant="ghost" className="w-full justify-start text-sm text-destructive hover:text-destructive px-2 py-1.5 h-auto font-normal"><Trash2 className="mr-2"/> Delete</Button></AlertDialogTrigger>
+                                                            <AlertDialogContent>
+                                                                <AlertDialogHeader><AlertDialogTitle>Are you sure?</AlertDialogTitle><AlertDialogDescription>This will permanently delete the branch.</AlertDialogDescription></AlertDialogHeader>
+                                                                <AlertDialogFooter><AlertDialogCancel>Cancel</AlertDialogCancel><AlertDialogAction onClick={() => handleRemoveBranch(branch.id)} className="bg-destructive hover:bg-destructive/90">Delete</AlertDialogAction></AlertDialogFooter>
+                                                            </AlertDialogContent>
+                                                        </AlertDialog>
+                                                    </DropdownMenuContent>
+                                                 </DropdownMenu>
+                                            </TableCell>
+                                        </TableRow>
+                                    ))}
+                                </TableBody>
+                            </Table>
+                            {branches.length === 0 && <p className="text-center text-muted-foreground py-4">No branches found.</p>}
                         </CardContent>
                     </Card>
 

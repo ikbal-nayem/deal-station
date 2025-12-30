@@ -49,3 +49,10 @@ export type Tag = {
     id: string;
     name: string;
 }
+
+export type Branch = {
+    id: string;
+    name: string;
+    address: string;
+    organizationId: string;
+};
