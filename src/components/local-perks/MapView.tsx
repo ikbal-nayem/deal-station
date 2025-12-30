@@ -58,11 +58,14 @@ export default function MapView({ offers, onMarkerClick, center, selectedOfferId
       onMove={evt => setViewState(evt.viewState)}
       style={{ width: '100%', height: '100%' }}
       mapStyle="https://basemaps.cartocdn.com/gl/voyager-gl-style/style.json"
+      onClick={() => setPopupInfo(null)}
     >
       {center && (
-        <Marker longitude={center.lng} latitude={center.lat}>
-           <div className="w-4 h-4 rounded-full bg-blue-500 border-2 border-white shadow-md" title="Your Location"></div>
-        </Marker>
+         <Marker longitude={center.lng} latitude={center.lat}>
+            <div className="animate-wave" title="Your Location">
+              <div className="w-3 h-3 rounded-full bg-primary border-2 border-primary-foreground shadow-md"></div>
+            </div>
+          </Marker>
       )}
       {markers}
 
@@ -73,10 +76,11 @@ export default function MapView({ offers, onMarkerClick, center, selectedOfferId
           onClose={() => setPopupInfo(null)}
           closeOnClick={false}
           offset={30}
+          anchor="bottom"
         >
-          <div>
-            <h3 className="font-bold">{popupInfo.title}</h3>
-            <p className="text-sm">{popupInfo.companyName}</p>
+          <div className="p-1">
+            <h3 className="font-bold text-sm">{popupInfo.title}</h3>
+            <p className="text-xs text-muted-foreground">{popupInfo.companyName}</p>
           </div>
         </Popup>
       )}

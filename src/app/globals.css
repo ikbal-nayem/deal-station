@@ -89,3 +89,39 @@
     @apply bg-background text-foreground;
   }
 }
+
+@layer utilities {
+  @keyframes wave {
+    0%, 100% {
+      transform: scale(1);
+      opacity: 1;
+    }
+    50% {
+      transform: scale(2.5);
+      opacity: 0;
+    }
+  }
+  .animate-wave {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .animate-wave::before,
+  .animate-wave::after {
+    content: '';
+    position: absolute;
+    border-radius: 50%;
+    background-color: hsl(var(--primary) / 0.3);
+    animation: wave 2s infinite;
+  }
+  .animate-wave::before {
+    width: 2rem;
+    height: 2rem;
+  }
+  .animate-wave::after {
+    width: 2rem;
+    height: 2rem;
+    animation-delay: -1s;
+  }
+}
