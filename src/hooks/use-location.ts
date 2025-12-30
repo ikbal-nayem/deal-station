@@ -1,11 +1,12 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
 
-// Default to San Francisco if location permission is denied
+// Default to Dhaka, Bangladesh if location permission is denied
 const DEFAULT_LOCATION = {
-  lat: 37.7749,
-  lng: -122.4194,
+  lat: 23.8103,
+  lng: 90.4125,
 };
 
 export function useLocation() {

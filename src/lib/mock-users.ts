@@ -35,7 +35,7 @@ export const mockUsers: User[] = [
     id: 'user-2',
     firstName: 'David',
     lastName: 'Staff',
-    email: 'staff@dailygrind.com',
+    email: 'staff@dhakaeats.com',
     password: 'password',
     role: 'Organization',
     organizationId: mockOrganizations[0].id,
