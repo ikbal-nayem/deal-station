@@ -24,7 +24,8 @@ const ClientMapView = dynamic(() => import('@/components/local-perks/ClientMapVi
 export default function LocalPerksPage() {
   const [allOffers, setAllOffers] = React.useState<Offer[]>([]);
   const [filteredOffers, setFilteredOffers] = React.useState<Offer[]>([]);
-  const [selectedOffer, setSelectedOffer] = React.useState<Offer | null>(null);
+  const [selectedOfferForSheet, setSelectedOfferForSheet] = React.useState<Offer | null>(null);
+  const [selectedOfferForMap, setSelectedOfferForMap] = React.useState<Offer | null>(null);
   const [isSheetOpen, setSheetOpen] = React.useState(false);
   const { location, error: locationError } = useLocation();
   const [view, setView] = React.useState<'list' | 'map'>('list');
@@ -71,13 +72,18 @@ export default function LocalPerksPage() {
     setFilteredOffers(offers);
   }, [selectedCategory, allOffers, searchQuery]);
 
-  const handleOfferClick = (offer: Offer) => {
+  const handleShowDetailsClick = (offer: Offer) => {
     if (offer.isMemberOnly && !isLoggedIn) {
       router.push('/login');
       return;
     }
-    setSelectedOffer(offer);
+    setSelectedOfferForSheet(offer);
     setSheetOpen(true);
+  };
+  
+  const handleShowOnMapClick = (offer: Offer) => {
+    setSelectedOfferForMap(offer);
+    setView('map');
   };
 
   const handleMarkerClick = (offer: Offer) => {
@@ -85,7 +91,7 @@ export default function LocalPerksPage() {
       router.push('/login');
       return;
     }
-    setSelectedOffer(offer);
+    setSelectedOfferForSheet(offer);
     setSheetOpen(true);
   }
 
@@ -94,7 +100,7 @@ export default function LocalPerksPage() {
     if (!isOpen) {
       // Delay clearing the offer to allow the sheet to animate out
       setTimeout(() => {
-        setSelectedOffer(null);
+        setSelectedOfferForSheet(null);
       }, 300);
     }
   };
@@ -126,7 +132,8 @@ export default function LocalPerksPage() {
         <div className={cn('md:w-1/2 lg:w-[450px] h-full overflow-y-auto border-r', view !== 'list' && 'hidden md:flex')}>
           <OfferList
             offers={filteredOffers}
-            onOfferClick={handleOfferClick}
+            onShowDetailsClick={handleShowDetailsClick}
+            onShowOnMapClick={handleShowOnMapClick}
             categories={categories}
             selectedCategory={selectedCategory}
             onCategoryChange={setSelectedCategory}
@@ -136,12 +143,17 @@ export default function LocalPerksPage() {
         </div>
 
         <div className={cn('flex-1 h-full', view !== 'map' && 'hidden md:block')}>
-          <ClientMapView offers={filteredOffers} onMarkerClick={handleMarkerClick} center={location} selectedOfferId={selectedOffer?.id} />
+          <ClientMapView 
+            offers={filteredOffers} 
+            onMarkerClick={handleMarkerClick} 
+            center={location} 
+            selectedOfferForMap={selectedOfferForMap} 
+          />
         </div>
       </main>
 
       <OfferDetailsSheet
-        offer={selectedOffer}
+        offer={selectedOfferForSheet}
         isOpen={isSheetOpen}
         onOpenChange={onSheetOpenChange}
       />

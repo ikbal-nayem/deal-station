@@ -11,7 +11,8 @@ import { Search } from 'lucide-react';
 
 interface OfferListProps {
   offers: Offer[];
-  onOfferClick: (offer: Offer) => void;
+  onShowDetailsClick: (offer: Offer) => void;
+  onShowOnMapClick: (offer: Offer) => void;
   categories: string[];
   selectedCategory: string;
   onCategoryChange: (category: string) => void;
@@ -21,7 +22,8 @@ interface OfferListProps {
 
 export default function OfferList({
   offers,
-  onOfferClick,
+  onShowDetailsClick,
+  onShowOnMapClick,
   categories,
   selectedCategory,
   onCategoryChange,
@@ -63,7 +65,12 @@ export default function OfferList({
       <div className="grid grid-cols-1 gap-4">
         {hasOffers
           ? offers.map((offer) => (
-              <OfferCard key={offer.id} offer={offer} onOfferClick={onOfferClick} />
+              <OfferCard 
+                key={offer.id} 
+                offer={offer} 
+                onShowDetailsClick={onShowDetailsClick}
+                onShowOnMapClick={onShowOnMapClick}
+              />
             ))
           : Array.from({ length: 5 }).map((_, i) => <OfferCardSkeleton key={i} />)}
         

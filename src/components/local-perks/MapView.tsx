@@ -2,20 +2,22 @@
 'use client';
 
 import * as React from 'react';
-import Map, { Marker, Popup } from 'react-map-gl/maplibre';
+import Map, { Marker, Popup, Source, Layer } from 'react-map-gl/maplibre';
 import type { Offer } from '@/lib/types';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { MapPin } from 'lucide-react';
 import { useTheme } from 'next-themes';
+import type { Feature, LineString } from 'geojson';
 
 interface MapViewProps {
   offers: Offer[];
   onMarkerClick: (offer: Offer) => void;
   center?: { lat: number; lng: number };
   selectedOfferId?: string;
+  routeLine?: Feature<LineString>;
 }
 
-export default function MapView({ offers, onMarkerClick, center, selectedOfferId }: MapViewProps) {
+export default function MapView({ offers, onMarkerClick, center, selectedOfferId, routeLine }: MapViewProps) {
   const { theme } = useTheme();
   const [isMounted, setIsMounted] = React.useState(false);
 
@@ -104,6 +106,25 @@ export default function MapView({ offers, onMarkerClick, center, selectedOfferId
             <p className="text-xs text-muted-foreground">{popupInfo.companyName}</p>
           </div>
         </Popup>
+      )}
+
+      {routeLine && (
+        <Source id="route-line" type="geojson" data={routeLine}>
+          <Layer
+            id="route-layer"
+            type="line"
+            source="route-line"
+            layout={{
+              'line-join': 'round',
+              'line-cap': 'round',
+            }}
+            paint={{
+              'line-color': 'hsl(var(--primary))',
+              'line-width': 4,
+              'line-opacity': 0.8,
+            }}
+          />
+        </Source>
       )}
     </Map>
   );

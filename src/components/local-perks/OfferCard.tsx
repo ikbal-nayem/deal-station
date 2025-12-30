@@ -3,7 +3,7 @@
 
 import * as React from 'react';
 import Image from 'next/image';
-import { Star, MapPin, Lock } from 'lucide-react';
+import { Star, MapPin, Lock, Info, Map } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -20,33 +20,38 @@ import type { Offer } from '@/lib/types';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
+import { cn } from '@/lib/utils';
 
 interface OfferCardProps {
   offer: Offer;
-  onOfferClick: (offer: Offer) => void;
+  onShowDetailsClick: (offer: Offer) => void;
+  onShowOnMapClick: (offer: Offer) => void;
 }
 
-export default function OfferCard({ offer, onOfferClick }: OfferCardProps) {
+export default function OfferCard({ offer, onShowDetailsClick, onShowOnMapClick }: OfferCardProps) {
   const { isLoggedIn } = useAuth();
   const router = useRouter();
   const showLoginOverlay = offer.isMemberOnly && !isLoggedIn;
 
   const placeholderImage = PlaceHolderImages[0];
 
-  const handleCardClick = () => {
+  const handleDetailsClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
     if (showLoginOverlay) {
         router.push('/login');
     } else {
-        onOfferClick(offer);
+        onShowDetailsClick(offer);
     }
+  }
+
+  const handleMapClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onShowOnMapClick(offer);
   }
 
   return (
     <Card
-      className="relative overflow-hidden hover:shadow-lg transition-shadow duration-300 cursor-pointer w-full"
-      onClick={handleCardClick}
-      role="button"
-      aria-label={`View details for ${offer.title}`}
+      className="relative overflow-hidden group/card w-full flex flex-col"
     >
       <div className="relative">
         <Image
@@ -55,7 +60,7 @@ export default function OfferCard({ offer, onOfferClick }: OfferCardProps) {
           width={600}
           height={400}
           className={cn(
-            'w-full h-32 object-cover transition-transform duration-300 group-hover:scale-105',
+            'w-full h-32 object-cover transition-transform duration-300',
             showLoginOverlay && 'blur-sm'
           )}
           data-ai-hint={placeholderImage.imageHint}
@@ -70,27 +75,30 @@ export default function OfferCard({ offer, onOfferClick }: OfferCardProps) {
           </Badge>
         )}
       </div>
-      <CardHeader>
-        <CardTitle className={cn('text-lg font-headline', showLoginOverlay && 'blur-sm')}>
+      <CardHeader className={cn(showLoginOverlay && 'blur-sm')}>
+        <CardTitle className="text-lg font-headline">
           {offer.title}
         </CardTitle>
-        <CardDescription className={cn(showLoginOverlay && 'blur-sm')}>
+        <CardDescription>
           {offer.companyName}
         </CardDescription>
       </CardHeader>
-      <CardContent className={cn(showLoginOverlay && 'blur-sm')}>
+      <CardContent className={cn('flex-grow', showLoginOverlay && 'blur-sm')}>
         <p className="text-sm text-muted-foreground line-clamp-2">{offer.description}</p>
         <div className="text-xs text-muted-foreground/80 mt-2 flex items-center gap-1">
             <MapPin className="w-3 h-3" />
             <span>{offer.latitude.toFixed(4)}, {offer.longitude.toFixed(4)}</span>
         </div>
       </CardContent>
-      <CardFooter className={cn('flex justify-between items-center text-sm text-muted-foreground pt-0', showLoginOverlay && 'blur-sm')}>
-        <div className="flex items-center">
-            <MapPin className="w-4 h-4 mr-1" />
-            <span>{offer.distance}</span>
-        </div>
-        <span className="font-semibold text-primary">{offer.discount}</span>
+      <CardFooter className={cn('flex-col sm:flex-row items-stretch sm:items-center gap-2 pt-0', showLoginOverlay && 'blur-sm')}>
+          <Button variant="outline" size="sm" className="flex-1" onClick={handleMapClick}>
+              <Map className="w-4 h-4 mr-2"/>
+              Show on Map
+          </Button>
+          <Button size="sm" className="flex-1" onClick={handleDetailsClick}>
+              <Info className="w-4 h-4 mr-2"/>
+              Show Details
+          </Button>
       </CardFooter>
       {showLoginOverlay && (
         <div className="absolute inset-0 bg-background/80 dark:bg-background/60 backdrop-blur-sm flex flex-col items-center justify-center p-4 text-center">
@@ -106,8 +114,4 @@ export default function OfferCard({ offer, onOfferClick }: OfferCardProps) {
       )}
     </Card>
   );
-}
-
-function cn(...args: (string | boolean | undefined)[]): string {
-    return args.filter(Boolean).join(' ');
 }
