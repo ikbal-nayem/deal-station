@@ -43,19 +43,6 @@ export default function MapView({ offers, onMarkerClick, center, selectedOfferId
     }
   }, [center]);
 
-   React.useEffect(() => {
-    if (selectedOfferForMap) {
-      setViewState(current => ({
-        ...current,
-        longitude: selectedOfferForMap.longitude,
-        latitude: selectedOfferForMap.latitude,
-        zoom: 15,
-        transitionDuration: 1000,
-      }));
-    }
-  }, [selectedOfferForMap]);
-
-
   const [popupInfo, setPopupInfo] = React.useState<Offer | null>(null);
 
   const markers = React.useMemo(() => offers.map(offer => (
