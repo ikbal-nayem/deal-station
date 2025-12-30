@@ -1,3 +1,4 @@
+
 'use client';
 
 import * as React from 'react';
@@ -5,6 +6,8 @@ import type { Offer } from '@/lib/types';
 import OfferCard from './OfferCard';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Search } from 'lucide-react';
 
 interface OfferListProps {
   offers: Offer[];
@@ -12,6 +15,8 @@ interface OfferListProps {
   categories: string[];
   selectedCategory: string;
   onCategoryChange: (category: string) => void;
+  searchQuery: string;
+  onSearchChange: (query: string) => void;
 }
 
 export default function OfferList({
@@ -20,6 +25,8 @@ export default function OfferList({
   categories,
   selectedCategory,
   onCategoryChange,
+  searchQuery,
+  onSearchChange,
 }: OfferListProps) {
   const hasOffers = offers.length > 0;
   return (
@@ -27,6 +34,17 @@ export default function OfferList({
       <div className="pb-4">
         <h2 className="text-2xl font-bold font-headline">Nearby Offers</h2>
         <p className="text-muted-foreground">Special perks waiting for you.</p>
+      </div>
+
+       <div className="relative">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+        <Input
+          type="search"
+          placeholder="Search by company or tag..."
+          className="pl-10"
+          value={searchQuery}
+          onChange={(e) => onSearchChange(e.target.value)}
+        />
       </div>
 
       <div className="flex flex-wrap gap-2 pb-4">
@@ -48,6 +66,12 @@ export default function OfferList({
               <OfferCard key={offer.id} offer={offer} onOfferClick={onOfferClick} />
             ))
           : Array.from({ length: 5 }).map((_, i) => <OfferCardSkeleton key={i} />)}
+        
+        {!hasOffers && searchQuery && (
+            <div className="text-center py-10">
+                <p className="text-muted-foreground">No offers found for your search.</p>
+            </div>
+        )}
       </div>
     </div>
   );

@@ -57,7 +57,7 @@ export default function MapView({ offers, onMarkerClick, center, selectedOfferId
       {...viewState}
       onMove={evt => setViewState(evt.viewState)}
       style={{ width: '100%', height: '100%' }}
-      mapStyle="https://demotiles.maplibre.org/style.json"
+      mapStyle="https://basemaps.cartocdn.com/gl/voyager-gl-style/style.json"
     >
       {markers}
 

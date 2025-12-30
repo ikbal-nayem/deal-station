@@ -31,6 +31,7 @@ export default function LocalPerksPage() {
   const { toast } = useToast();
   const [categories, setCategories] = React.useState<string[]>([]);
   const [selectedCategory, setSelectedCategory] = React.useState<string>('All');
+  const [searchQuery, setSearchQuery] = React.useState('');
   const { isLoggedIn } = useAuth();
   const router = useRouter();
 
@@ -54,12 +55,21 @@ export default function LocalPerksPage() {
   }, [location]);
 
   React.useEffect(() => {
-    if (selectedCategory === 'All') {
-      setFilteredOffers(allOffers);
-    } else {
-      setFilteredOffers(allOffers.filter(offer => offer.category === selectedCategory));
+    let offers = allOffers;
+
+    if (selectedCategory !== 'All') {
+      offers = offers.filter(offer => offer.category === selectedCategory);
     }
-  }, [selectedCategory, allOffers]);
+
+    if (searchQuery) {
+      offers = offers.filter(offer => 
+        offer.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        offer.companyName.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    }
+    
+    setFilteredOffers(offers);
+  }, [selectedCategory, allOffers, searchQuery]);
 
   const handleOfferClick = (offer: Offer) => {
     if (offer.isMemberOnly && !isLoggedIn) {
@@ -120,6 +130,8 @@ export default function LocalPerksPage() {
             categories={categories}
             selectedCategory={selectedCategory}
             onCategoryChange={setSelectedCategory}
+            searchQuery={searchQuery}
+            onSearchChange={setSearchQuery}
           />
         </div>
 
