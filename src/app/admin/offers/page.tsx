@@ -8,7 +8,7 @@ import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogTrigger, DialogClose, DialogDescription as FormDialogDescription } from "@/components/ui/dialog";
-import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage, FormDescription } from "@/components/ui/form";
+import { Form, FormField, FormLabel, FormControl, FormMessage, FormDescription } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
 import { PlusCircle, MoreHorizontal, Edit, Trash2, Tag, Star } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
@@ -19,11 +19,12 @@ import { mockCategories } from "@/lib/mock-data";
 import { mockTags } from "@/lib/mock-data";
 import { type Offer } from "@/lib/types";
 import { FormInput } from "@/components/ui/form-input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
+import { SelectItem } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
+import { FormSelect } from "@/components/ui/form-select";
+import { FormTextarea } from "@/components/ui/form-textarea";
 
 const offerFormSchema = z.object({
   title: z.string().min(3, "Title must be at least 3 characters."),
@@ -157,65 +158,44 @@ export default function AdminOffersPage() {
                                     <FormInput control={form.control} name="title" label="Offer Title" placeholder="e.g., 20% Off All Coffees" required />
                                     
                                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                        <FormField
+                                        <FormSelect
                                             control={form.control}
                                             name="organizationId"
-                                            render={({ field }) => (
-                                                <FormItem>
-                                                    <FormLabel required>Organization</FormLabel>
-                                                    <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                                        <FormControl><SelectTrigger><SelectValue placeholder="Select an organization" /></SelectTrigger></FormControl>
-                                                        <SelectContent>
-                                                            {mockOrganizations.map(org => (<SelectItem key={org.id} value={org.id}>{org.name}</SelectItem>))}
-                                                        </SelectContent>
-                                                    </Select>
-                                                    <FormMessage />
-                                                </FormItem>
-                                            )}
-                                        />
+                                            label="Organization"
+                                            placeholder="Select an organization"
+                                            required
+                                        >
+                                            {mockOrganizations.map(org => (<SelectItem key={org.id} value={org.id}>{org.name}</SelectItem>))}
+                                        </FormSelect>
                                         <FormInput control={form.control} name="discount" label="Discount Value" placeholder="e.g., 20% OFF or FREE" required />
                                     </div>
                                     
-                                     <FormField
+                                    <FormTextarea
                                         control={form.control}
                                         name="description"
-                                        render={({ field }) => (
-                                            <FormItem>
-                                                <FormLabel required>Short Description</FormLabel>
-                                                <FormControl><Textarea placeholder="A brief, catchy description for the offer card." {...field} /></FormControl>
-                                                <FormMessage />
-                                            </FormItem>
-                                        )}
+                                        label="Short Description"
+                                        placeholder="A brief, catchy description for the offer card."
+                                        required
                                     />
-                                    <FormField
+                                     <FormTextarea
                                         control={form.control}
                                         name="fullDescription"
-                                        render={({ field }) => (
-                                            <FormItem>
-                                                <FormLabel required>Full Description</FormLabel>
-                                                <FormControl><Textarea placeholder="The full details of the offer to be shown in the details view." rows={5} {...field} /></FormControl>
-                                                <FormMessage />
-                                            </FormItem>
-                                        )}
+                                        label="Full Description"
+                                        placeholder="The full details of the offer to be shown in the details view."
+                                        rows={5}
+                                        required
                                     />
 
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                         <FormField
+                                        <FormSelect
                                             control={form.control}
                                             name="categoryId"
-                                            render={({ field }) => (
-                                                <FormItem>
-                                                    <FormLabel required>Category</FormLabel>
-                                                    <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                                        <FormControl><SelectTrigger><SelectValue placeholder="Select a category" /></SelectTrigger></FormControl>
-                                                        <SelectContent>
-                                                            {mockCategories.map(cat => (<SelectItem key={cat.id} value={cat.id}>{cat.name}</SelectItem>))}
-                                                        </SelectContent>
-                                                    </Select>
-                                                    <FormMessage />
-                                                </FormItem>
-                                            )}
-                                        />
+                                            label="Category"
+                                            placeholder="Select a category"
+                                            required
+                                        >
+                                            {mockCategories.map(cat => (<SelectItem key={cat.id} value={cat.id}>{cat.name}</SelectItem>))}
+                                        </FormSelect>
                                         <FormField
                                             control={form.control}
                                             name="isMemberOnly"
@@ -350,5 +330,3 @@ export default function AdminOffersPage() {
         </div>
     );
 }
-
-    
