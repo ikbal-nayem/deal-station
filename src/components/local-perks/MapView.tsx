@@ -1,3 +1,4 @@
+
 'use client';
 
 import * as React from 'react';
@@ -32,15 +33,8 @@ export default function MapView({ offers, onMarkerClick, center, selectedOfferId
 
   const [popupInfo, setPopupInfo] = React.useState<Offer | null>(null);
 
-  return (
-    <Map
-      {...viewState}
-      onMove={evt => setViewState(evt.viewState)}
-      style={{ width: '100%', height: '100%' }}
-      mapStyle="https://demotiles.maplibre.org/style.json"
-    >
-      {offers.map((offer) => (
-        <Marker
+  const markers = React.useMemo(() => offers.map(offer => (
+      <Marker
           key={offer.id}
           longitude={offer.longitude}
           latitude={offer.latitude}
@@ -56,7 +50,16 @@ export default function MapView({ offers, onMarkerClick, center, selectedOfferId
             size={30}
           />
         </Marker>
-      ))}
+  )), [offers, onMarkerClick, selectedOfferId]);
+
+  return (
+    <Map
+      {...viewState}
+      onMove={evt => setViewState(evt.viewState)}
+      style={{ width: '100%', height: '100%' }}
+      mapStyle="https://demotiles.maplibre.org/style.json"
+    >
+      {markers}
 
       {popupInfo && (
         <Popup
