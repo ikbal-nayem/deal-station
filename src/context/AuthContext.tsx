@@ -9,6 +9,7 @@ import { mockUsers } from '@/lib/mock-users';
 interface AuthContextType {
   isLoggedIn: boolean;
   user: User | null;
+  setUser: React.Dispatch<React.SetStateAction<User | null>>;
   isLoading: boolean;
   login: (email: string, pass: string) => Promise<void>;
   logout: () => void;
@@ -67,7 +68,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     router.push('/login');
   };
 
-  const value = { isLoggedIn: !!user, user, isLoading, login, logout };
+  const value = { isLoggedIn: !!user, user, setUser, isLoading, login, logout };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

@@ -12,6 +12,7 @@ export default function Logo() {
           height={40}
           className='dark:invert'
         />
+       <span>The Deal Station</span>
     </Link>
   );
 }

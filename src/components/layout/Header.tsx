@@ -12,11 +12,13 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { useAuth } from '@/context/AuthContext';
-import { LayoutDashboard, LogIn, UserCircle, UserPlus } from 'lucide-react';
-import Image from 'next/image';
+import { LayoutDashboard, LogIn, UserCircle, UserPlus, Settings } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Badge } from '../ui/badge';
+import Logo from './Logo';
+import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
+
 
 interface HeaderProps {
   children?: React.ReactNode;
@@ -36,15 +38,7 @@ export default function Header({ children }: HeaderProps) {
     <header className="flex shrink-0 items-center justify-between border-b p-2">
       <div className="flex items-center gap-2">
         {children}
-        <Link href="/" className="flex items-center gap-2 text-xl font-bold font-headline px-2">
-          <Image
-            src="/logo/logo-150x150.png"
-            alt="The Deal Station Logo"
-            width={64}
-            height={64}
-          />
-          The Deal Station
-        </Link>
+        <Logo/>
       </div>
       <div className="flex items-center gap-2">
         <ThemeToggle />
@@ -53,9 +47,12 @@ export default function Header({ children }: HeaderProps) {
         ) : isLoggedIn && user ? (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline">
-                <UserCircle className="mr-2 h-4 w-4" />
-                {user.name}
+              <Button variant="ghost" className="flex items-center gap-2 rounded-full p-1 h-auto">
+                <Avatar className="h-8 w-8">
+                  <AvatarImage src={user.avatarUrl} alt={user.name} />
+                  <AvatarFallback>{user.name?.charAt(0).toUpperCase()}</AvatarFallback>
+                </Avatar>
+                <span className="hidden sm:block">{user.name}</span>
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-56">
@@ -75,6 +72,12 @@ export default function Header({ children }: HeaderProps) {
                   </Link>
                 </DropdownMenuItem>
               )}
+               <DropdownMenuItem asChild>
+                  <Link href="/settings">
+                    <Settings className="mr-2 h-4 w-4" />
+                    <span>Settings</span>
+                  </Link>
+                </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={logout}>
                 Logout
