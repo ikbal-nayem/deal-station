@@ -10,7 +10,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { mockOrganizations } from '@/lib/mock-organizations';
 import type { Organization } from '@/lib/types';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { format } from 'date-fns';
 import { Separator } from '@/components/ui/separator';
 import { mockUsers } from '@/lib/mock-users';
@@ -58,7 +58,7 @@ export default function OrganizationDetailLayout({ children }: { children: React
     }
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-4">
             <div className="space-y-4">
                 <Button variant="ghost" asChild className="-ml-4">
                     <Link href="/admin/organizations">
@@ -66,46 +66,24 @@ export default function OrganizationDetailLayout({ children }: { children: React
                         Back to Organizations
                     </Link>
                 </Button>
-                <div className="flex items-center gap-4">
-                    <Avatar className="h-16 w-16">
-                        <AvatarImage src={organization.logoUrl} alt={organization.name} />
-                        <AvatarFallback>{organization.name.charAt(0)}</AvatarFallback>
-                    </Avatar>
-                    <div>
-                        <h1 className="text-xl font-bold">{organization.name}</h1>
-                        <p className="text-muted-foreground">Joined on {format(new Date(organization.createdAt), 'PPP')}</p>
-                    </div>
-                </div>
-                 <Card>
-                    <CardContent className="p-4 space-y-3">
-                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 text-sm">
-                            <div className="flex items-center gap-3">
-                                <Mail className="h-5 w-5 text-muted-foreground"/>
-                                <a href={`mailto:${organization.ownerEmail}`} className="hover:underline">{organization.ownerEmail}</a>
-                            </div>
-                            <div className="flex items-center gap-3">
-                                <Phone className="h-5 w-5 text-muted-foreground"/>
-                                <span>{organization.phone || 'No phone'}</span>
-                            </div>
-                             <div className="flex items-center gap-3">
-                                <Globe className="h-5 w-5 text-muted-foreground"/>
-                                <a href={organization.website} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">{organization.website || 'No website'}</a>
-                            </div>
-                        </div>
-                        <Separator/>
-                         <div className="flex items-start gap-3 text-sm">
-                            <Building className="h-5 w-5 text-muted-foreground mt-0.5 shrink-0"/>
-                            <span>{organization.address || 'No address provided'}</span>
-                        </div>
-                    </CardContent>
-                </Card>
-
+                
                  <Card>
                     <CardHeader>
-                        <CardTitle>Organization Overview</CardTitle>
+                        <div className="flex items-start justify-between gap-4">
+                            <div className="flex items-center gap-4">
+                                <Avatar className="h-16 w-16">
+                                    <AvatarImage src={organization.logoUrl} alt={organization.name} />
+                                    <AvatarFallback>{organization.name.charAt(0)}</AvatarFallback>
+                                </Avatar>
+                                <div>
+                                    <CardTitle className="text-xl">{organization.name}</CardTitle>
+                                    <CardDescription>Joined on {format(new Date(organization.createdAt), 'PPP')}</CardDescription>
+                                </div>
+                            </div>
+                        </div>
                     </CardHeader>
-                    <CardContent>
-                       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                    <CardContent className="space-y-4">
+                        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                          <Card>
                             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                                 <CardTitle className="text-sm font-medium">Total Users</CardTitle>
@@ -113,7 +91,6 @@ export default function OrganizationDetailLayout({ children }: { children: React
                             </CardHeader>
                             <CardContent>
                                 <div className="text-2xl font-bold">{userCount}</div>
-                                <p className="text-xs text-muted-foreground">Assigned to this organization</p>
                             </CardContent>
                         </Card>
                          <Card>
@@ -123,7 +100,6 @@ export default function OrganizationDetailLayout({ children }: { children: React
                             </CardHeader>
                             <CardContent>
                                 <div className="text-2xl font-bold">{branchCount}</div>
-                                <p className="text-xs text-muted-foreground">Registered locations</p>
                             </CardContent>
                         </Card>
                          <Card>
@@ -133,10 +109,28 @@ export default function OrganizationDetailLayout({ children }: { children: React
                             </CardHeader>
                             <CardContent>
                                 <div className="text-2xl font-bold">{offerCount}</div>
-                                <p className="text-xs text-muted-foreground">Created by this organization</p>
                             </CardContent>
                         </Card>
                        </div>
+                       <Separator/>
+                       <div className="space-y-3 text-sm">
+                            <div className="flex items-center gap-3">
+                                <Mail className="h-5 w-5 text-muted-foreground shrink-0"/>
+                                <a href={`mailto:${organization.ownerEmail}`} className="hover:underline">{organization.ownerEmail}</a>
+                            </div>
+                            <div className="flex items-center gap-3">
+                                <Phone className="h-5 w-5 text-muted-foreground shrink-0"/>
+                                <span>{organization.phone || 'No phone'}</span>
+                            </div>
+                             <div className="flex items-center gap-3">
+                                <Globe className="h-5 w-5 text-muted-foreground shrink-0"/>
+                                <a href={organization.website} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">{organization.website || 'No website'}</a>
+                            </div>
+                             <div className="flex items-start gap-3">
+                                <Building className="h-5 w-5 text-muted-foreground mt-0.5 shrink-0"/>
+                                <span>{organization.address || 'No address provided'}</span>
+                            </div>
+                        </div>
                     </CardContent>
                 </Card>
             </div>
