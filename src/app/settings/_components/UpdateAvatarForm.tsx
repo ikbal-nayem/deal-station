@@ -14,12 +14,12 @@ import { FormImageUpload } from "@/components/ui/form-image-upload";
 
 const avatarFormSchema = z.object({
   avatar: z.any()
-    .refine(files => files?.length === 1, 'Avatar image is required.')
-    .refine(files => files?.[0]?.size <= 2 * 1024 * 1024, `Max file size is 2MB.`)
+    .refine(files => files === null || (files && files.length === 1), 'Avatar image is required.')
+    .refine(files => files === null || files?.[0]?.size <= 2 * 1024 * 1024, `Max file size is 2MB.`)
     .refine(
-      files => ["image/jpeg", "image/png", "image/webp"].includes(files?.[0]?.type),
+      files => files === null || ["image/jpeg", "image/png", "image/webp"].includes(files?.[0]?.type),
       ".jpg, .jpeg, .png and .webp files are accepted."
-    ),
+    ).nullable(),
 });
 
 type AvatarFormValues = z.infer<typeof avatarFormSchema>;
@@ -31,6 +31,9 @@ export default function UpdateAvatarForm() {
 
   const form = useForm<AvatarFormValues>({
     resolver: zodResolver(avatarFormSchema),
+    defaultValues: {
+        avatar: null
+    }
   });
 
   const onSubmit = async (data: AvatarFormValues) => {
@@ -38,7 +41,13 @@ export default function UpdateAvatarForm() {
     // Simulate upload and update
     await new Promise(resolve => setTimeout(resolve, 1000));
     
-    const newAvatarUrl = URL.createObjectURL(data.avatar[0]);
+    let newAvatarUrl = user?.avatarUrl;
+    if (data.avatar && data.avatar.length > 0) {
+        newAvatarUrl = URL.createObjectURL(data.avatar[0]);
+    } else if (data.avatar === null) {
+        newAvatarUrl = undefined;
+    }
+
     if(user){
         const updatedUser = { ...user, avatarUrl: newAvatarUrl };
         setUser(updatedUser);
@@ -50,7 +59,7 @@ export default function UpdateAvatarForm() {
       description: "Your profile picture has been changed successfully.",
     });
     setSubmitting(false);
-    form.reset();
+    form.reset({ avatar: null });
   };
 
   if (!user) return null;
@@ -70,6 +79,8 @@ export default function UpdateAvatarForm() {
             <FormImageUpload
                 control={form.control}
                 name="avatar"
+                label="Your Avatar"
+                description="Upload a new photo for your profile."
                 currentImage={user.avatarUrl}
                 fallbackText={fallbackText}
                 />

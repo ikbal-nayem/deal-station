@@ -31,7 +31,7 @@ const orgFormSchema = z.object({
   website: z.string().url({ message: "Please enter a valid URL." }).optional().or(z.literal('')),
   phone: z.string().optional(),
   address: z.string().optional(),
-  logoUrl: z.any().optional(),
+  logoUrl: z.any().nullable(),
 });
 
 type OrgFormValues = z.infer<typeof orgFormSchema>;
@@ -50,13 +50,20 @@ export default function OrganizationsPage() {
             website: '',
             phone: '',
             address: '',
-            logoUrl: undefined,
+            logoUrl: null,
         }
     });
 
     useEffect(() => {
         if (!isDialogOpen) {
-            form.reset();
+            form.reset({
+                name: '',
+                ownerEmail: '',
+                website: '',
+                phone: '',
+                address: '',
+                logoUrl: null
+            });
             setCurrentOrg(null);
         }
     }, [isDialogOpen, form]);
@@ -69,7 +76,7 @@ export default function OrganizationsPage() {
             website: org.website || '',
             phone: org.phone || '',
             address: org.address || '',
-            logoUrl: undefined,
+            logoUrl: null,
         });
         setDialogOpen(true);
     };
@@ -92,7 +99,10 @@ export default function OrganizationsPage() {
         let logoUrl = currentOrg?.logoUrl; // Keep current logo by default
         if (values.logoUrl && values.logoUrl.length > 0) {
            logoUrl = URL.createObjectURL(values.logoUrl[0]);
+        } else if (values.logoUrl === null) {
+            logoUrl = undefined;
         }
+
 
         if (currentOrg) {
             // Update existing organization
@@ -108,6 +118,9 @@ export default function OrganizationsPage() {
                 id: `org-${Date.now()}`,
                 createdAt: new Date().toISOString(),
                 ...values,
+                website: values.website || undefined,
+                phone: values.phone || undefined,
+                address: values.address || undefined,
                 logoUrl,
             };
             setOrganizations(orgs => [newOrg, ...orgs]);
@@ -148,6 +161,7 @@ export default function OrganizationsPage() {
                                      <FormImageUpload
                                         control={form.control}
                                         name="logoUrl"
+                                        label="Organization Logo"
                                         currentImage={currentOrg?.logoUrl}
                                         fallbackText={currentOrg?.name?.charAt(0) || '?'}
                                         shape="square"

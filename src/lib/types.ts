@@ -22,6 +22,7 @@ export type User = {
   firstName: string;
   lastName: string;
   email: string;
+  phone?: string;
   password?: string; // Should not be stored in frontend state in a real app
   role: UserRole;
   organizationId?: string; // if role is 'Organization' or if user is assigned to one

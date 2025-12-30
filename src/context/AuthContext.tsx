@@ -6,6 +6,14 @@ import { useRouter } from 'next/navigation';
 import { type User } from '@/lib/types';
 import { mockUsers } from '@/lib/mock-users';
 
+// Create a default empty user to prevent errors during initial render
+const defaultUser: User = {
+  id: '',
+  firstName: '',
+  lastName: '',
+  email: '',
+  role: 'End User',
+};
 interface AuthContextType {
   isLoggedIn: boolean;
   user: User | null;
@@ -68,7 +76,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     router.push('/login');
   };
 
-  const value = { isLoggedIn: !!user, user, setUser, isLoading, login, logout };
+  const value = { isLoggedIn: !!user, user: user || defaultUser, setUser, isLoading, login, logout };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
