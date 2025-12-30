@@ -54,6 +54,9 @@ export default function UpdateAvatarForm() {
   };
 
   if (!user) return null;
+  
+  const fallbackText = user.firstName && user.lastName ? `${user.firstName.charAt(0)}${user.lastName.charAt(0)}` : '';
+
 
   return (
     <Card>
@@ -68,7 +71,7 @@ export default function UpdateAvatarForm() {
                 control={form.control}
                 name="avatar"
                 currentImage={user.avatarUrl}
-                fallbackText={`${user.firstName.charAt(0)}${user.lastName.charAt(0)}`}
+                fallbackText={fallbackText}
                 />
           </CardContent>
           <CardFooter className="border-t pt-4">
