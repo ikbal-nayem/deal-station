@@ -1,3 +1,4 @@
+
 'use client';
 
 import * as React from 'react';
@@ -79,8 +80,12 @@ export default function OfferCard({ offer, onOfferClick }: OfferCardProps) {
       </CardHeader>
       <CardContent className={cn(showLoginOverlay && 'blur-sm')}>
         <p className="text-sm text-muted-foreground line-clamp-2">{offer.description}</p>
+        <div className="text-xs text-muted-foreground/80 mt-2 flex items-center gap-1">
+            <MapPin className="w-3 h-3" />
+            <span>{offer.latitude.toFixed(4)}, {offer.longitude.toFixed(4)}</span>
+        </div>
       </CardContent>
-      <CardFooter className={cn('flex justify-between items-center text-sm text-muted-foreground', showLoginOverlay && 'blur-sm')}>
+      <CardFooter className={cn('flex justify-between items-center text-sm text-muted-foreground pt-0', showLoginOverlay && 'blur-sm')}>
         <div className="flex items-center">
             <MapPin className="w-4 h-4 mr-1" />
             <span>{offer.distance}</span>
