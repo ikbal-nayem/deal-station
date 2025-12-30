@@ -1,0 +1,168 @@
+
+'use client';
+
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { Button } from "@/components/ui/button";
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogTrigger, DialogClose } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { useToast } from "@/hooks/use-toast";
+import { PlusCircle, MoreHorizontal, Edit, Trash2 } from "lucide-react";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { type Category } from "@/lib/types";
+import { mockCategories } from "@/lib/mock-data";
+
+const categoryFormSchema = z.object({
+  name: z.string().min(2, { message: "Category name must be at least 2 characters." }),
+});
+
+type CategoryFormValues = z.infer<typeof categoryFormSchema>;
+
+export default function CategoriesPage() {
+    const { toast } = useToast();
+    const [categories, setCategories] = useState<Category[]>(mockCategories);
+    const [isDialogOpen, setDialogOpen] = useState(false);
+    const [currentCategory, setCurrentCategory] = useState<Category | null>(null);
+
+    const form = useForm<CategoryFormValues>({
+        resolver: zodResolver(categoryFormSchema),
+        defaultValues: { name: '' }
+    });
+
+    const handleEditClick = (category: Category) => {
+        setCurrentCategory(category);
+        form.reset({ name: category.name });
+        setDialogOpen(true);
+    };
+
+    const handleAddNewClick = () => {
+        setCurrentCategory(null);
+        form.reset({ name: '' });
+        setDialogOpen(true);
+    };
+
+    const handleDeleteClick = (categoryId: string) => {
+        setCategories(cats => cats.filter(c => c.id !== categoryId));
+        toast({
+            title: "Category Deleted",
+            description: "The category has been successfully removed.",
+        });
+    };
+
+    const handleFormSubmit = (values: CategoryFormValues) => {
+        if (currentCategory) {
+            setCategories(cats => cats.map(c => c.id === currentCategory.id ? { ...c, ...values } : c));
+            toast({ title: "Category Updated", description: `${values.name} has been updated.` });
+        } else {
+            const newCategory: Category = { id: `cat-${Date.now()}`, ...values };
+            setCategories(cats => [newCategory, ...cats]);
+            toast({ title: "Category Added", description: `${values.name} has been created.` });
+        }
+        setDialogOpen(false);
+    };
+
+    return (
+        <div>
+            <div className="flex justify-between items-center mb-6">
+                <h1 className="text-3xl font-bold">Manage Categories</h1>
+                <Dialog open={isDialogOpen} onOpenChange={setDialogOpen}>
+                    <DialogTrigger asChild>
+                        <Button onClick={handleAddNewClick}>
+                            <PlusCircle className="mr-2"/> Add Category
+                        </Button>
+                    </DialogTrigger>
+                    <DialogContent>
+                        <Form {...form}>
+                            <form onSubmit={form.handleSubmit(handleFormSubmit)}>
+                                <DialogHeader>
+                                    <DialogTitle>{currentCategory ? 'Edit Category' : 'Add New Category'}</DialogTitle>
+                                </DialogHeader>
+                                <div className="py-4">
+                                     <FormField
+                                        control={form.control}
+                                        name="name"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel>Category Name</FormLabel>
+                                                <FormControl>
+                                                    <Input placeholder="e.g., Food & Drink" {...field} />
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                </div>
+                                <DialogFooter>
+                                    <DialogClose asChild><Button type="button" variant="secondary">Cancel</Button></DialogClose>
+                                    <Button type="submit">{currentCategory ? 'Save Changes' : 'Create Category'}</Button>
+                                </DialogFooter>
+                            </form>
+                        </Form>
+                    </DialogContent>
+                </Dialog>
+            </div>
+
+            <Card>
+                <CardHeader>
+                    <CardTitle>Category List</CardTitle>
+                    <CardDescription>A list of all offer categories.</CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <Table>
+                        <TableHeader>
+                            <TableRow>
+                                <TableHead>Name</TableHead>
+                                <TableHead className="text-right">Actions</TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {categories.map((cat) => (
+                                <TableRow key={cat.id}>
+                                    <TableCell className="font-medium">{cat.name}</TableCell>
+                                    <TableCell className="text-right">
+                                        <DropdownMenu>
+                                            <DropdownMenuTrigger asChild>
+                                                <Button variant="ghost" className="h-8 w-8 p-0">
+                                                    <MoreHorizontal className="h-4 w-4" />
+                                                </Button>
+                                            </DropdownMenuTrigger>
+                                            <DropdownMenuContent align="end">
+                                                <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                                                <DropdownMenuItem onClick={() => handleEditClick(cat)}>
+                                                    <Edit className="mr-2 h-4 w-4" /> Edit
+                                                </DropdownMenuItem>
+                                                <AlertDialog>
+                                                    <AlertDialogTrigger asChild>
+                                                        <Button variant="ghost" className="w-full justify-start text-sm text-destructive hover:text-destructive p-2 h-auto font-normal">
+                                                            <Trash2 className="mr-2 h-4 w-4" /> Delete
+                                                        </Button>
+                                                    </AlertDialogTrigger>
+                                                    <AlertDialogContent>
+                                                        <AlertDialogHeader>
+                                                            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                                                            <AlertDialogDescription>This will permanently delete the category.</AlertDialogDescription>
+                                                        </AlertDialogHeader>
+                                                        <AlertDialogFooter>
+                                                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                            <AlertDialogAction onClick={() => handleDeleteClick(cat.id)} className="bg-destructive hover:bg-destructive/90">Delete</AlertDialogAction>
+                                                        </AlertDialogFooter>
+                                                    </AlertDialogContent>
+                                                </AlertDialog>
+                                            </DropdownMenuContent>
+                                        </DropdownMenu>
+                                    </TableCell>
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
+                </CardContent>
+            </Card>
+        </div>
+    );
+}

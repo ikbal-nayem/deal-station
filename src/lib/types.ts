@@ -37,4 +37,12 @@ export type Organization = {
     logoUrl?: string;
 }
 
-    
+export type Category = {
+    id: string;
+    name: string;
+}
+
+export type Tag = {
+    id: string;
+    name: string;
+}

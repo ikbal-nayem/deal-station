@@ -1,4 +1,21 @@
-import type { Offer } from './types';
+
+import type { Offer, Category, Tag } from './types';
+
+export const mockCategories: Category[] = [
+    { id: 'cat-1', name: 'Food & Drink' },
+    { id: 'cat-2', name: 'Health & Wellness' },
+    { id: 'cat-3', name: 'Shopping' },
+    { id: 'cat-4', name: 'Entertainment' },
+    { id: 'cat-5', name: 'Services' },
+];
+
+export const mockTags: Tag[] = [
+    { id: 'tag-1', name: 'Vegan' },
+    { id: 'tag-2', name: 'Outdoor Seating' },
+    { id: 'tag-3', name: 'Family Friendly' },
+    { id: 'tag-4', name: 'Pet Friendly' },
+    { id: 'tag-5', name: 'Happy Hour' },
+];
 
 export const mockOffers: Offer[] = [
   {
