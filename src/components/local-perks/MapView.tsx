@@ -6,6 +6,7 @@ import Map, { Marker, Popup } from 'react-map-gl/maplibre';
 import type { Offer } from '@/lib/types';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { MapPin } from 'lucide-react';
+import { useTheme } from 'next-themes';
 
 interface MapViewProps {
   offers: Offer[];
@@ -15,11 +16,18 @@ interface MapViewProps {
 }
 
 export default function MapView({ offers, onMarkerClick, center, selectedOfferId }: MapViewProps) {
+  const { theme } = useTheme();
+  const [isMounted, setIsMounted] = React.useState(false);
+
   const [viewState, setViewState] = React.useState({
     longitude: center?.lng ?? -122.4194,
     latitude: center?.lat ?? 37.7749,
     zoom: 12
   });
+
+  React.useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   React.useEffect(() => {
     if (center) {
@@ -52,12 +60,24 @@ export default function MapView({ offers, onMarkerClick, center, selectedOfferId
         </Marker>
   )), [offers, onMarkerClick, selectedOfferId]);
 
+  const getMapStyle = () => {
+    const isDark = theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+    return isDark 
+      ? 'https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json'
+      : 'https://basemaps.cartocdn.com/gl/positron-gl-style/style.json';
+  }
+
+  // We need to wait for the component to be mounted to check the theme
+  if (!isMounted) {
+    return <div className="w-full h-full bg-muted animate-pulse" />;
+  }
+  
   return (
     <Map
       {...viewState}
       onMove={evt => setViewState(evt.viewState)}
       style={{ width: '100%', height: '100%' }}
-      mapStyle="https://basemaps.cartocdn.com/gl/positron-gl-style/style.json"
+      mapStyle={getMapStyle()}
       onClick={() => setPopupInfo(null)}
     >
       {center && (
@@ -77,9 +97,10 @@ export default function MapView({ offers, onMarkerClick, center, selectedOfferId
           closeOnClick={false}
           offset={30}
           anchor="bottom"
+          className="font-body"
         >
           <div className="p-1">
-            <h3 className="font-bold text-sm">{popupInfo.title}</h3>
+            <h3 className="font-bold text-sm text-foreground">{popupInfo.title}</h3>
             <p className="text-xs text-muted-foreground">{popupInfo.companyName}</p>
           </div>
         </Popup>
