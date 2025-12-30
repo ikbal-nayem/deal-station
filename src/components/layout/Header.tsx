@@ -16,6 +16,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Badge } from '../ui/badge';
 import { usePathname } from 'next/navigation';
+import Logo from './Logo';
 
 interface HeaderProps {
   children?: React.ReactNode;
@@ -35,8 +36,9 @@ export default function Header({ children }: HeaderProps) {
     <header className="flex shrink-0 items-center justify-between border-b p-2">
       <div className="flex items-center gap-2">
         {children}
-        <Link href="/" className="text-xl font-bold font-headline px-2">
-          LocalPerks
+        <Link href="/" className="flex items-center gap-2 text-xl font-bold font-headline px-2">
+          <Logo className="w-8 h-8" />
+          The Deal Station
         </Link>
       </div>
       <div className="flex items-center gap-2">

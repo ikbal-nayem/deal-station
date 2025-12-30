@@ -53,7 +53,7 @@ export default function RegisterPage() {
               Create Account
             </CardTitle>
             <CardDescription>
-              Join LocalPerks to unlock exclusive deals.
+              Join The Deal Station to unlock exclusive deals.
             </CardDescription>
           </CardHeader>
           <CardContent>

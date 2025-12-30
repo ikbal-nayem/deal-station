@@ -6,8 +6,8 @@ import { ThemeProvider } from '@/components/ThemeProvider';
 import NextTopLoader from 'nextjs-toploader';
 
 export const metadata: Metadata = {
-  title: 'LocalPerks',
-  description: 'Discover exclusive offers and perks in your local area.',
+  title: 'The Deal Station',
+  description: 'Discover exclusive offers and deals in your local area.',
 };
 
 export default function RootLayout({
