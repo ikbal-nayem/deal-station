@@ -34,7 +34,7 @@ export default function Header({ children }: HeaderProps) {
     return '/';
   }
 
-  const userName = user ? `${user.firstName} ${user.lastName}` : '';
+  const userName = user && user.firstName && user.lastName ? `${user.firstName} ${user.lastName}` : '';
   const userFallback = user && user.firstName && user.lastName ? `${user.firstName.charAt(0)}${user.lastName.charAt(0)}` : '';
 
   return (
@@ -55,7 +55,7 @@ export default function Header({ children }: HeaderProps) {
                   <AvatarImage src={user.avatarUrl} alt={userName} />
                   <AvatarFallback>{userFallback}</AvatarFallback>
                 </Avatar>
-                <span className="hidden sm:block">{userName}</span>
+                {userName && <span className="hidden sm:block">{userName}</span>}
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-56">

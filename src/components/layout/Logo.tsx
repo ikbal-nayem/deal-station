@@ -11,7 +11,7 @@ export default function Logo() {
           width={40}
           height={40}
         />
-       <span>The Deal Station</span>
+       <span className="sr-only">The Deal Station</span>
     </Link>
   );
 }
