@@ -1,3 +1,4 @@
+
 "use client"
 
 import * as React from "react"
@@ -88,9 +89,11 @@ FormItem.displayName = "FormItem"
 
 const FormLabel = React.forwardRef<
   React.ElementRef<typeof LabelPrimitive.Root>,
-  React.ComponentPropsWithoutRef<typeof LabelPrimitive.Root>
->(({ className, ...props }, ref) => {
-  const { error, formItemId } = useFormField()
+  React.ComponentPropsWithoutRef<typeof LabelPrimitive.Root> & {
+    required?: boolean;
+  }
+>(({ className, required, children, ...props }, ref) => {
+  const { error, formItemId } = useFormField();
 
   return (
     <Label
@@ -98,9 +101,12 @@ const FormLabel = React.forwardRef<
       className={cn(error && "text-destructive", className)}
       htmlFor={formItemId}
       {...props}
-    />
-  )
-})
+    >
+      {children}
+      {required && <span className="text-destructive"> *</span>}
+    </Label>
+  );
+});
 FormLabel.displayName = "FormLabel"
 
 const FormControl = React.forwardRef<

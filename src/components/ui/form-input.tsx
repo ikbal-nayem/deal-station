@@ -19,7 +19,7 @@ export function FormInput<T extends FieldValues>({ control, name, label, type = 
             name={name}
             render={({ field }) => (
                 <FormItem className={cn(className)}>
-                    <FormLabel>{label}</FormLabel>
+                    <FormLabel required={props.required}>{label}</FormLabel>
                     <FormControl>
                         <Input type={type} {...props} {...field} />
                     </FormControl>
