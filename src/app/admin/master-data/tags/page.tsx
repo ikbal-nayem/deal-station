@@ -8,8 +8,7 @@ import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogTrigger, DialogClose } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Form } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
 import { PlusCircle, MoreHorizontal, Edit, Trash2 } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -17,6 +16,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel,
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { type Tag } from "@/lib/types";
 import { mockTags } from "@/lib/mock-data";
+import { FormInput } from "@/components/ui/form-input";
 
 const tagFormSchema = z.object({
   name: z.string().min(2, { message: "Tag name must be at least 2 characters." }),
@@ -84,19 +84,12 @@ export default function TagsPage() {
                                     <DialogTitle>{currentTag ? 'Edit Tag' : 'Add New Tag'}</DialogTitle>
                                 </DialogHeader>
                                 <div className="py-4">
-                                     <FormField
+                                     <FormInput
                                         control={form.control}
                                         name="name"
-                                        render={({ field }) => (
-                                            <FormItem>
-                                                <FormLabel>Tag Name</FormLabel>
-                                                <FormControl>
-                                                    <Input placeholder="e.g., Vegan" {...field} />
-                                                </FormControl>
-                                                <FormMessage />
-                                            </FormItem>
-                                        )}
-                                    />
+                                        label="Tag Name"
+                                        placeholder="e.g., Vegan"
+                                     />
                                 </div>
                                 <DialogFooter>
                                     <DialogClose asChild><Button type="button" variant="secondary">Cancel</Button></DialogClose>
