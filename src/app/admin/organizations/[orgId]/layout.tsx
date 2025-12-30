@@ -4,13 +4,15 @@
 import { useParams, usePathname } from 'next/navigation';
 import { useState, useEffect, type ReactNode } from 'react';
 import Link from 'next/link';
-import { ChevronLeft, Building, Users, ShoppingBag, Info } from 'lucide-react';
+import { ChevronLeft, Building, Users, ShoppingBag, Info, Mail, Phone, Globe } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { mockOrganizations } from '@/lib/mock-organizations';
 import type { Organization } from '@/lib/types';
 import { Card, CardContent } from '@/components/ui/card';
+import { format } from 'date-fns';
+import { Separator } from '@/components/ui/separator';
 
 export default function OrganizationDetailLayout({ children }: { children: ReactNode }) {
     const params = useParams();
@@ -39,8 +41,8 @@ export default function OrganizationDetailLayout({ children }: { children: React
 
     return (
         <div className="space-y-6">
-            <div className="mb-4">
-                <Button variant="ghost" asChild className="-ml-4 mb-4">
+            <div className="space-y-4">
+                <Button variant="ghost" asChild className="-ml-4">
                     <Link href="/admin/organizations">
                         <ChevronLeft className="mr-2 h-4 w-4" />
                         Back to Organizations
@@ -53,9 +55,32 @@ export default function OrganizationDetailLayout({ children }: { children: React
                     </Avatar>
                     <div>
                         <h1 className="text-xl font-bold">{organization.name}</h1>
-                        <p className="text-muted-foreground">Detailed view and management portal.</p>
+                        <p className="text-muted-foreground">Joined on {format(new Date(organization.createdAt), 'PPP')}</p>
                     </div>
                 </div>
+                 <Card>
+                    <CardContent className="p-4 space-y-3">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 text-sm">
+                            <div className="flex items-center gap-3">
+                                <Mail className="h-5 w-5 text-muted-foreground"/>
+                                <a href={`mailto:${organization.ownerEmail}`} className="hover:underline">{organization.ownerEmail}</a>
+                            </div>
+                            <div className="flex items-center gap-3">
+                                <Phone className="h-5 w-5 text-muted-foreground"/>
+                                <span>{organization.phone || 'No phone'}</span>
+                            </div>
+                             <div className="flex items-center gap-3">
+                                <Globe className="h-5 w-5 text-muted-foreground"/>
+                                <a href={organization.website} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">{organization.website || 'No website'}</a>
+                            </div>
+                        </div>
+                        <Separator/>
+                         <div className="flex items-start gap-3 text-sm">
+                            <Building className="h-5 w-5 text-muted-foreground mt-0.5 shrink-0"/>
+                            <span>{organization.address || 'No address provided'}</span>
+                        </div>
+                    </CardContent>
+                </Card>
             </div>
 
             <Tabs value={getActiveTab()} className="w-full">
@@ -63,7 +88,7 @@ export default function OrganizationDetailLayout({ children }: { children: React
                     <TabsTrigger value="details" asChild>
                         <Link href={`/admin/organizations/${orgId}`}>
                             <Info className="mr-2 h-4 w-4" />
-                            Details
+                            Overview
                         </Link>
                     </TabsTrigger>
                      <TabsTrigger value="users" asChild>
@@ -87,11 +112,9 @@ export default function OrganizationDetailLayout({ children }: { children: React
                 </TabsList>
             </Tabs>
             
-            <Card>
-                <CardContent className="p-6">
-                    {children}
-                </CardContent>
-            </Card>
+            <div>
+                {children}
+            </div>
 
         </div>
     );
