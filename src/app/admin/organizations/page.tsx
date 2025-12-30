@@ -8,7 +8,7 @@ import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogTrigger, DialogClose } from "@/components/ui/dialog";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Form } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
 import { PlusCircle, MoreHorizontal, Edit, Trash2, Eye } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -30,7 +30,7 @@ const orgFormSchema = z.object({
   website: z.string().url({ message: "Please enter a valid URL." }).optional().or(z.literal('')),
   phone: z.string().optional(),
   address: z.string().optional(),
-  logoUrl: z.string().url({ message: "Please enter a valid image URL." }).optional().or(z.literal('')),
+  logoUrl: z.any().optional(),
 });
 
 type OrgFormValues = z.infer<typeof orgFormSchema>;
@@ -88,9 +88,16 @@ export default function OrganizationsPage() {
     };
 
     const handleFormSubmit = (values: OrgFormValues) => {
+        const logoUrl = values.logoUrl && values.logoUrl.length > 0 ? URL.createObjectURL(values.logoUrl[0]) : (currentOrgId ? organizations.find(o => o.id === currentOrgId)?.logoUrl : '');
+
+        const orgData = {
+            ...values,
+            logoUrl,
+        };
+
         if (currentOrgId) {
             // Update existing organization
-            const updatedOrg = { ...values, id: currentOrgId, createdAt: organizations.find(o=>o.id === currentOrgId)!.createdAt };
+            const updatedOrg = { ...orgData, id: currentOrgId, createdAt: organizations.find(o=>o.id === currentOrgId)!.createdAt };
             setOrganizations(orgs => orgs.map(o => o.id === currentOrgId ? updatedOrg : o));
             toast({
                 title: "Organization Updated",
@@ -101,7 +108,7 @@ export default function OrganizationsPage() {
             const newOrg: Organization = {
                 id: `org-${Date.now()}`,
                 createdAt: new Date().toISOString(),
-                ...values,
+                ...orgData,
             };
             setOrganizations(orgs => [newOrg, ...orgs]);
             toast({
@@ -153,8 +160,8 @@ export default function OrganizationsPage() {
                                     <FormInput
                                         control={form.control}
                                         name="logoUrl"
-                                        label="Logo URL"
-                                        placeholder="https://example.com/logo.png"
+                                        label="Logo"
+                                        type="file"
                                     />
                                     <FormInput
                                         control={form.control}
