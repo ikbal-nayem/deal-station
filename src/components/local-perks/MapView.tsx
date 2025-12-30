@@ -2,22 +2,21 @@
 'use client';
 
 import * as React from 'react';
-import Map, { Marker, Popup, Source, Layer } from 'react-map-gl/maplibre';
+import Map, { Marker, Popup } from 'react-map-gl/maplibre';
 import type { Offer } from '@/lib/types';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { MapPin } from 'lucide-react';
 import { useTheme } from 'next-themes';
-import type { Feature, LineString } from 'geojson';
 
 interface MapViewProps {
   offers: Offer[];
   onMarkerClick: (offer: Offer) => void;
   center?: { lat: number; lng: number };
   selectedOfferId?: string;
-  routeLine?: Feature<LineString>;
+  selectedOfferForMap?: Offer | null;
 }
 
-export default function MapView({ offers, onMarkerClick, center, selectedOfferId, routeLine }: MapViewProps) {
+export default function MapView({ offers, onMarkerClick, center, selectedOfferId, selectedOfferForMap }: MapViewProps) {
   const { theme } = useTheme();
   const [isMounted, setIsMounted] = React.useState(false);
   const [primaryColor, setPrimaryColor] = React.useState('hsl(24 94% 50%)'); 
@@ -25,7 +24,10 @@ export default function MapView({ offers, onMarkerClick, center, selectedOfferId
   const [viewState, setViewState] = React.useState({
     longitude: center?.lng ?? 90.4125,
     latitude: center?.lat ?? 23.8103,
-    zoom: 12
+    zoom: 12,
+    pitch: 0,
+    bearing: 0,
+    transitionDuration: 1000,
   });
 
   React.useEffect(() => {
@@ -52,6 +54,19 @@ export default function MapView({ offers, onMarkerClick, center, selectedOfferId
       }));
     }
   }, [center]);
+
+   React.useEffect(() => {
+    if (selectedOfferForMap) {
+      setViewState(current => ({
+        ...current,
+        longitude: selectedOfferForMap.longitude,
+        latitude: selectedOfferForMap.latitude,
+        zoom: 15,
+        transitionDuration: 1000,
+      }));
+    }
+  }, [selectedOfferForMap]);
+
 
   const [popupInfo, setPopupInfo] = React.useState<Offer | null>(null);
 
@@ -118,25 +133,6 @@ export default function MapView({ offers, onMarkerClick, center, selectedOfferId
             <p className="text-xs text-muted-foreground">{popupInfo.companyName}</p>
           </div>
         </Popup>
-      )}
-
-      {routeLine && (
-        <Source id="route-line" type="geojson" data={routeLine}>
-          <Layer
-            id="route-layer"
-            type="line"
-            source="route-line"
-            layout={{
-              'line-join': 'round',
-              'line-cap': 'round',
-            }}
-            paint={{
-              'line-color': primaryColor,
-              'line-width': 4,
-              'line-opacity': 0.8,
-            }}
-          />
-        </Source>
       )}
     </Map>
   );
