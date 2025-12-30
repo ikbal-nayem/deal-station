@@ -98,6 +98,7 @@ export default function LocalPerksPage() {
     }
     setSelectedOfferForSheet(offer);
     setSheetOpen(true);
+    setSelectedOfferForMap(offer);
   }
 
   const onSheetOpenChange = (isOpen: boolean) => {
