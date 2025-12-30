@@ -20,6 +20,7 @@ interface MapViewProps {
 export default function MapView({ offers, onMarkerClick, center, selectedOfferId, routeLine }: MapViewProps) {
   const { theme } = useTheme();
   const [isMounted, setIsMounted] = React.useState(false);
+  const [primaryColor, setPrimaryColor] = React.useState('#FF4500'); // Default orange
 
   const [viewState, setViewState] = React.useState({
     longitude: center?.lng ?? -122.4194,
@@ -30,6 +31,17 @@ export default function MapView({ offers, onMarkerClick, center, selectedOfferId
   React.useEffect(() => {
     setIsMounted(true);
   }, []);
+
+  React.useEffect(() => {
+    if(typeof window !== 'undefined') {
+      const computedStyle = getComputedStyle(document.documentElement);
+      const primaryH = computedStyle.getPropertyValue('--primary').trim().split(' ')[0];
+      const primarySL = computedStyle.getPropertyValue('--primary').trim().split(' ').slice(1).join(' ');
+      if (primaryH && primarySL) {
+        setPrimaryColor(`hsl(${primaryH} ${primarySL})`);
+      }
+    }
+  }, [theme]);
 
   React.useEffect(() => {
     if (center) {
@@ -119,7 +131,7 @@ export default function MapView({ offers, onMarkerClick, center, selectedOfferId
               'line-cap': 'round',
             }}
             paint={{
-              'line-color': 'hsl(var(--primary))',
+              'line-color': primaryColor,
               'line-width': 4,
               'line-opacity': 0.8,
             }}
