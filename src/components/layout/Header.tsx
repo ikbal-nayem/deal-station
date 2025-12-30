@@ -35,7 +35,7 @@ export default function Header({ children }: HeaderProps) {
   }
 
   const userName = user ? `${user.firstName} ${user.lastName}` : '';
-  const userFallback = user ? `${user.firstName.charAt(0)}${user.lastName.charAt(0)}` : '';
+  const userFallback = user && user.firstName && user.lastName ? `${user.firstName.charAt(0)}${user.lastName.charAt(0)}` : '';
 
   return (
     <header className="flex shrink-0 items-center justify-between border-b p-2">
