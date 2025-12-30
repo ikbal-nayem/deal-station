@@ -52,7 +52,7 @@ export default function Header({ children }: HeaderProps) {
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="flex items-center gap-2 rounded-full p-1 h-auto">
                 <Avatar className="h-8 w-8">
-                  <AvatarImage src={user.avatarUrl} alt={userName} />
+                  <AvatarImage src={user.avatarUrl || ''} alt={userName} />
                   <AvatarFallback>{userFallback}</AvatarFallback>
                 </Avatar>
                 {userName && <span className="hidden sm:block">{userName}</span>}
