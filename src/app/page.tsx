@@ -82,8 +82,13 @@ export default function LocalPerksPage() {
   };
   
   const handleShowOnMapClick = (offer: Offer) => {
-    setSelectedOfferForMap(offer);
-    setView('map');
+    // By setting it to null first, we ensure React detects the change even if the same offer is clicked again.
+    // This is crucial for the line to be re-drawn if the map view was changed.
+    setSelectedOfferForMap(null);
+    setTimeout(() => {
+      setSelectedOfferForMap(offer);
+      setView('map');
+    }, 0);
   };
 
   const handleMarkerClick = (offer: Offer) => {
