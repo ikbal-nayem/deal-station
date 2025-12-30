@@ -19,7 +19,6 @@ interface MapViewProps {
 export default function MapView({ offers, onMarkerClick, center, selectedOfferId, selectedOfferForMap }: MapViewProps) {
   const { theme } = useTheme();
   const [isMounted, setIsMounted] = React.useState(false);
-  const [primaryColor, setPrimaryColor] = React.useState('hsl(24 94% 50%)'); 
 
   const [viewState, setViewState] = React.useState({
     longitude: center?.lng ?? 90.4125,
@@ -33,17 +32,6 @@ export default function MapView({ offers, onMarkerClick, center, selectedOfferId
   React.useEffect(() => {
     setIsMounted(true);
   }, []);
-
-  React.useEffect(() => {
-    if(typeof window !== 'undefined') {
-      const computedStyle = getComputedStyle(document.documentElement);
-      const primaryH = computedStyle.getPropertyValue('--primary').trim().split(' ')[0];
-      const primarySL = computedStyle.getPropertyValue('--primary').trim().split(' ').slice(1).join(' ');
-      if (primaryH && primarySL) {
-        setPrimaryColor(`hsl(${primaryH} ${primarySL})`);
-      }
-    }
-  }, [theme]);
 
   React.useEffect(() => {
     if (center) {
