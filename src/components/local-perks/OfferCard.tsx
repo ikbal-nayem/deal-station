@@ -87,7 +87,7 @@ export default function OfferCard({ offer, onShowDetailsClick, onShowOnMapClick 
         <p className="text-sm text-muted-foreground line-clamp-2">{offer.description}</p>
         <div className="text-xs text-muted-foreground/80 mt-2 flex items-center gap-1">
             <MapPin className="w-3 h-3" />
-            <span>{offer.latitude.toFixed(4)}, {offer.longitude.toFixed(4)}</span>
+            <span>{offer.distance} away</span>
         </div>
       </CardContent>
       <CardFooter className={cn('flex-col sm:flex-row items-stretch sm:items-center gap-2 pt-0', showLoginOverlay && 'blur-sm')}>
