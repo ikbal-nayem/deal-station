@@ -3,15 +3,14 @@
 
 import { useAuth } from "@/context/AuthContext";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Form, FormField, FormControl, FormItem, FormMessage, FormLabel } from "@/components/ui/form";
+import { Form } from "@/components/ui/form";
 import { useState } from "react";
+import { FormImageUpload } from "@/components/ui/form-image-upload";
 
 const avatarFormSchema = z.object({
   avatar: z.any()
@@ -64,29 +63,13 @@ export default function UpdateAvatarForm() {
       </CardHeader>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)}>
-          <CardContent className="flex items-center gap-6">
-            <Avatar className="h-20 w-20">
-              <AvatarImage src={user.avatarUrl} />
-              <AvatarFallback>{user.name?.charAt(0).toUpperCase()}</AvatarFallback>
-            </Avatar>
-            <FormField
-              control={form.control}
-              name="avatar"
-              render={({ field: { onChange, value, ...rest } }) => (
-                <FormItem className="flex-1">
-                    <FormLabel>New Avatar</FormLabel>
-                    <FormControl>
-                        <Input 
-                            type="file" 
-                            accept="image/png, image/jpeg, image/webp"
-                            onChange={(e) => onChange(e.target.files)}
-                            {...rest}
-                        />
-                    </FormControl>
-                    <FormMessage />
-                </FormItem>
-              )}
-            />
+          <CardContent>
+            <FormImageUpload
+                control={form.control}
+                name="avatar"
+                currentImage={user.avatarUrl}
+                fallbackText={`${user.firstName.charAt(0)}${user.lastName.charAt(0)}`}
+                />
           </CardContent>
           <CardFooter className="border-t pt-4">
             <Button type="submit" disabled={isSubmitting}>

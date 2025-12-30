@@ -22,6 +22,7 @@ import type { Organization } from "@/lib/types";
 import { format } from "date-fns";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { FormInput } from "@/components/ui/form-input";
+import { FormImageUpload } from "@/components/ui/form-image-upload";
 
 
 const orgFormSchema = z.object({
@@ -39,7 +40,7 @@ export default function OrganizationsPage() {
     const { toast } = useToast();
     const [organizations, setOrganizations] = useState<Organization[]>(initialOrgs);
     const [isDialogOpen, setDialogOpen] = useState(false);
-    const [currentOrgId, setCurrentOrgId] = useState<string | null>(null);
+    const [currentOrg, setCurrentOrg] = useState<Organization | null>(null);
     
     const form = useForm<OrgFormValues>({
         resolver: zodResolver(orgFormSchema),
@@ -49,32 +50,32 @@ export default function OrganizationsPage() {
             website: '',
             phone: '',
             address: '',
-            logoUrl: '',
+            logoUrl: undefined,
         }
     });
 
     useEffect(() => {
         if (!isDialogOpen) {
             form.reset();
-            setCurrentOrgId(null);
+            setCurrentOrg(null);
         }
     }, [isDialogOpen, form]);
 
     const handleEditClick = (org: Organization) => {
-        setCurrentOrgId(org.id);
+        setCurrentOrg(org);
         form.reset({
             name: org.name,
             ownerEmail: org.ownerEmail,
             website: org.website || '',
             phone: org.phone || '',
             address: org.address || '',
-            logoUrl: org.logoUrl || '',
+            logoUrl: undefined,
         });
         setDialogOpen(true);
     };
 
     const handleAddNewClick = () => {
-        setCurrentOrgId(null);
+        setCurrentOrg(null);
         form.reset();
         setDialogOpen(true);
     };
@@ -88,17 +89,15 @@ export default function OrganizationsPage() {
     };
 
     const handleFormSubmit = (values: OrgFormValues) => {
-        const logoUrl = values.logoUrl && values.logoUrl.length > 0 ? URL.createObjectURL(values.logoUrl[0]) : (currentOrgId ? organizations.find(o => o.id === currentOrgId)?.logoUrl : '');
+        let logoUrl = currentOrg?.logoUrl; // Keep current logo by default
+        if (values.logoUrl && values.logoUrl.length > 0) {
+           logoUrl = URL.createObjectURL(values.logoUrl[0]);
+        }
 
-        const orgData = {
-            ...values,
-            logoUrl,
-        };
-
-        if (currentOrgId) {
+        if (currentOrg) {
             // Update existing organization
-            const updatedOrg = { ...orgData, id: currentOrgId, createdAt: organizations.find(o=>o.id === currentOrgId)!.createdAt };
-            setOrganizations(orgs => orgs.map(o => o.id === currentOrgId ? updatedOrg : o));
+            const updatedOrg = { ...currentOrg, ...values, logoUrl };
+            setOrganizations(orgs => orgs.map(o => o.id === currentOrg.id ? updatedOrg : o));
             toast({
                 title: "Organization Updated",
                 description: `${values.name} has been successfully updated.`,
@@ -108,7 +107,8 @@ export default function OrganizationsPage() {
             const newOrg: Organization = {
                 id: `org-${Date.now()}`,
                 createdAt: new Date().toISOString(),
-                ...orgData,
+                ...values,
+                logoUrl,
             };
             setOrganizations(orgs => [newOrg, ...orgs]);
             toast({
@@ -138,13 +138,20 @@ export default function OrganizationsPage() {
                          <Form {...form}>
                             <form onSubmit={form.handleSubmit(handleFormSubmit)}>
                                 <DialogHeader>
-                                    <DialogTitle>{currentOrgId ? 'Edit Organization' : 'Add New Organization'}</DialogTitle>
+                                    <DialogTitle>{currentOrg ? 'Edit Organization' : 'Add New Organization'}</DialogTitle>
                                     <DialogDescription>
-                                        {currentOrgId ? 'Update the details of the existing organization.' : 'Create a new organization and assign an initial user.'}
+                                        {currentOrg ? 'Update the details of the existing organization.' : 'Create a new organization and assign an initial user.'}
                                     </DialogDescription>
                                 </DialogHeader>
                                 <ScrollArea className="max-h-[70vh] -mr-6 pr-6">
                                 <div className="space-y-4 py-4 ">
+                                     <FormImageUpload
+                                        control={form.control}
+                                        name="logoUrl"
+                                        currentImage={currentOrg?.logoUrl}
+                                        fallbackText={currentOrg?.name?.charAt(0) || '?'}
+                                        shape="square"
+                                     />
                                      <FormInput
                                         control={form.control}
                                         name="name"
@@ -156,12 +163,6 @@ export default function OrganizationsPage() {
                                         name="ownerEmail"
                                         label="Owner Email"
                                         placeholder="user@organization.com"
-                                    />
-                                    <FormInput
-                                        control={form.control}
-                                        name="logoUrl"
-                                        label="Logo"
-                                        type="file"
                                     />
                                     <FormInput
                                         control={form.control}
@@ -187,7 +188,7 @@ export default function OrganizationsPage() {
                                     <DialogClose asChild>
                                         <Button type="button" variant="secondary">Cancel</Button>
                                     </DialogClose>
-                                    <Button type="submit">{currentOrgId ? 'Save Changes' : 'Create Organization'}</Button>
+                                    <Button type="submit">{currentOrg ? 'Save Changes' : 'Create Organization'}</Button>
                                 </DialogFooter>
                             </form>
                         </Form>

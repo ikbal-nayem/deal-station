@@ -13,7 +13,7 @@ export default function OrganizationDashboardPage() {
   return (
     <div className="space-y-6">
       <div className="space-y-1">
-        <h1 className="text-xl font-bold">Welcome, {user?.name || 'Organization'}!</h1>
+        <h1 className="text-xl font-bold">Welcome, {user ? `${user.firstName} ${user.lastName}` : 'Organization'}!</h1>
         <p className="text-muted-foreground">Here's a summary of your organization's activity.</p>
       </div>
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">

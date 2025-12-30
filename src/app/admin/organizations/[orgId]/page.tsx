@@ -31,7 +31,8 @@ export default function OrganizationDetailPage() {
     const [offers, setOffers] = useState<Offer[]>([]);
 
     const [newUserEmail, setNewUserEmail] = useState('');
-    const [newUserName, setNewUserName] = useState('');
+    const [newUserFirstName, setNewUserFirstName] = useState('');
+    const [newUserLastName, setNewUserLastName] = useState('');
 
     useEffect(() => {
         const foundOrg = mockOrganizations.find(o => o.id === orgId);
@@ -48,7 +49,8 @@ export default function OrganizationDetailPage() {
         
         const newUser: User = {
             id: `user-${Date.now()}`,
-            name: newUserName,
+            firstName: newUserFirstName,
+            lastName: newUserLastName,
             email: newUserEmail,
             role: 'Organization',
             organizationId: organization.id,
@@ -57,9 +59,10 @@ export default function OrganizationDetailPage() {
         setUsers(currentUsers => [...currentUsers, newUser]);
         toast({
             title: "User Added",
-            description: `${newUserName} has been added to ${organization.name}.`,
+            description: `${newUserFirstName} ${newUserLastName} has been added to ${organization.name}.`,
         });
-        setNewUserName('');
+        setNewUserFirstName('');
+        setNewUserLastName('');
         setNewUserEmail('');
     };
 
@@ -70,7 +73,7 @@ export default function OrganizationDetailPage() {
         setUsers(currentUsers => currentUsers.filter(u => u.id !== userId));
         toast({
             title: "User Removed",
-            description: `${userToRemove.name} has been removed from the organization.`,
+            description: `${userToRemove.firstName} ${userToRemove.lastName} has been removed from the organization.`,
         });
     };
 
@@ -161,18 +164,28 @@ export default function OrganizationDetailPage() {
                             <CardDescription>Add or remove users for this organization.</CardDescription>
                         </CardHeader>
                         <CardContent>
-                            <form onSubmit={handleAddUser} className="flex flex-col sm:flex-row items-end gap-2 mb-6">
-                                <div className="w-full space-y-2">
-                                    <Label htmlFor="newUserName">Name</Label>
+                            <form onSubmit={handleAddUser} className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-end mb-6">
+                                <div className="space-y-2">
+                                    <Label htmlFor="newUserFirstName">First Name</Label>
                                     <Input
-                                        id="newUserName"
-                                        placeholder="John Doe"
-                                        value={newUserName}
-                                        onChange={(e) => setNewUserName(e.target.value)}
+                                        id="newUserFirstName"
+                                        placeholder="John"
+                                        value={newUserFirstName}
+                                        onChange={(e) => setNewUserFirstName(e.target.value)}
                                         required
                                     />
                                 </div>
-                                <div className="w-full space-y-2">
+                                <div className="space-y-2">
+                                    <Label htmlFor="newUserLastName">Last Name</Label>
+                                    <Input
+                                        id="newUserLastName"
+                                        placeholder="Doe"
+                                        value={newUserLastName}
+                                        onChange={(e) => setNewUserLastName(e.target.value)}
+                                        required
+                                    />
+                                </div>
+                                <div className="space-y-2 sm:col-span-2">
                                     <Label htmlFor="newUserEmail">Email</Label>
                                     <Input
                                         id="newUserEmail"
@@ -183,7 +196,7 @@ export default function OrganizationDetailPage() {
                                         required
                                     />
                                 </div>
-                                <Button type="submit" className="w-full sm:w-auto shrink-0">
+                                <Button type="submit" className="w-full sm:col-span-2">
                                     <UserPlus /> Add User
                                 </Button>
                             </form>
@@ -199,7 +212,7 @@ export default function OrganizationDetailPage() {
                                 <TableBody>
                                     {users.map(user => (
                                         <TableRow key={user.id}>
-                                            <TableCell>{user.name}</TableCell>
+                                            <TableCell>{user.firstName} {user.lastName}</TableCell>
                                             <TableCell>{user.email}</TableCell>
                                             <TableCell className="text-right">
                                             <AlertDialog>
@@ -212,7 +225,7 @@ export default function OrganizationDetailPage() {
                                                         <AlertDialogHeader>
                                                             <AlertDialogTitle>Are you sure?</AlertDialogTitle>
                                                             <AlertDialogDescription>
-                                                                This will remove {user.name} from the organization. This action cannot be undone.
+                                                                This will remove {user.firstName} {user.lastName} from the organization. This action cannot be undone.
                                                             </AlertDialogDescription>
                                                         </AlertDialogHeader>
                                                         <AlertDialogFooter>

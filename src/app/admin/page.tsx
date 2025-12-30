@@ -27,7 +27,7 @@ export default function AdminDashboardPage() {
   return (
     <div className="space-y-6">
       <div className="space-y-1">
-        <h1 className="text-xl font-bold">Welcome, {user?.name}!</h1>
+        <h1 className="text-xl font-bold">Welcome, {user ? `${user.firstName} ${user.lastName}` : ''}!</h1>
         <p className="text-muted-foreground">Here's a summary of your application's activity.</p>
       </div>
       

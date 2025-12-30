@@ -21,7 +21,8 @@ import Header from '@/components/layout/Header';
 export default function RegisterPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [name, setName] = useState('');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
   const { toast } = useToast();
@@ -31,7 +32,7 @@ export default function RegisterPage() {
     setIsLoading(true);
     // In a real app, you'd call your backend to register the user.
     await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate network delay
-    console.log('Registering with:', { name, email, password });
+    console.log('Registering with:', { firstName, lastName, email, password });
     
     toast({
         title: "Registration Successful",
@@ -48,7 +49,7 @@ export default function RegisterPage() {
       <div className="flex flex-1 items-center justify-center px-4">
         <Card className="w-full max-w-sm">
           <CardHeader className="text-center">
-            <CardTitle className="text-2xl font-bold font-headline">
+            <CardTitle className="text-xl font-bold font-headline">
               <UserPlus className="inline-block mr-2" />
               Create Account
             </CardTitle>
@@ -58,17 +59,31 @@ export default function RegisterPage() {
           </CardHeader>
           <CardContent>
             <form onSubmit={handleRegister} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="name">Name</Label>
-                <Input
-                  id="name"
-                  type="text"
-                  placeholder="John Doe"
-                  required
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  disabled={isLoading}
-                />
+               <div className="flex gap-4">
+                <div className="space-y-2 flex-1">
+                  <Label htmlFor="firstName">First Name</Label>
+                  <Input
+                    id="firstName"
+                    type="text"
+                    placeholder="John"
+                    required
+                    value={firstName}
+                    onChange={(e) => setFirstName(e.target.value)}
+                    disabled={isLoading}
+                  />
+                </div>
+                <div className="space-y-2 flex-1">
+                  <Label htmlFor="lastName">Last Name</Label>
+                  <Input
+                    id="lastName"
+                    type="text"
+                    placeholder="Doe"
+                    required
+                    value={lastName}
+                    onChange={(e) => setLastName(e.target.value)}
+                    disabled={isLoading}
+                  />
+                </div>
               </div>
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>

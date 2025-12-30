@@ -12,7 +12,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { useAuth } from '@/context/AuthContext';
-import { LayoutDashboard, LogIn, UserCircle, UserPlus, Settings } from 'lucide-react';
+import { LayoutDashboard, LogIn, UserPlus, Settings } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Badge } from '../ui/badge';
@@ -34,6 +34,9 @@ export default function Header({ children }: HeaderProps) {
     return '/';
   }
 
+  const userName = user ? `${user.firstName} ${user.lastName}` : '';
+  const userFallback = user ? `${user.firstName.charAt(0)}${user.lastName.charAt(0)}` : '';
+
   return (
     <header className="flex shrink-0 items-center justify-between border-b p-2">
       <div className="flex items-center gap-2">
@@ -49,10 +52,10 @@ export default function Header({ children }: HeaderProps) {
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="flex items-center gap-2 rounded-full p-1 h-auto">
                 <Avatar className="h-8 w-8">
-                  <AvatarImage src={user.avatarUrl} alt={user.name} />
-                  <AvatarFallback>{user.name?.charAt(0).toUpperCase()}</AvatarFallback>
+                  <AvatarImage src={user.avatarUrl} alt={userName} />
+                  <AvatarFallback>{userFallback}</AvatarFallback>
                 </Avatar>
-                <span className="hidden sm:block">{user.name}</span>
+                <span className="hidden sm:block">{userName}</span>
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-56">

@@ -10,17 +10,19 @@ import { useState } from "react";
 
 export default function UsersPage() {
     const { toast } = useToast();
-    const [userName, setUserName] = useState('');
+    const [firstName, setFirstName] = useState('');
+    const [lastName, setLastName] = useState('');
     const [userEmail, setUserEmail] = useState('');
 
     const handleAddUser = (e: React.FormEvent) => {
         e.preventDefault();
-        console.log('Adding user:', { userName, userEmail });
+        console.log('Adding user:', { firstName, lastName, userEmail });
         toast({
             title: "User Added (Simulated)",
-            description: `${userName} has been added.`,
+            description: `${firstName} ${lastName} has been added.`,
         });
-        setUserName('');
+        setFirstName('');
+        setLastName('');
         setUserEmail('');
     }
     
@@ -38,15 +40,27 @@ export default function UsersPage() {
                 </CardHeader>
                 <CardContent>
                     <form onSubmit={handleAddUser} className="space-y-4 max-w-lg">
-                        <div className="space-y-2">
-                            <Label htmlFor="userName">User Name</Label>
-                            <Input 
-                                id="userName" 
-                                placeholder="e.g., John Doe" 
-                                value={userName}
-                                onChange={e => setUserName(e.target.value)}
-                                required
-                            />
+                        <div className="flex gap-4">
+                            <div className="space-y-2 flex-1">
+                                <Label htmlFor="firstName">First Name</Label>
+                                <Input 
+                                    id="firstName" 
+                                    placeholder="e.g., John" 
+                                    value={firstName}
+                                    onChange={e => setFirstName(e.target.value)}
+                                    required
+                                />
+                            </div>
+                            <div className="space-y-2 flex-1">
+                                <Label htmlFor="lastName">Last Name</Label>
+                                <Input 
+                                    id="lastName" 
+                                    placeholder="e.g., Doe" 
+                                    value={lastName}
+                                    onChange={e => setLastName(e.target.value)}
+                                    required
+                                />
+                            </div>
                         </div>
                          <div className="space-y-2">
                             <Label htmlFor="userEmail">User Email</Label>

@@ -19,7 +19,8 @@ export type UserRole = 'End User' | 'Admin' | 'Organization';
 
 export type User = {
   id: string;
-  name: string;
+  firstName: string;
+  lastName: string;
   email: string;
   password?: string; // Should not be stored in frontend state in a real app
   role: UserRole;

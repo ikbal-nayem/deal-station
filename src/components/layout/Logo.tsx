@@ -10,7 +10,6 @@ export default function Logo() {
           alt="The Deal Station Logo"
           width={40}
           height={40}
-          className='dark:invert'
         />
        <span>The Deal Station</span>
     </Link>
