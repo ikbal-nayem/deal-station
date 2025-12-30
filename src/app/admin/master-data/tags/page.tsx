@@ -6,7 +6,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogTrigger, DialogClose } from "@/components/ui/dialog";
 import { Form } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
@@ -68,29 +68,30 @@ export default function TagsPage() {
     };
 
     return (
-        <div>
-            <div className="flex justify-between items-center mb-6">
-                <h1 className="text-3xl font-bold">Manage Tags</h1>
+        <div className="space-y-6">
+            <div className="flex justify-between items-start">
+                 <div>
+                    <h1 className="text-xl font-bold">Manage Tags</h1>
+                    <p className="text-muted-foreground">A list of all available tags for offers.</p>
+                </div>
                 <Dialog open={isDialogOpen} onOpenChange={setDialogOpen}>
                     <DialogTrigger asChild>
                         <Button onClick={handleAddNewClick}>
-                            <PlusCircle className="mr-2"/> Add Tag
+                            <PlusCircle /> Add Tag
                         </Button>
                     </DialogTrigger>
                     <DialogContent>
                         <Form {...form}>
-                            <form onSubmit={form.handleSubmit(handleFormSubmit)}>
+                            <form onSubmit={form.handleSubmit(handleFormSubmit)} className="space-y-4">
                                 <DialogHeader>
                                     <DialogTitle>{currentTag ? 'Edit Tag' : 'Add New Tag'}</DialogTitle>
                                 </DialogHeader>
-                                <div className="py-4">
-                                     <FormInput
-                                        control={form.control}
-                                        name="name"
-                                        label="Tag Name"
-                                        placeholder="e.g., Vegan"
-                                     />
-                                </div>
+                                <FormInput
+                                    control={form.control}
+                                    name="name"
+                                    label="Tag Name"
+                                    placeholder="e.g., Vegan"
+                                />
                                 <DialogFooter>
                                     <DialogClose asChild><Button type="button" variant="secondary">Cancel</Button></DialogClose>
                                     <Button type="submit">{currentTag ? 'Save Changes' : 'Create Tag'}</Button>
@@ -102,16 +103,12 @@ export default function TagsPage() {
             </div>
 
             <Card>
-                <CardHeader>
-                    <CardTitle>Tag List</CardTitle>
-                    <CardDescription>A list of all available tags for offers.</CardDescription>
-                </CardHeader>
                 <CardContent>
                     <Table>
                         <TableHeader>
                             <TableRow>
                                 <TableHead>Name</TableHead>
-                                <TableHead className="text-right">Actions</TableHead>
+                                <TableHead className="text-right w-[100px]">Actions</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -122,18 +119,19 @@ export default function TagsPage() {
                                         <DropdownMenu>
                                             <DropdownMenuTrigger asChild>
                                                 <Button variant="ghost" className="h-8 w-8 p-0">
-                                                    <MoreHorizontal className="h-4 w-4" />
+                                                    <span className="sr-only">Open menu</span>
+                                                    <MoreHorizontal />
                                                 </Button>
                                             </DropdownMenuTrigger>
                                             <DropdownMenuContent align="end">
                                                 <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                                                <DropdownMenuItem onClick={() => handleEditClick(tag)}>
-                                                    <Edit className="mr-2 h-4 w-4" /> Edit
+                                                <DropdownMenuItem onClick={() => handleEditClick(tag)} className="cursor-pointer">
+                                                    <Edit className="mr-2" /> Edit
                                                 </DropdownMenuItem>
                                                 <AlertDialog>
                                                     <AlertDialogTrigger asChild>
-                                                        <Button variant="ghost" className="w-full justify-start text-sm text-destructive hover:text-destructive p-2 h-auto font-normal">
-                                                            <Trash2 className="mr-2 h-4 w-4" /> Delete
+                                                        <Button variant="ghost" className="w-full justify-start text-sm text-destructive hover:text-destructive px-2 py-1.5 h-auto font-normal">
+                                                           <Trash2 className="mr-2" /> Delete
                                                         </Button>
                                                     </AlertDialogTrigger>
                                                     <AlertDialogContent>

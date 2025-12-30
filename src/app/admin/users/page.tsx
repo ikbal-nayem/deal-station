@@ -25,12 +25,16 @@ export default function UsersPage() {
     }
     
     return (
-        <div>
-            <h1 className="text-3xl font-bold mb-6">Manage Users</h1>
+        <div className="space-y-6">
+            <div className="flex justify-between items-start">
+                 <div>
+                    <h1 className="text-xl font-bold">Manage Users</h1>
+                    <p className="text-muted-foreground">Create a new user account.</p>
+                </div>
+            </div>
              <Card>
                 <CardHeader>
                     <CardTitle>Add New User</CardTitle>
-                    <CardDescription>Create a new user account.</CardDescription>
                 </CardHeader>
                 <CardContent>
                     <form onSubmit={handleAddUser} className="space-y-4 max-w-lg">

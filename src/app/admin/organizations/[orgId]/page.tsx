@@ -19,7 +19,6 @@ import { mockOffers } from '@/lib/mock-data';
 import type { Organization, User, Offer } from '@/lib/types';
 import { format } from 'date-fns';
 import { Separator } from '@/components/ui/separator';
-import Image from 'next/image';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 export default function OrganizationDetailPage() {
@@ -93,9 +92,9 @@ export default function OrganizationDetailPage() {
     }
 
     return (
-        <div>
+        <div className="space-y-6">
             <div className="mb-4">
-                <Button variant="ghost" asChild className="mb-4">
+                <Button variant="ghost" asChild className="-ml-4 mb-2">
                     <Link href="/admin/organizations">
                         <ChevronLeft className="mr-2 h-4 w-4" />
                         Back to Organizations
@@ -107,7 +106,7 @@ export default function OrganizationDetailPage() {
                         <AvatarFallback>{organization.name.charAt(0)}</AvatarFallback>
                     </Avatar>
                     <div>
-                        <h1 className="text-3xl font-bold">{organization.name}</h1>
+                        <h1 className="text-xl font-bold">{organization.name}</h1>
                         <p className="text-muted-foreground">Detailed view and management portal.</p>
                     </div>
                 </div>
@@ -120,8 +119,8 @@ export default function OrganizationDetailPage() {
                             <CardTitle>Organization Details</CardTitle>
                         </CardHeader>
                         <CardContent className="space-y-4">
-                            <div className="flex items-center gap-3">
-                                <Building className="h-5 w-5 text-muted-foreground"/>
+                            <div className="flex items-start gap-3">
+                                <Building className="h-5 w-5 text-muted-foreground mt-0.5"/>
                                 <span className="text-sm">{organization.address || 'No address provided'}</span>
                             </div>
                              <div className="flex items-center gap-3">
@@ -137,7 +136,7 @@ export default function OrganizationDetailPage() {
                                  <a href={organization.website} target="_blank" rel="noopener noreferrer" className="text-sm text-primary hover:underline">{organization.website || 'No website provided'}</a>
                             </div>
                              <Separator/>
-                             <p className="text-xs text-muted-foreground">
+                             <p className="text-xs text-muted-foreground pt-2">
                                 Joined on {format(new Date(organization.createdAt), 'PPP')}
                              </p>
                         </CardContent>
@@ -149,7 +148,7 @@ export default function OrganizationDetailPage() {
                         </CardHeader>
                         <CardContent>
                             <Button className="w-full">
-                                <GitBranchPlus className="mr-2 h-4 w-4" />
+                                <GitBranchPlus />
                                 Manage Branches
                             </Button>
                         </CardContent>
@@ -184,8 +183,8 @@ export default function OrganizationDetailPage() {
                                         required
                                     />
                                 </div>
-                                <Button type="submit" className="w-full sm:w-auto">
-                                    <UserPlus className="mr-2 h-4 w-4" /> Add User
+                                <Button type="submit" className="w-full sm:w-auto shrink-0">
+                                    <UserPlus /> Add User
                                 </Button>
                             </form>
 
@@ -194,7 +193,7 @@ export default function OrganizationDetailPage() {
                                     <TableRow>
                                         <TableHead>Name</TableHead>
                                         <TableHead>Email</TableHead>
-                                        <TableHead className="text-right">Actions</TableHead>
+                                        <TableHead className="text-right w-[100px]">Actions</TableHead>
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
@@ -206,7 +205,7 @@ export default function OrganizationDetailPage() {
                                             <AlertDialog>
                                                     <AlertDialogTrigger asChild>
                                                         <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-destructive">
-                                                            <Trash2 className="h-4 w-4"/>
+                                                            <Trash2/>
                                                         </Button>
                                                     </AlertDialogTrigger>
                                                     <AlertDialogContent>
@@ -269,5 +268,3 @@ export default function OrganizationDetailPage() {
         </div>
     );
 }
-
-    

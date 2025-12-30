@@ -26,12 +26,14 @@ export default function OrgOffersPage() {
     }
     
     return (
-        <div>
-            <h1 className="text-3xl font-bold mb-6">Manage Your Offers</h1>
+        <div className="space-y-6">
+            <div>
+                <h1 className="text-xl font-bold">Manage Your Offers</h1>
+                <p className="text-muted-foreground">Create a new promotional offer for your organization.</p>
+            </div>
              <Card>
                 <CardHeader>
                     <CardTitle>Add New Offer</CardTitle>
-                    <CardDescription>Create a new promotional offer for your organization.</CardDescription>
                 </CardHeader>
                 <CardContent>
                     <form onSubmit={handleAddOffer} className="space-y-4 max-w-lg">

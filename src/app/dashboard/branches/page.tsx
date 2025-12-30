@@ -25,12 +25,14 @@ export default function OrgBranchesPage() {
     }
     
     return (
-        <div>
-            <h1 className="text-3xl font-bold mb-6">Manage Your Branches</h1>
+        <div className="space-y-6">
+            <div>
+                <h1 className="text-xl font-bold">Manage Your Branches</h1>
+                <p className="text-muted-foreground">Add a new location for your organization.</p>
+            </div>
              <Card>
                 <CardHeader>
                     <CardTitle>Add New Branch</CardTitle>
-                    <CardDescription>Add a new location for your organization.</CardDescription>
                 </CardHeader>
                 <CardContent>
                     <form onSubmit={handleAddBranch} className="space-y-4 max-w-lg">

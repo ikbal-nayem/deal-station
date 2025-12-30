@@ -26,12 +26,16 @@ export default function AdminOffersPage() {
     }
     
     return (
-        <div>
-            <h1 className="text-3xl font-bold mb-6">Manage Offers</h1>
+        <div className="space-y-6">
+            <div className="flex justify-between items-start">
+                <div>
+                    <h1 className="text-xl font-bold">Manage Offers</h1>
+                    <p className="text-muted-foreground">Create a new promotional offer.</p>
+                </div>
+            </div>
              <Card>
                 <CardHeader>
                     <CardTitle>Add New Offer</CardTitle>
-                    <CardDescription>Create a new promotional offer.</CardDescription>
                 </CardHeader>
                 <CardContent>
                     <form onSubmit={handleAddOffer} className="space-y-4 max-w-lg">

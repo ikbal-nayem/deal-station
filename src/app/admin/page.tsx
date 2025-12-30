@@ -2,7 +2,7 @@
 'use client';
 
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
-import { Building, Users, ShoppingBag, Activity } from 'lucide-react';
+import { Building, Users, ShoppingBag } from 'lucide-react';
 import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis } from 'recharts';
 import { useAuth } from '@/context/AuthContext';
 import { mockOrganizations } from '@/lib/mock-organizations';
@@ -25,13 +25,13 @@ export default function AdminDashboardPage() {
   const offerCount = mockOffers.length;
   
   return (
-    <div>
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold">Welcome, {user?.name}!</h1>
+    <div className="space-y-6">
+      <div className="space-y-1">
+        <h1 className="text-xl font-bold">Welcome, {user?.name}!</h1>
         <p className="text-muted-foreground">Here's a summary of your application's activity.</p>
       </div>
       
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 mb-6">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Organizations</CardTitle>
@@ -69,7 +69,7 @@ export default function AdminDashboardPage() {
           <CardTitle>New Sign-ups Overview</CardTitle>
           <CardDescription>A chart showing user sign-ups for the last 6 months.</CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="pl-2">
            <ResponsiveContainer width="100%" height={350}>
             <BarChart data={data}>
               <XAxis

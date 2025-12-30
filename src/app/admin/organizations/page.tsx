@@ -6,11 +6,9 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogTrigger, DialogClose } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
 import { PlusCircle, MoreHorizontal, Edit, Trash2, Eye } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -18,12 +16,12 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel,
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import Link from 'next/link';
 import { ScrollArea } from "@/components/ui/scroll-area";
-import Image from 'next/image';
 
 import { mockOrganizations as initialOrgs } from "@/lib/mock-organizations";
 import type { Organization } from "@/lib/types";
 import { format } from "date-fns";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { FormInput } from "@/components/ui/form-input";
 
 
 const orgFormSchema = z.object({
@@ -116,13 +114,16 @@ export default function OrganizationsPage() {
     };
 
     return (
-        <div>
-            <div className="flex justify-between items-center mb-6">
-                <h1 className="text-3xl font-bold">Manage Organizations</h1>
+        <div className="space-y-6">
+            <div className="flex justify-between items-start">
+                <div>
+                    <h1 className="text-xl font-bold">Manage Organizations</h1>
+                    <p className="text-muted-foreground">A list of all partner organizations in the system.</p>
+                </div>
                 <Dialog open={isDialogOpen} onOpenChange={setDialogOpen}>
                     <DialogTrigger asChild>
                         <Button onClick={handleAddNewClick}>
-                            <PlusCircle className="mr-2"/>
+                            <PlusCircle />
                             Add Organization
                         </Button>
                     </DialogTrigger>
@@ -135,89 +136,47 @@ export default function OrganizationsPage() {
                                         {currentOrgId ? 'Update the details of the existing organization.' : 'Create a new organization and assign an initial user.'}
                                     </DialogDescription>
                                 </DialogHeader>
-                                <ScrollArea className="max-h-[70vh] pr-6">
-                                <div className="grid gap-4 py-4">
-                                     <FormField
+                                <ScrollArea className="max-h-[70vh] -mr-6 pr-6">
+                                <div className="space-y-4 py-4 ">
+                                     <FormInput
                                         control={form.control}
                                         name="name"
-                                        render={({ field }) => (
-                                            <FormItem>
-                                                <FormLabel>Name</FormLabel>
-                                                <FormControl>
-                                                    <Input placeholder="e.g., The Daily Grind" {...field} />
-                                                </FormControl>
-                                                <FormMessage />
-                                            </FormItem>
-                                        )}
+                                        label="Name"
+                                        placeholder="e.g., The Daily Grind"
                                     />
-                                    <FormField
+                                    <FormInput
                                         control={form.control}
                                         name="ownerEmail"
-                                        render={({ field }) => (
-                                            <FormItem>
-                                                <FormLabel>Owner Email</FormLabel>
-                                                <FormControl>
-                                                    <Input type="email" placeholder="user@organization.com" {...field} />
-                                                </FormControl>
-                                                <FormMessage />
-                                            </FormItem>
-                                        )}
+                                        label="Owner Email"
+                                        placeholder="user@organization.com"
                                     />
-                                     <FormField
+                                    <FormInput
                                         control={form.control}
                                         name="logoUrl"
-                                        render={({ field }) => (
-                                            <FormItem>
-                                                <FormLabel>Logo URL</FormLabel>
-                                                <FormControl>
-                                                    <Input placeholder="https://example.com/logo.png" {...field} />
-                                                </FormControl>
-                                                <FormMessage />
-                                            </FormItem>
-                                        )}
+                                        label="Logo URL"
+                                        placeholder="https://example.com/logo.png"
                                     />
-                                    <FormField
+                                    <FormInput
                                         control={form.control}
                                         name="website"
-                                        render={({ field }) => (
-                                            <FormItem>
-                                                <FormLabel>Website</FormLabel>
-                                                <FormControl>
-                                                    <Input placeholder="https://example.com" {...field} />
-                                                </FormControl>
-                                                <FormMessage />
-                                            </FormItem>
-                                        )}
+                                        label="Website"
+                                        placeholder="https://example.com"
                                     />
-                                    <FormField
+                                    <FormInput
                                         control={form.control}
                                         name="phone"
-                                        render={({ field }) => (
-                                            <FormItem>
-                                                <FormLabel>Phone</FormLabel>
-                                                <FormControl>
-                                                    <Input placeholder="555-123-4567" {...field} />
-                                                </FormControl>
-                                                <FormMessage />
-                                            </FormItem>
-                                        )}
+                                        label="Phone"
+                                        placeholder="555-123-4567"
                                     />
-                                    <FormField
+                                    <FormInput
                                         control={form.control}
                                         name="address"
-                                        render={({ field }) => (
-                                            <FormItem>
-                                                <FormLabel>Address</FormLabel>
-                                                <FormControl>
-                                                    <Input placeholder="123 Main St, Anytown, USA" {...field} />
-                                                </FormControl>
-                                                <FormMessage />
-                                            </FormItem>
-                                        )}
+                                        label="Address"
+                                        placeholder="123 Main St, Anytown, USA"
                                     />
                                 </div>
                                 </ScrollArea>
-                                <DialogFooter className="mt-4">
+                                <DialogFooter className="pt-4">
                                     <DialogClose asChild>
                                         <Button type="button" variant="secondary">Cancel</Button>
                                     </DialogClose>
@@ -230,10 +189,6 @@ export default function OrganizationsPage() {
             </div>
 
             <Card>
-                <CardHeader>
-                    <CardTitle>Organization List</CardTitle>
-                    <CardDescription>A list of all partner organizations in the system.</CardDescription>
-                </CardHeader>
                 <CardContent>
                     <Table>
                         <TableHeader>
@@ -242,7 +197,7 @@ export default function OrganizationsPage() {
                                 <TableHead className="hidden md:table-cell">Owner Email</TableHead>
                                 <TableHead className="hidden lg:table-cell">Phone</TableHead>
                                 <TableHead className="hidden lg:table-cell">Created At</TableHead>
-                                <TableHead className="text-right">Actions</TableHead>
+                                <TableHead className="text-right w-[100px]">Actions</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -265,25 +220,25 @@ export default function OrganizationsPage() {
                                             <DropdownMenuTrigger asChild>
                                                 <Button variant="ghost" className="h-8 w-8 p-0">
                                                     <span className="sr-only">Open menu</span>
-                                                    <MoreHorizontal className="h-4 w-4" />
+                                                    <MoreHorizontal />
                                                 </Button>
                                             </DropdownMenuTrigger>
                                             <DropdownMenuContent align="end">
                                                 <DropdownMenuLabel>Actions</DropdownMenuLabel>
                                                 <DropdownMenuItem asChild>
                                                     <Link href={`/admin/organizations/${org.id}`} className="cursor-pointer">
-                                                        <Eye className="mr-2 h-4 w-4" />
+                                                        <Eye className="mr-2" />
                                                         View Details
                                                     </Link>
                                                 </DropdownMenuItem>
-                                                <DropdownMenuItem onClick={() => handleEditClick(org)}>
-                                                    <Edit className="mr-2 h-4 w-4" />
+                                                <DropdownMenuItem onClick={() => handleEditClick(org)} className="cursor-pointer">
+                                                    <Edit className="mr-2" />
                                                     Edit
                                                 </DropdownMenuItem>
                                                 <AlertDialog>
                                                     <AlertDialogTrigger asChild>
-                                                        <Button variant="ghost" className="w-full justify-start text-sm text-destructive hover:text-destructive p-2 h-auto font-normal">
-                                                            <Trash2 className="mr-2 h-4 w-4" />
+                                                         <Button variant="ghost" className="w-full justify-start text-sm text-destructive hover:text-destructive px-2 py-1.5 h-auto font-normal">
+                                                            <Trash2 className="mr-2" />
                                                             Delete
                                                         </Button>
                                                     </AlertDialogTrigger>
@@ -315,5 +270,3 @@ export default function OrganizationsPage() {
         </div>
     );
 }
-
-    
