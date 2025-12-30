@@ -1,11 +1,8 @@
 
 'use client';
 
-import { Button } from '@/components/ui/button';
 import { ThemeToggle } from '@/components/ThemeToggle';
-import { useAuth } from '@/context/AuthContext';
-import { LogIn, UserPlus, UserCircle, LayoutDashboard } from 'lucide-react';
-import Link from 'next/link';
+import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -14,9 +11,12 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Badge } from '../ui/badge';
+import { useAuth } from '@/context/AuthContext';
+import { LayoutDashboard, LogIn, UserCircle, UserPlus } from 'lucide-react';
+import Image from 'next/image';
+import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import Logo from './Logo';
+import { Badge } from '../ui/badge';
 
 interface HeaderProps {
   children?: React.ReactNode;
@@ -37,7 +37,12 @@ export default function Header({ children }: HeaderProps) {
       <div className="flex items-center gap-2">
         {children}
         <Link href="/" className="flex items-center gap-2 text-xl font-bold font-headline px-2">
-          <Logo className="w-8 h-8" />
+          <Image
+            src="/logo/logo-150x150.png"
+            alt="The Deal Station Logo"
+            width={64}
+            height={64}
+          />
           The Deal Station
         </Link>
       </div>

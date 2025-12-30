@@ -4,12 +4,13 @@
 import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
 import { useEffect, type ReactNode, useState } from 'react';
-import { SidebarProvider, Sidebar, SidebarContent, SidebarHeader, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarInset, SidebarTrigger } from '@/components/ui/sidebar';
+import { SidebarProvider, Sidebar, SidebarContent, SidebarHeader, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarInset, SidebarTrigger, SidebarSeparator } from '@/components/ui/sidebar';
 import Link from 'next/link';
 import { Building, LayoutDashboard, ShoppingBag, User, Users, ChevronDown, LayoutGrid, Tag } from 'lucide-react';
 import Header from '@/components/layout/Header';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { usePathname } from 'next/navigation';
+import Logo from '@/components/layout/Logo';
 
 export default function AdminLayout({ children }: { children: ReactNode }) {
   const { user, isLoggedIn, isLoading } = useAuth();
@@ -41,8 +42,8 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
     <SidebarProvider>
         <Sidebar>
             <SidebarHeader>
-                <div className="flex items-center gap-2 p-2">
-                    <h2 className="font-semibold text-lg px-2">Admin Panel</h2>
+                 <div className="p-2 flex justify-center">
+                    <Logo />
                 </div>
             </SidebarHeader>
             <SidebarContent>
@@ -79,6 +80,8 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
                             </Link>
                         </SidebarMenuButton>
                     </SidebarMenuItem>
+
+                    <SidebarSeparator className="my-2" />
 
                     <Collapsible open={isMasterDataOpen} onOpenChange={setMasterDataOpen}>
                       <SidebarMenuItem>
