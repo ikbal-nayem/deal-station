@@ -4,7 +4,7 @@
 import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
 import { useEffect, type ReactNode } from 'react';
-import { SidebarProvider, Sidebar, SidebarTrigger, SidebarContent, SidebarHeader, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarInset } from '@/components/ui/sidebar';
+import { SidebarProvider, Sidebar, SidebarContent, SidebarHeader, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarInset, SidebarTrigger } from '@/components/ui/sidebar';
 import Link from 'next/link';
 import { LayoutDashboard, ShoppingBag, GitBranchPlus, Building } from 'lucide-react';
 import Header from '@/components/layout/Header';
@@ -33,8 +33,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
         <Sidebar>
             <SidebarHeader>
                 <div className="flex items-center gap-2 p-2">
-                    <SidebarTrigger />
-                    <h2 className="font-semibold text-lg">Org Dashboard</h2>
+                     <h2 className="font-semibold text-lg px-2">Org Dashboard</h2>
                 </div>
             </SidebarHeader>
             <SidebarContent>
@@ -67,7 +66,9 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
             </SidebarContent>
         </Sidebar>
         <SidebarInset>
-            <Header />
+            <Header>
+                <SidebarTrigger/>
+            </Header>
             <main className="p-4 md:p-6">
                 {children}
             </main>

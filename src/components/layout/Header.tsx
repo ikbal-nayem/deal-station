@@ -33,12 +33,14 @@ export default function Header({ children }: HeaderProps) {
 
   return (
     <header className="flex shrink-0 items-center justify-between border-b p-2">
-      <Link href="/" className="text-xl font-bold font-headline px-2">
-        LocalPerks
-      </Link>
+      <div className="flex items-center gap-2">
+        {children}
+        <Link href="/" className="text-xl font-bold font-headline px-2">
+          LocalPerks
+        </Link>
+      </div>
       <div className="flex items-center gap-2">
         <ThemeToggle />
-        {children}
         {isLoading ? (
           <div className="w-24 h-9 animate-pulse bg-muted rounded-full" />
         ) : isLoggedIn && user ? (
