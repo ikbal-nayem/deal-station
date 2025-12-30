@@ -86,9 +86,9 @@ export default function OrganizationUsersPage() {
                        <Form {...userForm}>
                            <form onSubmit={userForm.handleSubmit(handleUserFormSubmit)} className="space-y-4">
                                 <DialogHeader><DialogTitle>{currentUser ? 'Edit User' : 'Add New User'}</DialogTitle></DialogHeader>
-                                <FormInput control={userForm.control} name="firstName" label="First Name" placeholder="John" />
-                                <FormInput control={userForm.control} name="lastName" label="Last Name" placeholder="Doe" />
-                                <FormInput control={userForm.control} name="email" label="Email" type="email" placeholder="user@example.com" />
+                                <FormInput control={userForm.control} name="firstName" label="First Name" placeholder="John" required />
+                                <FormInput control={userForm.control} name="lastName" label="Last Name" placeholder="Doe" required />
+                                <FormInput control={userForm.control} name="email" label="Email" type="email" placeholder="user@example.com" required/>
                                 <FormInput control={userForm.control} name="phone" label="Phone (Optional)" placeholder="555-123-4567" />
                                 <DialogFooter>
                                     <DialogClose asChild><Button type="button" variant="secondary">Cancel</Button></DialogClose>
@@ -117,7 +117,7 @@ export default function OrganizationUsersPage() {
                                                 <AlertDialogTrigger asChild><Button variant="ghost" className="w-full justify-start text-sm text-destructive hover:text-destructive px-2 py-1.5 h-auto font-normal"><Trash2 className="mr-2 h-4 w-4"/> Delete</Button></AlertDialogTrigger>
                                                 <AlertDialogContent>
                                                     <AlertDialogHeader><AlertDialogTitle>Are you sure?</AlertDialogTitle><AlertDialogDescription>This will remove {user.firstName} from the organization.</AlertDialogDescription></AlertDialogHeader>
-                                                    <AlertDialogFooter><AlertDialogCancel>Cancel</AlertDialogCancel><AlertDialogAction onClick={() => handleRemoveUser(user.id)} className="bg-destructive hover:bg-destructive/90">Remove</AlertDialogAction></AlertDialogFooter>
+                                                    <AlertDialogFooter><AlertDialogCancel>Cancel</AlertDialogCancel><AlertDialogAction onClick={() => handleRemoveUser(user.id)}>Remove</AlertDialogAction></AlertDialogFooter>
                                                 </AlertDialogContent>
                                             </AlertDialog>
                                         </DropdownMenuContent>

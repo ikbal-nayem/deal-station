@@ -171,12 +171,14 @@ export default function OrganizationsPage() {
                                         name="name"
                                         label="Name"
                                         placeholder="e.g., The Daily Grind"
+                                        required
                                     />
                                     <FormInput
                                         control={form.control}
                                         name="ownerEmail"
                                         label="Owner Email"
                                         placeholder="user@organization.com"
+                                        required
                                     />
                                     <FormInput
                                         control={form.control}
@@ -274,7 +276,7 @@ export default function OrganizationsPage() {
                                                         </AlertDialogHeader>
                                                         <AlertDialogFooter>
                                                             <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                                            <AlertDialogAction onClick={() => handleDeleteClick(org.id)} className="bg-destructive hover:bg-destructive/90">
+                                                            <AlertDialogAction onClick={() => handleDeleteClick(org.id)}>
                                                                 Delete
                                                             </AlertDialogAction>
                                                         </AlertDialogFooter>

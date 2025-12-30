@@ -88,8 +88,8 @@ export default function OrganizationBranchesPage() {
                        <Form {...branchForm}>
                            <form onSubmit={branchForm.handleSubmit(handleBranchFormSubmit)} className="space-y-4">
                                 <DialogHeader><DialogTitle>{currentBranch ? 'Edit Branch' : 'Add New Branch'}</DialogTitle></DialogHeader>
-                                <FormInput control={branchForm.control} name="name" label="Branch Name" placeholder="e.g., Downtown Cafe" />
-                                <FormInput control={branchForm.control} name="address" label="Address" placeholder="123 Main St, Anytown, USA" />
+                                <FormInput control={branchForm.control} name="name" label="Branch Name" placeholder="e.g., Downtown Cafe" required />
+                                <FormInput control={branchForm.control} name="address" label="Address" placeholder="123 Main St, Anytown, USA" required />
                                 <DialogFooter>
                                     <DialogClose asChild><Button type="button" variant="secondary">Cancel</Button></DialogClose>
                                     <Button type="submit">{currentBranch ? 'Save Changes' : 'Add Branch'}</Button>
@@ -116,7 +116,7 @@ export default function OrganizationBranchesPage() {
                                                 <AlertDialogTrigger asChild><Button variant="ghost" className="w-full justify-start text-sm text-destructive hover:text-destructive px-2 py-1.5 h-auto font-normal"><Trash2 className="mr-2 h-4 w-4"/> Delete</Button></AlertDialogTrigger>
                                                 <AlertDialogContent>
                                                     <AlertDialogHeader><AlertDialogTitle>Are you sure?</AlertDialogTitle><AlertDialogDescription>This will permanently delete the branch.</AlertDialogDescription></AlertDialogHeader>
-                                                    <AlertDialogFooter><AlertDialogCancel>Cancel</AlertDialogCancel><AlertDialogAction onClick={() => handleRemoveBranch(branch.id)} className="bg-destructive hover:bg-destructive/90">Delete</AlertDialogAction></AlertDialogFooter>
+                                                    <AlertDialogFooter><AlertDialogCancel>Cancel</AlertDialogCancel><AlertDialogAction onClick={() => handleRemoveBranch(branch.id)}>Delete</AlertDialogAction></AlertDialogFooter>
                                                 </AlertDialogContent>
                                             </AlertDialog>
                                         </DropdownMenuContent>

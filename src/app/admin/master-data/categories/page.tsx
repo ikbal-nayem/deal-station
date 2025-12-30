@@ -91,6 +91,7 @@ export default function CategoriesPage() {
                                     name="name"
                                     label="Category Name"
                                     placeholder="e.g., Food & Drink"
+                                    required
                                 />
                                 <DialogFooter>
                                     <DialogClose asChild><Button type="button" variant="secondary">Cancel</Button></DialogClose>
@@ -141,7 +142,7 @@ export default function CategoriesPage() {
                                                         </AlertDialogHeader>
                                                         <AlertDialogFooter>
                                                             <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                                            <AlertDialogAction onClick={() => handleDeleteClick(cat.id)} className="bg-destructive hover:bg-destructive/90">Delete</AlertDialogAction>
+                                                            <AlertDialogAction onClick={() => handleDeleteClick(cat.id)}>Delete</AlertDialogAction>
                                                         </AlertDialogFooter>
                                                     </AlertDialogContent>
                                                 </AlertDialog>

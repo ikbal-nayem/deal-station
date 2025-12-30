@@ -91,6 +91,7 @@ export default function TagsPage() {
                                     name="name"
                                     label="Tag Name"
                                     placeholder="e.g., Vegan"
+                                    required
                                 />
                                 <DialogFooter>
                                     <DialogClose asChild><Button type="button" variant="secondary">Cancel</Button></DialogClose>
@@ -141,7 +142,7 @@ export default function TagsPage() {
                                                         </AlertDialogHeader>
                                                         <AlertDialogFooter>
                                                             <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                                            <AlertDialogAction onClick={() => handleDeleteClick(tag.id)} className="bg-destructive hover:bg-destructive/90">Delete</AlertDialogAction>
+                                                            <AlertDialogAction onClick={() => handleDeleteClick(tag.id)}>Delete</AlertDialogAction>
                                                         </AlertDialogFooter>
                                                     </AlertDialogContent>
                                                 </AlertDialog>

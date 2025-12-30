@@ -1,80 +1,254 @@
 
 'use client';
 
+import { useState, useEffect } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogTrigger, DialogClose, DialogDescription } from "@/components/ui/dialog";
+import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
-import { useState } from "react";
+import { PlusCircle, MoreHorizontal, Edit, Trash2 } from "lucide-react";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { type User, type UserRole } from "@/lib/types";
+import { mockUsers as initialUsers } from "@/lib/mock-users";
+import { mockOrganizations } from "@/lib/mock-organizations";
+import { FormInput } from "@/components/ui/form-input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
+
+const userFormSchema = z.object({
+  firstName: z.string().min(2, "First name is required"),
+  lastName: z.string().min(2, "Last name is required"),
+  email: z.string().email("Invalid email address"),
+  phone: z.string().optional(),
+  role: z.enum(['Admin', 'Organization', 'End User']),
+  organizationId: z.string().optional(),
+}).refine(data => data.role !== 'Organization' || !!data.organizationId, {
+    message: "Organization is required for this role",
+    path: ["organizationId"],
+});
+
+
+type UserFormValues = z.infer<typeof userFormSchema>;
 
 export default function UsersPage() {
     const { toast } = useToast();
-    const [firstName, setFirstName] = useState('');
-    const [lastName, setLastName] = useState('');
-    const [userEmail, setUserEmail] = useState('');
+    const [users, setUsers] = useState<User[]>(initialUsers);
+    const [isDialogOpen, setDialogOpen] = useState(false);
+    const [currentUser, setCurrentUser] = useState<User | null>(null);
 
-    const handleAddUser = (e: React.FormEvent) => {
-        e.preventDefault();
-        console.log('Adding user:', { firstName, lastName, userEmail });
-        toast({
-            title: "User Added (Simulated)",
-            description: `${firstName} ${lastName} has been added.`,
+    const form = useForm<UserFormValues>({
+        resolver: zodResolver(userFormSchema),
+        defaultValues: {
+          firstName: '', lastName: '', email: '', phone: '', role: 'End User', organizationId: ''
+        }
+    });
+
+    const watchedRole = form.watch('role');
+
+    useEffect(() => {
+        if (!isDialogOpen) {
+            form.reset();
+            setCurrentUser(null);
+        }
+    }, [isDialogOpen, form]);
+
+    const handleEditClick = (user: User) => {
+        setCurrentUser(user);
+        form.reset({
+            firstName: user.firstName,
+            lastName: user.lastName,
+            email: user.email,
+            phone: user.phone || '',
+            role: user.role,
+            organizationId: user.organizationId || '',
         });
-        setFirstName('');
-        setLastName('');
-        setUserEmail('');
-    }
+        setDialogOpen(true);
+    };
+
+    const handleAddNewClick = () => {
+        setCurrentUser(null);
+        form.reset();
+        setDialogOpen(true);
+    };
+
+    const handleDeleteClick = (userId: string) => {
+        setUsers(users => users.filter(u => u.id !== userId));
+        toast({
+            title: "User Deleted",
+            description: "The user has been successfully removed.",
+        });
+    };
+
+    const handleFormSubmit = (values: UserFormValues) => {
+        if (currentUser) {
+            setUsers(users => users.map(u => u.id === currentUser.id ? { ...u, ...values } : u));
+            toast({ title: "User Updated", description: `${values.firstName} has been updated.` });
+        } else {
+            const newUser: User = { 
+              id: `user-${Date.now()}`, 
+              ...values,
+              organizationId: values.role === 'Organization' ? values.organizationId : undefined,
+            };
+            setUsers(users => [newUser, ...users]);
+            toast({ title: "User Added", description: `${values.firstName} has been created.` });
+        }
+        setDialogOpen(false);
+    };
     
+    const getOrgName = (orgId?: string) => {
+        if (!orgId) return '-';
+        return mockOrganizations.find(o => o.id === orgId)?.name || 'Unknown Org';
+    }
+
+
     return (
         <div className="space-y-6">
             <div className="flex justify-between items-start">
                  <div>
                     <h1 className="text-xl font-bold">Manage Users</h1>
-                    <p className="text-muted-foreground">Create a new user account.</p>
+                    <p className="text-muted-foreground">Add, edit, or remove users from the system.</p>
                 </div>
+                 <Dialog open={isDialogOpen} onOpenChange={setDialogOpen}>
+                    <DialogTrigger asChild>
+                        <Button onClick={handleAddNewClick}>
+                            <PlusCircle /> Add User
+                        </Button>
+                    </DialogTrigger>
+                    <DialogContent>
+                        <Form {...form}>
+                            <form onSubmit={form.handleSubmit(handleFormSubmit)} className="space-y-4">
+                                <DialogHeader>
+                                    <DialogTitle>{currentUser ? 'Edit User' : 'Add New User'}</DialogTitle>
+                                    <DialogDescription>
+                                        {currentUser ? "Update the user's details." : "Create a new user and assign them a role."}
+                                    </DialogDescription>
+                                </DialogHeader>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <FormInput control={form.control} name="firstName" label="First Name" placeholder="John" required/>
+                                    <FormInput control={form.control} name="lastName" label="Last Name" placeholder="Doe" required/>
+                                </div>
+                                <FormInput control={form.control} name="email" label="Email" type="email" placeholder="user@example.com" required/>
+                                <FormInput control={form.control} name="phone" label="Phone (Optional)" placeholder="555-123-4567" />
+                                
+                                <FormField
+                                    control={form.control}
+                                    name="role"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel required>Role</FormLabel>
+                                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                                <FormControl>
+                                                    <SelectTrigger>
+                                                        <SelectValue placeholder="Select a role" />
+                                                    </SelectTrigger>
+                                                </FormControl>
+                                                <SelectContent>
+                                                    <SelectItem value="Admin">Admin</SelectItem>
+                                                    <SelectItem value="Organization">Organization</SelectItem>
+                                                    <SelectItem value="End User">End User</SelectItem>
+                                                </SelectContent>
+                                            </Select>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+
+                                {watchedRole === 'Organization' && (
+                                     <FormField
+                                        control={form.control}
+                                        name="organizationId"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel required>Organization</FormLabel>
+                                                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                                    <FormControl>
+                                                        <SelectTrigger>
+                                                            <SelectValue placeholder="Select an organization" />
+                                                        </SelectTrigger>
+                                                    </FormControl>
+                                                    <SelectContent>
+                                                        {mockOrganizations.map(org => (
+                                                             <SelectItem key={org.id} value={org.id}>{org.name}</SelectItem>
+                                                        ))}
+                                                    </SelectContent>
+                                                </Select>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                )}
+
+                                <DialogFooter>
+                                    <DialogClose asChild><Button type="button" variant="secondary">Cancel</Button></DialogClose>
+                                    <Button type="submit">{currentUser ? 'Save Changes' : 'Create User'}</Button>
+                                </DialogFooter>
+                            </form>
+                        </Form>
+                    </DialogContent>
+                </Dialog>
             </div>
              <Card>
-                <CardHeader>
-                    <CardTitle>Add New User</CardTitle>
-                </CardHeader>
                 <CardContent>
-                    <form onSubmit={handleAddUser} className="space-y-4 max-w-lg">
-                        <div className="flex gap-4">
-                            <div className="space-y-2 flex-1">
-                                <Label htmlFor="firstName">First Name</Label>
-                                <Input 
-                                    id="firstName" 
-                                    placeholder="e.g., John" 
-                                    value={firstName}
-                                    onChange={e => setFirstName(e.target.value)}
-                                    required
-                                />
-                            </div>
-                            <div className="space-y-2 flex-1">
-                                <Label htmlFor="lastName">Last Name</Label>
-                                <Input 
-                                    id="lastName" 
-                                    placeholder="e.g., Doe" 
-                                    value={lastName}
-                                    onChange={e => setLastName(e.target.value)}
-                                    required
-                                />
-                            </div>
-                        </div>
-                         <div className="space-y-2">
-                            <Label htmlFor="userEmail">User Email</Label>
-                            <Input 
-                                id="userEmail" 
-                                type="email"
-                                placeholder="user@example.com" 
-                                value={userEmail}
-                                onChange={e => setUserEmail(e.target.value)}
-                                required
-                            />
-                        </div>
-                        <Button type="submit">Add User</Button>
-                    </form>
+                    <Table>
+                        <TableHeader>
+                            <TableRow>
+                                <TableHead>Name</TableHead>
+                                <TableHead>Email</TableHead>
+                                <TableHead>Role</TableHead>
+                                <TableHead>Organization</TableHead>
+                                <TableHead className="text-right">Actions</TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {users.map((user) => (
+                                <TableRow key={user.id}>
+                                    <TableCell className="font-medium">{user.firstName} {user.lastName}</TableCell>
+                                    <TableCell>{user.email}</TableCell>
+                                    <TableCell><Badge variant="secondary">{user.role}</Badge></TableCell>
+                                    <TableCell>{getOrgName(user.organizationId)}</TableCell>
+                                    <TableCell className="text-right">
+                                         <DropdownMenu>
+                                            <DropdownMenuTrigger asChild>
+                                                <Button variant="ghost" className="h-8 w-8 p-0">
+                                                    <span className="sr-only">Open menu</span>
+                                                    <MoreHorizontal />
+                                                </Button>
+                                            </DropdownMenuTrigger>
+                                            <DropdownMenuContent align="end">
+                                                <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                                                <DropdownMenuItem onClick={() => handleEditClick(user)} className="cursor-pointer">
+                                                    <Edit className="mr-2" /> Edit
+                                                </DropdownMenuItem>
+                                                <AlertDialog>
+                                                    <AlertDialogTrigger asChild>
+                                                        <Button variant="ghost" className="w-full justify-start text-sm text-destructive hover:text-destructive px-2 py-1.5 h-auto font-normal">
+                                                            <Trash2 className="mr-2" /> Delete
+                                                        </Button>
+                                                    </AlertDialogTrigger>
+                                                    <AlertDialogContent>
+                                                        <AlertDialogHeader>
+                                                            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                                                            <AlertDialogDescription>This will permanently delete the user.</AlertDialogDescription>
+                                                        </AlertDialogHeader>
+                                                        <AlertDialogFooter>
+                                                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                            <AlertDialogAction onClick={() => handleDeleteClick(user.id)}>Delete</AlertDialogAction>
+                                                        </AlertDialogFooter>
+                                                    </AlertDialogContent>
+                                                </AlertDialog>
+                                            </DropdownMenuContent>
+                                        </DropdownMenu>
+                                    </TableCell>
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
                 </CardContent>
             </Card>
         </div>
