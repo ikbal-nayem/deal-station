@@ -68,18 +68,14 @@ export default function OrganizationDetailLayout({ children }: { children: React
                 </Button>
                 
                  <Card>
-                    <CardHeader>
-                        <div className="flex items-start justify-between gap-4">
-                            <div className="flex items-center gap-4">
-                                <Avatar className="h-16 w-16">
-                                    <AvatarImage src={organization.logoUrl} alt={organization.name} />
-                                    <AvatarFallback>{organization.name.charAt(0)}</AvatarFallback>
-                                </Avatar>
-                                <div>
-                                    <CardTitle className="text-xl">{organization.name}</CardTitle>
-                                    <CardDescription>Joined on {format(new Date(organization.createdAt), 'PPP')}</CardDescription>
-                                </div>
-                            </div>
+                    <CardHeader className="flex-row gap-4 items-center">
+                        <Avatar className="h-16 w-16">
+                            <AvatarImage src={organization.logoUrl} alt={organization.name} />
+                            <AvatarFallback>{organization.name.charAt(0)}</AvatarFallback>
+                        </Avatar>
+                        <div className="flex-1">
+                            <CardTitle className="text-xl">{organization.name}</CardTitle>
+                            <CardDescription>Joined on {format(new Date(organization.createdAt), 'PPP')}</CardDescription>
                         </div>
                     </CardHeader>
                     <CardContent className="space-y-4">
