@@ -20,11 +20,11 @@ interface MapViewProps {
 export default function MapView({ offers, onMarkerClick, center, selectedOfferId, routeLine }: MapViewProps) {
   const { theme } = useTheme();
   const [isMounted, setIsMounted] = React.useState(false);
-  const [primaryColor, setPrimaryColor] = React.useState('#FF4500'); // Default orange
+  const [primaryColor, setPrimaryColor] = React.useState('hsl(24 94% 50%)'); 
 
   const [viewState, setViewState] = React.useState({
-    longitude: center?.lng ?? -122.4194,
-    latitude: center?.lat ?? 37.7749,
+    longitude: center?.lng ?? 90.4125,
+    latitude: center?.lat ?? 23.8103,
     zoom: 12
   });
 
