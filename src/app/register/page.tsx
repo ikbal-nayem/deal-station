@@ -15,8 +15,11 @@ import { useToast } from '@/hooks/use-toast';
 import { UserPlus } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Header from '@/components/layout/Header';
+import { useAuth } from '@/context/AuthContext';
+import SplashScreen from '@/components/layout/SplashScreen';
+import { ROLES } from '@/constants/auth.constant';
 
 export default function RegisterPage() {
   const [email, setEmail] = useState('');
@@ -26,6 +29,19 @@ export default function RegisterPage() {
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
   const { toast } = useToast();
+  const { isLoggedIn, isAuthLoading, user } = useAuth();
+
+  useEffect(() => {
+		if (!isAuthLoading && isLoggedIn) {
+			if (user?.roles.includes(ROLES.ADMIN)) {
+				router.replace('/admin');
+			} else if (user?.roles.includes(ROLES.OPERATOR)) {
+				router.replace('/dashboard');
+			} else {
+				router.replace('/');
+			}
+		}
+	}, [isLoggedIn, isAuthLoading, user, router]);
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -42,6 +58,10 @@ export default function RegisterPage() {
     router.push('/login');
     // We don't set loading to false because we navigate away.
   };
+
+  if (isAuthLoading || isLoggedIn) {
+    return <SplashScreen />;
+  }
 
   return (
     <div className="flex h-screen w-full flex-col bg-background">

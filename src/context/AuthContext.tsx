@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { axiosIns } from '@/config/api.config';
@@ -17,6 +18,7 @@ interface AuthContextType {
 	isLoading: boolean;
 	login: (email: string, pass: string) => Promise<void>;
 	logout: () => void;
+	isAuthLoading: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -43,7 +45,7 @@ const mapApiUserToAppContextUser = (apiUser: any): IUser => {
 
 export function AuthProvider({ children }: { children: ReactNode }) {
 	const [user, setUser] = useState<IUser | null>(null);
-	const [isLoading, setIsLoading] = useState(true);
+	const [isAuthLoading, setIsAuthLoading] = useState(true);
 	const router = useRouter();
 
 	useEffect(() => {
@@ -54,7 +56,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 			console.error('Failed to parse user from session storage', error);
 			clearAuthInfo();
 		}
-		setIsLoading(false);
+		setIsAuthLoading(false);
 	}, []);
 
 	const login = async (email: string, pass: string) => {
@@ -99,7 +101,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 		router.push('/login');
 	};
 
-	const value = { isLoggedIn: !!user, user, setUser, isLoading, login, logout };
+	const value = { isLoggedIn: !!user, user, setUser, isLoading: isAuthLoading, login, logout, isAuthLoading };
 
 	return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

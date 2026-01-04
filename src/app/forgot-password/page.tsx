@@ -14,13 +14,31 @@ import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { KeyRound } from 'lucide-react';
 import Link from 'next/link';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Header from '@/components/layout/Header';
+import { useAuth } from '@/context/AuthContext';
+import SplashScreen from '@/components/layout/SplashScreen';
+import { useRouter } from 'next/navigation';
+import { ROLES } from '@/constants/auth.constant';
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
+  const { isLoggedIn, isAuthLoading, user } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+		if (!isAuthLoading && isLoggedIn) {
+			if (user?.roles.includes(ROLES.ADMIN)) {
+				router.replace('/admin');
+			} else if (user?.roles.includes(ROLES.OPERATOR)) {
+				router.replace('/dashboard');
+			} else {
+				router.replace('/');
+			}
+		}
+	}, [isLoggedIn, isAuthLoading, user, router]);
 
   const handleReset = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -35,6 +53,10 @@ export default function ForgotPasswordPage() {
         description: "If an account exists for that email, a reset link has been sent.",
     })
   };
+
+  if (isAuthLoading || isLoggedIn) {
+    return <SplashScreen />;
+  }
 
   return (
     <div className="flex h-screen w-full flex-col bg-background">

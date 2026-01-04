@@ -1,3 +1,4 @@
+
 'use client';
 
 import Header from '@/components/layout/Header';
@@ -9,13 +10,29 @@ import { useAuth } from '@/context/AuthContext';
 import { toast } from '@/hooks/use-toast';
 import { LogIn } from 'lucide-react';
 import Link from 'next/link';
-import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import SplashScreen from '@/components/layout/SplashScreen';
+import { ROLES } from '@/constants/auth.constant';
 
 export default function LoginPage() {
 	const [email, setEmail] = useState('');
 	const [password, setPassword] = useState('');
 	const [isLoading, setIsLoading] = useState(false);
-	const { login } = useAuth();
+	const { login, isLoggedIn, user, isLoading: isAuthLoading } = useAuth();
+	const router = useRouter();
+
+	useEffect(() => {
+		if (!isAuthLoading && isLoggedIn) {
+			if (user?.roles.includes(ROLES.ADMIN)) {
+				router.replace('/admin');
+			} else if (user?.roles.includes(ROLES.OPERATOR)) {
+				router.replace('/dashboard');
+			} else {
+				router.replace('/');
+			}
+		}
+	}, [isLoggedIn, isAuthLoading, user, router]);
 
 	const handleLogin = async (e: React.FormEvent) => {
 		e.preventDefault();
@@ -24,8 +41,9 @@ export default function LoginPage() {
 			await login(email, password);
 			toast.success({
 				title: 'Login Successful',
-				description: 'Welcome back!',
+				description: 'Welcome back! Redirecting...',
 			});
+			// The redirection is now handled by the useEffect above and AuthContext
 		} catch (error: any) {
 			toast.error({
 				title: 'Login Failed',
@@ -34,6 +52,10 @@ export default function LoginPage() {
 			setIsLoading(false);
 		}
 	};
+
+	if (isAuthLoading || isLoggedIn) {
+		return <SplashScreen />;
+	}
 
 	return (
 		<div className='flex h-screen w-full flex-col bg-background'>
