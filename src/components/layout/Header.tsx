@@ -31,7 +31,7 @@ export default function Header({ children }: HeaderProps) {
   const pathname = usePathname();
 
   const getDashboardLink = () => {
-    if (user?.roles.includes(ROLES.ADMIN)) return '/admin';
+    if (user?.roles.includes(ROLES.ADMIN) || user?.roles.includes(ROLES.SUPER_ADMIN)) return '/admin';
     if (user?.roles.includes(ROLES.OPERATOR)) return '/dashboard';
     return '/';
   }
@@ -62,15 +62,16 @@ export default function Header({ children }: HeaderProps) {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-56">
-              <DropdownMenuLabel className='flex flex-col'>
-                <span>Signed in as</span>
-                <span className="text-muted-foreground font-normal -mt-1">{user.email}</span>
+               <DropdownMenuLabel className='flex flex-col space-y-1'>
+                <p className="font-medium leading-none">{userName}</p>
+                <p className="text-xs leading-none text-muted-foreground">{user.email}</p>
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
-               <DropdownMenuItem>
-                <Badge variant="secondary">{user.roles[0].replace(/_/g, ' ')}</Badge>
-              </DropdownMenuItem>
-              {(user.roles.includes(ROLES.ADMIN) || user.roles.includes(ROLES.OPERATOR)) && !pathname.startsWith('/admin') && !pathname.startsWith('/dashboard') && (
+              <div className="px-2 py-1.5">
+                 <Badge variant="secondary" className="w-full justify-center">{user.roles[0].replace(/_/g, ' ')}</Badge>
+              </div>
+              
+              {(user.roles.includes(ROLES.ADMIN) || user.roles.includes(ROLES.SUPER_ADMIN)) && !pathname.startsWith('/admin') && (
                 <DropdownMenuItem asChild>
                   <Link href={getDashboardLink()}>
                     <LayoutDashboard className="mr-2 h-4 w-4" />
@@ -85,7 +86,7 @@ export default function Header({ children }: HeaderProps) {
                   </Link>
                 </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={logout}>
+              <DropdownMenuItem onClick={logout} className="cursor-pointer">
                 Logout
               </DropdownMenuItem>
             </DropdownMenuContent>
