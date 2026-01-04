@@ -27,12 +27,12 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
   }, [pathname]);
 
   useEffect(() => {
-    if (!isLoading && (!isLoggedIn || !user?.roles.includes(ROLES.ADMIN))) {
+    if (!isLoading && (!isLoggedIn || (!user?.roles.includes(ROLES.ADMIN) && !user?.roles.includes(ROLES.SUPER_ADMIN)))) {
       router.replace('/login');
     }
   }, [isLoggedIn, user, router, isLoading]);
 
-  if (isLoading || !isLoggedIn || !user?.roles.includes(ROLES.ADMIN)) {
+  if (isLoading || !isLoggedIn || (!user?.roles.includes(ROLES.ADMIN) && !user?.roles.includes(ROLES.SUPER_ADMIN))) {
     return <SplashScreen />;
   }
 
