@@ -37,9 +37,9 @@ import { FormSelect } from '@/components/ui/form-select';
 import { SelectItem } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useToast } from '@/hooks/use-toast';
+import { IUser } from '@/interfaces/auth.interface';
 import { mockOrganizations } from '@/lib/mock-organizations';
 import { mockUsers as initialUsers } from '@/lib/mock-users';
-import { type User } from '@/lib/types';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Edit, MoreHorizontal, PlusCircle, Trash2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
@@ -64,9 +64,9 @@ type UserFormValues = z.infer<typeof userFormSchema>;
 
 export default function UsersPage() {
 	const { toast } = useToast();
-	const [users, setUsers] = useState<User[]>(initialUsers);
+	const [users, setUsers] = useState<IUser[]>(initialUsers);
 	const [isDialogOpen, setDialogOpen] = useState(false);
-	const [currentUser, setCurrentUser] = useState<User | null>(null);
+	const [currentUser, setCurrentUser] = useState<IUser | null>(null);
 
 	const form = useForm<UserFormValues>({
 		resolver: zodResolver(userFormSchema),
@@ -89,7 +89,7 @@ export default function UsersPage() {
 		}
 	}, [isDialogOpen, form]);
 
-	const handleEditClick = (user: User) => {
+	const handleEditClick = (user: IUser) => {
 		setCurrentUser(user);
 		form.reset({
 			firstName: user.firstName,
@@ -121,7 +121,7 @@ export default function UsersPage() {
 			setUsers((users) => users.map((u) => (u.id === currentUser.id ? { ...u, ...values } : u)));
 			toast({ title: 'User Updated', description: `${values.firstName} has been updated.` });
 		} else {
-			const newUser: User = {
+			const newUser: IUser = {
 				id: `user-${Date.now()}`,
 				...values,
 				organizationId: values.role === 'Organization' ? values.organizationId : undefined,

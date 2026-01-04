@@ -3,16 +3,17 @@
 import { axiosIns } from '@/config/api.config';
 import { ACCESS_TOKEN, AUTH_INFO, REFRESH_TOKEN, ROLES } from '@/constants/auth.constant';
 import { ROUTES } from '@/constants/routes.constant';
-import { IOrganizationUser } from '@/interfaces/master-data.interface';
-import { type User } from '@/lib/types';
+import { IUser } from '@/interfaces/auth.interface';
+import { AuthService } from '@/services/api/auth.service';
+import { UserService } from '@/services/api/user.service';
 import { CookieService, LocalStorageService, clearAuthInfo } from '@/services/storage.service';
 import { useRouter } from 'next/navigation';
 import React, { ReactNode, createContext, useContext, useEffect, useState } from 'react';
 
 interface AuthContextType {
 	isLoggedIn: boolean;
-	user: User | null;
-	setUser: React.Dispatch<React.SetStateAction<User | null>>;
+	user: IUser | null;
+	setUser: React.Dispatch<React.SetStateAction<IUser | null>>;
 	isLoading: boolean;
 	login: (email: string, pass: string) => Promise<void>;
 	logout: () => void;
@@ -20,30 +21,15 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const mapApiUserToAppContextUser = (apiUser: IOrganizationUser): User => ({
-	id: apiUser.id,
-	firstName: apiUser.firstName,
-	lastName: apiUser.lastName,
-	email: apiUser.email,
-	phone: apiUser.phone,
-	role: (apiUser.roles as any[])?.find((role) => role.roleCode === 'ADMIN' || role.roleCode === 'SUPER_ADMIN')
-		? 'Admin'
-		: 'Organization',
-	organizationId: apiUser.organizationId,
-	avatarUrl: apiUser.profileImage?.filePath,
-});
-
 export function AuthProvider({ children }: { children: ReactNode }) {
-	const [user, setUser] = useState<User | null>(null);
+	const [user, setUser] = useState<IUser | null>(null);
 	const [isLoading, setIsLoading] = useState(true);
 	const router = useRouter();
 
 	useEffect(() => {
 		try {
 			const storedUser = LocalStorageService.get(AUTH_INFO);
-			if (storedUser) {
-				setUser(mapApiUserToAppContextUser(storedUser.user));
-			}
+			if (storedUser) setUser(storedUser);
 		} catch (error) {
 			console.error('Failed to parse user from session storage', error);
 			clearAuthInfo();
@@ -52,29 +38,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 	}, []);
 
 	const login = async (email: string, pass: string) => {
-		console.log('Attempting login with:', email);
-
-		const response = await axiosIns.post('/api/auth/login', {
+		const response = await AuthService.login({
 			username: email,
 			password: pass,
 		});
 
-		const { body: authInfo } = response.data;
+		const authInfo = response.body;
 
 		if (authInfo && authInfo.access_token) {
 			CookieService.set(ACCESS_TOKEN, authInfo.access_token);
 			CookieService.set(REFRESH_TOKEN, authInfo.refresh_token);
 			axiosIns.defaults.headers.common['Authorization'] = `Bearer ${authInfo.access_token}`;
 
-			const userDetailsResponse = await axiosIns.get('/user/get-details');
-			const userDetails = userDetailsResponse.data.body;
+			const userDetailsResponse = await UserService.getUserDetails();
+			const userDetails = userDetailsResponse.body;
 
 			LocalStorageService.set(AUTH_INFO, { user: userDetails, ...authInfo });
 
-			const appUser = mapApiUserToAppContextUser(userDetails);
-			setUser(appUser);
+			setUser(userDetails);
 
-			if (appUser.role === ROLES.ADMIN || appUser.role === ROLES.SUPER_ADMIN) {
+			if (!userDetails.roles.includes(ROLES.USER)) {
 				router.push(ROUTES.DASHBOARD.ADMIN);
 			} else {
 				router.push('/');

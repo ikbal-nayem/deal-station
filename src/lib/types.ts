@@ -16,18 +16,6 @@ export type Offer = {
   organizationId: string;
 };
 
-export type User = {
-  id: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-  phone?: string;
-  password?: string; // Should not be stored in frontend state in a real app
-  role: ROLES;
-  organizationId?: string; // if role is 'Organization' or if user is assigned to one
-  avatarUrl?: string;
-};
-
 export type Organization = {
     id: string;
     name: string;
