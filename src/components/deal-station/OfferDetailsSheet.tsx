@@ -13,7 +13,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { QrCodePlaceholder } from '@/components/local-perks/Icons';
+import { QrCodePlaceholder } from '@/components/deal-station/Icons';
 import { Globe, MapPin, Star } from 'lucide-react';
 import type { Offer } from '@/lib/types';
 import { PlaceHolderImages } from '@/lib/placeholder-images';

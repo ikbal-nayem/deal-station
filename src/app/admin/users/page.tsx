@@ -18,8 +18,9 @@ import { type User, type UserRole } from "@/lib/types";
 import { mockUsers as initialUsers } from "@/lib/mock-users";
 import { mockOrganizations } from "@/lib/mock-organizations";
 import { FormInput } from "@/components/ui/form-input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
+import { FormSelect } from "@/components/ui/form-select";
+import { SelectItem } from "@/components/ui/select";
 
 const userFormSchema = z.object({
   firstName: z.string().min(2, "First name is required"),
@@ -136,52 +137,30 @@ export default function UsersPage() {
                                 <FormInput control={form.control} name="email" label="Email" type="email" placeholder="user@example.com" required/>
                                 <FormInput control={form.control} name="phone" label="Phone (Optional)" placeholder="555-123-4567" />
                                 
-                                <FormField
+                                <FormSelect
                                     control={form.control}
                                     name="role"
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel required>Role</FormLabel>
-                                            <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                                <FormControl>
-                                                    <SelectTrigger>
-                                                        <SelectValue placeholder="Select a role" />
-                                                    </SelectTrigger>
-                                                </FormControl>
-                                                <SelectContent>
-                                                    <SelectItem value="Admin">Admin</SelectItem>
-                                                    <SelectItem value="Organization">Organization</SelectItem>
-                                                    <SelectItem value="End User">End User</SelectItem>
-                                                </SelectContent>
-                                            </Select>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
-
+                                    label="Role"
+                                    placeholder="Select a role"
+                                    required
+                                >
+                                    <SelectItem value="Admin">Admin</SelectItem>
+                                    <SelectItem value="Organization">Organization</SelectItem>
+                                    <SelectItem value="End User">End User</SelectItem>
+                                </FormSelect>
+                                
                                 {watchedRole === 'Organization' && (
-                                     <FormField
+                                    <FormSelect
                                         control={form.control}
                                         name="organizationId"
-                                        render={({ field }) => (
-                                            <FormItem>
-                                                <FormLabel required>Organization</FormLabel>
-                                                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                                    <FormControl>
-                                                        <SelectTrigger>
-                                                            <SelectValue placeholder="Select an organization" />
-                                                        </SelectTrigger>
-                                                    </FormControl>
-                                                    <SelectContent>
-                                                        {mockOrganizations.map(org => (
-                                                             <SelectItem key={org.id} value={org.id}>{org.name}</SelectItem>
-                                                        ))}
-                                                    </SelectContent>
-                                                </Select>
-                                                <FormMessage />
-                                            </FormItem>
-                                        )}
-                                    />
+                                        label="Organization"
+                                        placeholder="Select an organization"
+                                        required
+                                    >
+                                        {mockOrganizations.map(org => (
+                                            <SelectItem key={org.id} value={org.id}>{org.name}</SelectItem>
+                                        ))}
+                                    </FormSelect>
                                 )}
 
                                 <DialogFooter>
