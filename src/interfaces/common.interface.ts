@@ -48,12 +48,3 @@ export interface IFile {
 	filePath: string;
 	fileSize: string;
 }
-
-export interface IAttachment {
-	id: string;
-	type: string;
-	typeDTO: EnumDTO;
-	file: IFile;
-	createdOn: string;
-	isDefault: boolean;
-}
