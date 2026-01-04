@@ -1,3 +1,4 @@
+
 'use client';
 
 import * as ToastPrimitives from '@radix-ui/react-toast';
@@ -29,11 +30,11 @@ const toastVariants = cva(
 	{
 		variants: {
 			variant: {
-				default: 'bg-primary text-primary-foreground',
+				default: 'border bg-background text-foreground',
 				danger: 'danger group border-danger bg-danger text-danger-foreground',
-				success: 'success group border-transparent bg-green-600 text-white',
-				warning: 'warning group border-transparent bg-amber-500 text-white',
-				info: 'info group border-transparent bg-sky-500 text-white',
+				success: 'success group border-transparent bg-success text-success-foreground',
+				warning: 'warning group border-transparent bg-warning text-warning-foreground',
+				info: 'info group border-transparent bg-info text-info-foreground',
 			},
 		},
 		defaultVariants: {
@@ -59,9 +60,9 @@ const ToastAction = React.forwardRef<
 		className={cn(
 			'inline-flex h-8 shrink-0 items-center justify-center rounded-md border bg-transparent px-3 text-sm font-medium ring-offset-background transition-colors hover:bg-secondary focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none disabled:opacity-50',
 			'group-[.danger]:border-muted/40 group-[.danger]:hover:border-danger/30 group-[.danger]:hover:bg-danger group-[.danger]:hover:text-danger-foreground group-[.danger]:focus:ring-danger',
-			'group-[.success]:border-muted/40 group-[.success]:hover:border-green-600/30 group-[.success]:hover:bg-green-600 group-[.success]:hover:text-white group-[.success]:focus:ring-green-600',
-			'group-[.warning]:border-muted/40 group-[.warning]:hover:border-amber-500/30 group-[.warning]:hover:bg-amber-500 group-[.warning]:hover:text-white group-[.warning]:focus:ring-amber-500',
-			'group-[.info]:border-muted/40 group-[.info]:hover:border-sky-500/30 group-[.info]:hover:bg-sky-500 group-[.info]:hover:text-white group-[.info]:focus:ring-sky-500',
+			'group-[.success]:border-muted/40 group-[.success]:hover:border-success/30 group-[.success]:hover:bg-success group-[.success]:hover:text-white group-[.success]:focus:ring-success',
+			'group-[.warning]:border-muted/40 group-[.warning]:hover:border-warning/30 group-[.warning]:hover:bg-warning group-[.warning]:hover:text-white group-[.warning]:focus:ring-warning',
+			'group-[.info]:border-muted/40 group-[.info]:hover:border-info/30 group-[.info]:hover:bg-info group-[.info]:hover:text-white group-[.info]:focus:ring-info',
 			className
 		)}
 		{...props}
