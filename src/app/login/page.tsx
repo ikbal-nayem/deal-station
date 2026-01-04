@@ -42,7 +42,7 @@ export default function LoginPage() {
       toast({
         title: 'Login Failed',
         description: error.message || 'Please check your email and password.',
-        variant: 'destructive',
+        variant: 'danger',
       });
       setIsLoading(false);
     }
@@ -59,7 +59,7 @@ export default function LoginPage() {
               Login
             </CardTitle>
             <CardDescription>
-              Use 'user@example.com', 'admin@example.com', or 'org@example.com' with password 'password'.
+              Enter your credentials to access your account.
             </CardDescription>
           </CardHeader>
           <CardContent>

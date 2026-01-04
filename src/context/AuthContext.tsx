@@ -5,15 +5,12 @@ import React, { createContext, useContext, useState, ReactNode, useEffect } from
 import { useRouter } from 'next/navigation';
 import { type User } from '@/lib/types';
 import { mockUsers } from '@/lib/mock-users';
+import { axiosIns } from '@/config/api.config';
+import { ACCESS_TOKEN, REFRESH_TOKEN, AUTH_INFO } from '@/constants/auth.constant';
+import { CookieService, LocalStorageService, clearAuthInfo } from '@/services/storage.service';
+import { IOrganizationUser, IRole } from '@/interfaces/master-data.interface';
+import { ROUTES } from '@/constants/routes.constant';
 
-// Create a default empty user to prevent errors during initial render
-const defaultUser: User = {
-  id: '',
-  firstName: '',
-  lastName: '',
-  email: '',
-  role: 'End User',
-};
 interface AuthContextType {
   isLoggedIn: boolean;
   user: User | null;
@@ -25,42 +22,57 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+const mapApiUserToAppContextUser = (apiUser: IOrganizationUser): User => ({
+    id: apiUser.id,
+    firstName: apiUser.firstName,
+    lastName: apiUser.lastName,
+    email: apiUser.email,
+    phone: apiUser.phone,
+    role: apiUser.roles?.[0] as User['role'] || 'End User', // simplify role
+    organizationId: apiUser.organizationId,
+    avatarUrl: apiUser.profileImage?.filePath,
+});
+
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
 
   useEffect(() => {
-    // Simulate checking for a logged-in user from a session
     try {
-      const storedUser = sessionStorage.getItem('localperks-user');
+      const storedUser = LocalStorageService.get(AUTH_INFO);
       if (storedUser) {
-        setUser(JSON.parse(storedUser));
+        setUser(mapApiUserToAppContextUser(storedUser.user));
       }
     } catch (error) {
       console.error("Failed to parse user from session storage", error);
-      sessionStorage.removeItem('localperks-user');
+      clearAuthInfo();
     }
     setIsLoading(false);
   }, []);
 
   const login = async (email: string, pass: string) => {
     console.log('Attempting login with:', email);
-    await new Promise(resolve => setTimeout(resolve, 500)); // Simulate network delay
-
-    const foundUser = mockUsers.find(
-      (u) => u.email === email && u.password === pass
-    );
-
-    if (foundUser) {
-      const { password, ...userToStore } = foundUser;
-      setUser(userToStore as User);
-      sessionStorage.setItem('localperks-user', JSON.stringify(userToStore));
+    
+    const response = await axiosIns.post('/api/auth/login', {
+        username: email,
+        password: pass,
+    });
+    
+    const { body: authInfo } = response.data;
+    
+    if (authInfo && authInfo.user) {
+      CookieService.set(ACCESS_TOKEN, authInfo.access_token);
+      CookieService.set(REFRESH_TOKEN, authInfo.refresh_token);
+      LocalStorageService.set(AUTH_INFO, authInfo);
       
-      if (userToStore.role === 'Admin') {
-        router.push('/admin');
-      } else if (userToStore.role === 'Organization') {
-        router.push('/dashboard');
+      const appUser = mapApiUserToAppContextUser(authInfo.user);
+      setUser(appUser);
+      
+      const userRole = (authInfo.user.roles as IRole[]).find(role => role.roleCode === 'SUPER_ADMIN' || role.roleCode === 'ADMIN');
+      if (userRole) {
+        router.push(ROUTES.DASHBOARD.ADMIN);
       } else {
         router.push('/');
       }
@@ -71,12 +83,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const logout = () => {
+    clearAuthInfo();
     setUser(null);
-    sessionStorage.removeItem('localperks-user');
     router.push('/login');
   };
 
-  const value = { isLoggedIn: !!user, user: user || defaultUser, setUser, isLoading, login, logout };
+  const value = { isLoggedIn: !!user, user, setUser, isLoading, login, logout };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

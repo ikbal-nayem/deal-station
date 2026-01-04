@@ -15,7 +15,7 @@ export type Offer = {
   organizationId: string;
 };
 
-export type UserRole = 'End User' | 'Admin' | 'Organization';
+export type UserRole = 'End User' | 'Admin' | 'Organization' | 'SUPER_ADMIN';
 
 export type User = {
   id: string;
