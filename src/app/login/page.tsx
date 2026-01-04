@@ -40,13 +40,15 @@ export default function LoginPage() {
 		setIsLoading(true);
 		try {
 			await login(email, password);
-			toast.success({
+			toast({
+                variant: 'success',
 				title: 'Login Successful',
 				description: 'Welcome back! Redirecting...',
 			});
-			// The redirection is now handled by the useEffect above and AuthContext
+			// Redirection is handled by AuthContext and the useEffect above
 		} catch (error: any) {
-			toast.error({
+			toast({
+                variant: 'danger',
 				title: 'Login Failed',
 				description: error.message || 'Please check your email and password.',
 			});

@@ -37,6 +37,7 @@ import { FormInput } from '@/components/ui/form-input';
 import { FormSelect } from '@/components/ui/form-select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { ROLES } from '@/constants/auth.constant';
+import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { IUser } from '@/interfaces/auth.interface';
 import { mockOrganizations } from '@/lib/mock-organizations';
@@ -76,6 +77,7 @@ const mapToIUser = (user: UserFormValues, id?: string): IUser => ({
 
 export default function UsersPage() {
 	const { toast } = useToast();
+    const { user: authUser } = useAuth();
 	const [users, setUsers] = useState<IUser[]>(initialUsers);
 	const [isDialogOpen, setDialogOpen] = useState(false);
 	const [currentUser, setCurrentUser] = useState<IUser | null>(null);
@@ -204,7 +206,7 @@ export default function UsersPage() {
 									label='Role'
 									placeholder='Select a role'
 									required
-									options={Object.values(ROLES)}
+									options={Object.values(ROLES).filter(role => authUser?.roles.includes(ROLES.SUPER_ADMIN) || role !== ROLES.SUPER_ADMIN)}
 									getOptionValue={(option) => option}
 									getOptionLabel={(option) => option.replace(/_/g, ' ')}
 								/>
