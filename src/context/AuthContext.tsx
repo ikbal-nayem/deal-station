@@ -28,7 +28,7 @@ const mapApiUserToAppContextUser = (apiUser: IOrganizationUser): User => ({
     lastName: apiUser.lastName,
     email: apiUser.email,
     phone: apiUser.phone,
-    role: apiUser.roles?.[0] as User['role'] || 'End User', // simplify role
+    role: (apiUser.roles as any[])?.find(role => role.roleCode === 'ADMIN' || role.roleCode === 'SUPER_ADMIN') ? 'Admin' : 'Organization',
     organizationId: apiUser.organizationId,
     avatarUrl: apiUser.profileImage?.filePath,
 });
@@ -62,17 +62,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     
     const { body: authInfo } = response.data;
     
-    if (authInfo && authInfo.user) {
+    if (authInfo && authInfo.access_token) {
       CookieService.set(ACCESS_TOKEN, authInfo.access_token);
       CookieService.set(REFRESH_TOKEN, authInfo.refresh_token);
-      LocalStorageService.set(AUTH_INFO, authInfo);
+      axiosIns.defaults.headers.common['Authorization'] = `Bearer ${authInfo.access_token}`;
+
+      const userDetailsResponse = await axiosIns.get('/user/get-details');
+      const userDetails = userDetailsResponse.data.body;
+
+      LocalStorageService.set(AUTH_INFO, { user: userDetails, ...authInfo});
       
-      const appUser = mapApiUserToAppContextUser(authInfo.user);
+      const appUser = mapApiUserToAppContextUser(userDetails);
       setUser(appUser);
       
-      const userRole = (authInfo.user.roles as IRole[]).find(role => role.roleCode === 'SUPER_ADMIN' || role.roleCode === 'ADMIN');
-      if (userRole) {
+      if (appUser.role === 'Admin') {
         router.push(ROUTES.DASHBOARD.ADMIN);
+      } else if (appUser.role === 'Organization') {
+        router.push('/dashboard');
       } else {
         router.push('/');
       }

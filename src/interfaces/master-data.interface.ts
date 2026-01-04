@@ -1,3 +1,4 @@
+
 import { IFile } from './common.interface';
 
 export interface ICommonMasterData {
@@ -16,6 +17,7 @@ export interface IRole extends ICommonMasterData {
 
 export interface IOrganizationUser {
 	id: string;
+	username: string;
 	email: string;
 	phone: string;
 	organizationId: string;
@@ -24,7 +26,7 @@ export interface IOrganizationUser {
 	fullName: string;
 	firstName: string;
 	lastName: string;
-	roles: string[];
+	roles: IRole[];
 	profileImage?: IFile;
 	enabled: boolean;
 }
