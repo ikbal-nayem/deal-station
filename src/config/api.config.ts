@@ -25,7 +25,7 @@ class AxiosInstance {
 			baseURL: ENV.API_GATEWAY,
 			headers: {
 				Accept: 'application/json',
-				clientId: 'iifc-recruitment-client',
+				clientId: 'deal-station-client',
 				withCredentials: true,
 			},
 		});
