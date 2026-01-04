@@ -7,8 +7,8 @@ import { cn } from '@/lib/utils';
 import { type Offer } from '@/lib/types';
 import { mockOffers } from '@/lib/mock-data';
 import { useLocation } from '@/hooks/use-location';
-import OfferList from '@/components/local-perks/OfferList';
-import OfferDetailsSheet from '@/components/local-perks/OfferDetailsSheet';
+import OfferList from '@/components/deal-station/OfferList';
+import OfferDetailsSheet from '@/components/deal-station/OfferDetailsSheet';
 import { List, Map as MapIcon } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import dynamic from 'next/dynamic';
@@ -16,7 +16,7 @@ import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
 import Header from '@/components/layout/Header';
 
-const ClientMapView = dynamic(() => import('@/components/local-perks/ClientMapView'), {
+const ClientMapView = dynamic(() => import('@/components/deal-station/ClientMapView'), {
   ssr: false,
 });
 
