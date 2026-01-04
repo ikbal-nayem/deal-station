@@ -12,6 +12,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/component
 import { usePathname } from 'next/navigation';
 import Logo from '@/components/layout/Logo';
 import SplashScreen from '@/components/layout/SplashScreen';
+import { ROLES } from '@/constants/auth.constant';
 
 export default function AdminLayout({ children }: { children: ReactNode }) {
   const { user, isLoggedIn, isLoading } = useAuth();
@@ -26,12 +27,12 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
   }, [pathname]);
 
   useEffect(() => {
-    if (!isLoading && (!isLoggedIn || user?.role !== 'Admin')) {
+    if (!isLoading && (!isLoggedIn || !user?.roles.includes(ROLES.ADMIN))) {
       router.replace('/login');
     }
   }, [isLoggedIn, user, router, isLoading]);
 
-  if (isLoading || !isLoggedIn || user?.role !== 'Admin') {
+  if (isLoading || !isLoggedIn || !user?.roles.includes(ROLES.ADMIN)) {
     return <SplashScreen />;
   }
 

@@ -11,6 +11,7 @@ import { z } from "zod";
 import { Form } from "@/components/ui/form";
 import { useState } from "react";
 import { FormImageUpload } from "@/components/ui/form-image-upload";
+import { ENV } from "@/constants/env.constant";
 
 const avatarFormSchema = z.object({
   avatar: z.any()
@@ -41,7 +42,7 @@ export default function UpdateAvatarForm() {
     // Simulate upload and update
     await new Promise(resolve => setTimeout(resolve, 1000));
     
-    let newAvatarUrl = user?.avatarUrl;
+    let newAvatarUrl = user?.profileImage?.filePath;
     if (data.avatar && data.avatar.length > 0) {
         newAvatarUrl = URL.createObjectURL(data.avatar[0]);
     } else if (data.avatar === null) {
@@ -49,9 +50,9 @@ export default function UpdateAvatarForm() {
     }
 
     if(user){
-        const updatedUser = { ...user, avatarUrl: newAvatarUrl };
+        const updatedUser = { ...user, profileImage: { ...user.profileImage, filePath: newAvatarUrl } as any };
         setUser(updatedUser);
-        sessionStorage.setItem('localperks-user', JSON.stringify(updatedUser));
+        sessionStorage.setItem('auth_info', JSON.stringify(updatedUser));
     }
 
     toast({
@@ -65,6 +66,7 @@ export default function UpdateAvatarForm() {
   if (!user) return null;
   
   const fallbackText = user.firstName && user.lastName ? `${user.firstName.charAt(0)}${user.lastName.charAt(0)}` : '';
+  const currentImageUrl = user.profileImage ? `${ENV.API_GATEWAY}/${user.profileImage.filePath}` : undefined;
 
 
   return (
@@ -81,7 +83,7 @@ export default function UpdateAvatarForm() {
                 name="avatar"
                 label="Your Avatar"
                 description="Upload a new photo for your profile."
-                currentImage={user.avatarUrl}
+                currentImage={currentImageUrl}
                 fallbackText={fallbackText}
                 />
           </CardContent>

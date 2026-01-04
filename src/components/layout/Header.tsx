@@ -18,6 +18,8 @@ import { usePathname } from 'next/navigation';
 import { Badge } from '../ui/badge';
 import Logo from './Logo';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
+import { ROLES } from '@/constants/auth.constant';
+import { ENV } from '@/constants/env.constant';
 
 
 interface HeaderProps {
@@ -29,13 +31,14 @@ export default function Header({ children }: HeaderProps) {
   const pathname = usePathname();
 
   const getDashboardLink = () => {
-    if (user?.role === 'Admin') return '/admin';
-    if (user?.role === 'Organization') return '/dashboard';
+    if (user?.roles.includes(ROLES.ADMIN)) return '/admin';
+    if (user?.roles.includes(ROLES.OPERATOR)) return '/dashboard';
     return '/';
   }
 
   const userName = user && user.firstName && user.lastName ? `${user.firstName} ${user.lastName}` : '';
   const userFallback = user && user.firstName && user.lastName ? `${user.firstName.charAt(0)}${user.lastName.charAt(0)}` : '';
+  const avatarUrl = user?.profileImage ? `${ENV.API_GATEWAY}/${user.profileImage.filePath}` : undefined;
 
   return (
     <header className="flex shrink-0 items-center justify-between border-b p-2">
@@ -52,7 +55,7 @@ export default function Header({ children }: HeaderProps) {
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="flex items-center gap-2 rounded-full p-1 h-auto">
                 <Avatar className="h-8 w-8">
-                  <AvatarImage src={user.avatarUrl || ''} alt={userName} />
+                  <AvatarImage src={avatarUrl} alt={userName} />
                   <AvatarFallback>{userFallback}</AvatarFallback>
                 </Avatar>
                 {userName && <span className="hidden sm:block">{userName}</span>}
@@ -65,9 +68,9 @@ export default function Header({ children }: HeaderProps) {
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
                <DropdownMenuItem>
-                <Badge variant="secondary">{user.role}</Badge>
+                <Badge variant="secondary">{user.roles[0].replace(/_/g, ' ')}</Badge>
               </DropdownMenuItem>
-              {(user.role === 'Admin' || user.role === 'Organization') && !pathname.startsWith('/admin') && !pathname.startsWith('/dashboard') && (
+              {(user.roles.includes(ROLES.ADMIN) || user.roles.includes(ROLES.OPERATOR)) && !pathname.startsWith('/admin') && !pathname.startsWith('/dashboard') && (
                 <DropdownMenuItem asChild>
                   <Link href={getDashboardLink()}>
                     <LayoutDashboard className="mr-2 h-4 w-4" />

@@ -12,6 +12,7 @@ import SplashScreen from '@/components/layout/SplashScreen';
 import { mockOrganizations } from '@/lib/mock-organizations';
 import Logo from '@/components/layout/Logo';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { ROLES } from '@/constants/auth.constant';
 
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {
@@ -21,7 +22,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
   const [organizationLogo, setOrganizationLogo] = useState('');
 
   useEffect(() => {
-    if (!isLoading && (!isLoggedIn || user?.role !== 'Organization')) {
+    if (!isLoading && (!isLoggedIn || !user?.roles.includes(ROLES.OPERATOR))) {
       router.replace('/login');
     }
   }, [isLoggedIn, user, router, isLoading]);
@@ -36,7 +37,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
     }
   }, [user]);
 
-  if (isLoading || !isLoggedIn || user?.role !== 'Organization') {
+  if (isLoading || !isLoggedIn || !user?.roles.includes(ROLES.OPERATOR)) {
      return <SplashScreen />;
   }
 

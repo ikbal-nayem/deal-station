@@ -15,9 +15,10 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { mockUsers as initialUsers } from '@/lib/mock-users';
-import type { User } from '@/lib/types';
+import { IUser } from '@/interfaces/auth.interface';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { FormInput } from '@/components/ui/form-input';
+import { ROLES } from '@/constants/auth.constant';
 
 const userFormSchema = z.object({
   firstName: z.string().min(2, "First name is required"),
@@ -32,9 +33,9 @@ export default function OrganizationUsersPage() {
     const orgId = params.orgId as string;
     const { toast } = useToast();
 
-    const [users, setUsers] = useState<User[]>([]);
+    const [users, setUsers] = useState<IUser[]>([]);
     const [isUserDialogOpen, setUserDialogOpen] = useState(false);
-    const [currentUser, setCurrentUser] = useState<User | null>(null);
+    const [currentUser, setCurrentUser] = useState<IUser | null>(null);
 
     const userForm = useForm<UserFormValues>({ resolver: zodResolver(userFormSchema) });
 
@@ -50,7 +51,7 @@ export default function OrganizationUsersPage() {
         setUserDialogOpen(true);
     };
 
-    const handleEditUser = (user: User) => {
+    const handleEditUser = (user: IUser) => {
         setCurrentUser(user);
         userForm.reset({ firstName: user.firstName, lastName: user.lastName, email: user.email, phone: user.phone || '' });
         setUserDialogOpen(true);
@@ -58,10 +59,16 @@ export default function OrganizationUsersPage() {
 
     const handleUserFormSubmit = (values: UserFormValues) => {
         if (currentUser) {
-            setUsers(users.map(u => u.id === currentUser.id ? { ...u, ...values } : u));
+            setUsers(users.map(u => u.id === currentUser.id ? { ...u, ...values, username: values.email } : u));
             toast({ title: "User Updated", description: "The user's details have been updated." });
         } else {
-            const newUser: User = { id: `user-${Date.now()}`, ...values, role: 'Organization', organizationId: orgId };
+            const newUser: IUser = {
+				id: `user-${Date.now()}`,
+				username: values.email,
+				roles: [ROLES.USER],
+				...values,
+				organizationId: orgId,
+			};
             setUsers([newUser, ...users]);
             toast({ title: "User Added", description: `${values.firstName} has been added.` });
         }
@@ -114,10 +121,10 @@ export default function OrganizationUsersPage() {
                                         <DropdownMenuContent align="end">
                                             <DropdownMenuItem onClick={() => handleEditUser(user)} className="cursor-pointer"><Edit className="mr-2 h-4 w-4"/> Edit</DropdownMenuItem>
                                             <AlertDialog>
-                                                <AlertDialogTrigger asChild><Button variant="ghost" className="w-full justify-start text-sm text-destructive hover:text-destructive px-2 py-1.5 h-auto font-normal"><Trash2 className="mr-2 h-4 w-4"/> Delete</Button></AlertDialogTrigger>
+                                                <AlertDialogTrigger asChild><Button variant="ghost" className="w-full justify-start text-sm text-danger hover:text-danger px-2 py-1.5 h-auto font-normal"><Trash2 className="mr-2 h-4 w-4"/> Delete</Button></AlertDialogTrigger>
                                                 <AlertDialogContent>
                                                     <AlertDialogHeader><AlertDialogTitle>Are you sure?</AlertDialogTitle><AlertDialogDescription>This will remove {user.firstName} from the organization.</AlertDialogDescription></AlertDialogHeader>
-                                                    <AlertDialogFooter><AlertDialogCancel>Cancel</AlertDialogCancel><AlertDialogAction onClick={() => handleRemoveUser(user.id)}>Remove</AlertDialogAction></AlertDialogFooter>
+                                                    <AlertDialogFooter><AlertDialogCancel>Cancel</AlertDialogCancel><AlertDialogAction onClick={() => handleRemoveUser(user.id!)}>Remove</AlertDialogAction></AlertDialogFooter>
                                                 </AlertDialogContent>
                                             </AlertDialog>
                                         </DropdownMenuContent>

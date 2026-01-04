@@ -1,3 +1,4 @@
+
 'use client';
 
 import {
@@ -34,7 +35,6 @@ import {
 import { Form } from '@/components/ui/form';
 import { FormInput } from '@/components/ui/form-input';
 import { FormSelect } from '@/components/ui/form-select';
-import { SelectItem } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useToast } from '@/hooks/use-toast';
 import { IUser } from '@/interfaces/auth.interface';
@@ -45,6 +45,8 @@ import { Edit, MoreHorizontal, PlusCircle, Trash2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
+import { ROLES } from '@/constants/auth.constant';
+import { IOrganizationUser, IRole } from '@/interfaces/master-data.interface';
 
 const userFormSchema = z
 	.object({
@@ -52,15 +54,26 @@ const userFormSchema = z
 		lastName: z.string().min(2, 'Last name is required'),
 		email: z.string().email('Invalid email address'),
 		phone: z.string().optional(),
-		role: z.enum(['Admin', 'Organization', 'End User']),
+		role: z.nativeEnum(ROLES),
 		organizationId: z.string().optional(),
 	})
-	.refine((data) => data.role !== 'Organization' || !!data.organizationId, {
+	.refine((data) => data.role !== ROLES.OPERATOR || !!data.organizationId, {
 		message: 'Organization is required for this role',
 		path: ['organizationId'],
 	});
 
 type UserFormValues = z.infer<typeof userFormSchema>;
+
+const mapToIUser = (user: UserFormValues, id?: string): IUser => ({
+	id: id || `user-${Date.now()}`,
+	username: user.email,
+	email: user.email,
+	firstName: user.firstName,
+	lastName: user.lastName,
+	phone: user.phone,
+	roles: [user.role],
+	organizationId: user.role === ROLES.OPERATOR ? user.organizationId : undefined,
+});
 
 export default function UsersPage() {
 	const { toast } = useToast();
@@ -75,7 +88,7 @@ export default function UsersPage() {
 			lastName: '',
 			email: '',
 			phone: '',
-			role: 'End User',
+			role: ROLES.USER,
 			organizationId: '',
 		},
 	});
@@ -96,7 +109,7 @@ export default function UsersPage() {
 			lastName: user.lastName,
 			email: user.email,
 			phone: user.phone || '',
-			role: user.role,
+			role: user.roles[0],
 			organizationId: user.organizationId || '',
 		});
 		setDialogOpen(true);
@@ -118,14 +131,10 @@ export default function UsersPage() {
 
 	const handleFormSubmit = (values: UserFormValues) => {
 		if (currentUser) {
-			setUsers((users) => users.map((u) => (u.id === currentUser.id ? { ...u, ...values } : u)));
+			setUsers((users) => users.map((u) => (u.id === currentUser.id ? { ...mapToIUser(values, u.id), id: u.id } : u)));
 			toast({ title: 'User Updated', description: `${values.firstName} has been updated.` });
 		} else {
-			const newUser: IUser = {
-				id: `user-${Date.now()}`,
-				...values,
-				organizationId: values.role === 'Organization' ? values.organizationId : undefined,
-			};
+			const newUser = mapToIUser(values);
 			setUsers((users) => [newUser, ...users]);
 			toast({ title: 'User Added', description: `${values.firstName} has been created.` });
 		}
@@ -196,26 +205,22 @@ export default function UsersPage() {
 									label='Role'
 									placeholder='Select a role'
 									required
-								>
-									<SelectItem value='Admin'>Admin</SelectItem>
-									<SelectItem value='Organization'>Organization</SelectItem>
-									<SelectItem value='End User'>End User</SelectItem>
-								</FormSelect>
+									options={Object.values(ROLES)}
+									getOptionValue={(option) => option}
+									getOptionLabel={(option) => option.replace(/_/g, ' ')}
+								/>
 
-								{watchedRole === 'Organization' && (
+								{watchedRole === ROLES.OPERATOR && (
 									<FormSelect
 										control={form.control}
 										name='organizationId'
 										label='Organization'
 										placeholder='Select an organization'
 										required
-									>
-										{mockOrganizations.map((org) => (
-											<SelectItem key={org.id} value={org.id}>
-												{org.name}
-											</SelectItem>
-										))}
-									</FormSelect>
+										options={mockOrganizations}
+										getOptionValue={(org) => org.id}
+										getOptionLabel={(org) => org.name}
+									/>
 								)}
 
 								<DialogFooter>
@@ -251,7 +256,7 @@ export default function UsersPage() {
 									</TableCell>
 									<TableCell>{user.email}</TableCell>
 									<TableCell>
-										<Badge variant='secondary'>{user.role}</Badge>
+										<Badge variant='secondary'>{user.roles[0]?.replace(/_/g, ' ')}</Badge>
 									</TableCell>
 									<TableCell>{getOrgName(user.organizationId)}</TableCell>
 									<TableCell className='text-right'>
@@ -271,7 +276,7 @@ export default function UsersPage() {
 													<AlertDialogTrigger asChild>
 														<Button
 															variant='ghost'
-															className='w-full justify-start text-sm text-destructive hover:text-destructive px-2 py-1.5 h-auto font-normal'
+															className='w-full justify-start text-sm text-danger hover:text-danger px-2 py-1.5 h-auto font-normal'
 														>
 															<Trash2 className='mr-2' /> Delete
 														</Button>
@@ -285,7 +290,7 @@ export default function UsersPage() {
 														</AlertDialogHeader>
 														<AlertDialogFooter>
 															<AlertDialogCancel>Cancel</AlertDialogCancel>
-															<AlertDialogAction onClick={() => handleDeleteClick(user.id)}>
+															<AlertDialogAction onClick={() => handleDeleteClick(user.id!)}>
 																Delete
 															</AlertDialogAction>
 														</AlertDialogFooter>
