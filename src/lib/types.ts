@@ -1,3 +1,4 @@
+import { ROLES } from "@/constants/auth.constant";
 
 
 export type Offer = {
@@ -15,8 +16,6 @@ export type Offer = {
   organizationId: string;
 };
 
-export type UserRole = 'End User' | 'Admin' | 'Organization' | 'SUPER_ADMIN';
-
 export type User = {
   id: string;
   firstName: string;
@@ -24,7 +23,7 @@ export type User = {
   email: string;
   phone?: string;
   password?: string; // Should not be stored in frontend state in a real app
-  role: UserRole;
+  role: ROLES;
   organizationId?: string; // if role is 'Organization' or if user is assigned to one
   avatarUrl?: string;
 };
