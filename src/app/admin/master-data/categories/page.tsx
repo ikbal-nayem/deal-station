@@ -35,7 +35,7 @@ export default function CategoriesPage() {
         defaultValues: { name: '' }
     });
 
-    const handleEditClick = (category: ICommonMasterData) => {
+    const handleEditClick = (category: ICommonMaster-data.interface) => {
         setCurrentCategory(category);
         form.reset({ name: category.name });
         setDialogOpen(true);

@@ -29,19 +29,18 @@ export default function LocalPerksPage() {
   const [isSheetOpen, setSheetOpen] = React.useState(false);
   const { location, error: locationError } = useLocation();
   const [view, setView] = React.useState<'list' | 'map'>('list');
-  const { toast } = useToast();
   const [categories, setCategories] = React.useState<string[]>([]);
   const [selectedCategory, setSelectedCategory] = React.useState<string>('All');
   const [searchQuery, setSearchQuery] = React.useState('');
   const { isLoggedIn } = useAuth();
   const router = useRouter();
+  const { toast } = useToast();
 
   React.useEffect(() => {
     if (locationError) {
-      toast({
+      toast.error({
         title: 'Location Error',
         description: locationError,
-        variant: 'destructive',
       });
     }
   }, [locationError, toast]);

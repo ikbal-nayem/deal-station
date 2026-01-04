@@ -1,3 +1,4 @@
+
 'use client';
 
 import { ACCESS_TOKEN, AUTH_INFO, REFRESH_TOKEN } from '@/constants/auth.constant';
@@ -56,9 +57,13 @@ export const SessionStorageService = {
 export class CookieService {
 	static get(name: string): string | null {
 		if (!isBrowser) {
-			// Server-side: access cookies from headers
-			const { cookies } = require('next/headers');
-			return cookies().get(name)?.value || null;
+			try {
+				const { cookies } = require('next/headers');
+				return cookies().get(name)?.value || null;
+			} catch (error) {
+				console.log('Could not get cookies on server side');
+				return null;
+			}
 		}
 
 		// Client-side

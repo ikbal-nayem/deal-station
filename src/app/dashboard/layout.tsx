@@ -13,11 +13,13 @@ import { mockOrganizations } from '@/lib/mock-organizations';
 import Logo from '@/components/layout/Logo';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { ROLES } from '@/constants/auth.constant';
+import { usePathname } from 'next/navigation';
 
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {
   const { user, isLoggedIn, isLoading } = useAuth();
   const router = useRouter();
+  const pathname = usePathname();
   const [organizationName, setOrganizationName] = useState('');
   const [organizationLogo, setOrganizationLogo] = useState('');
 
@@ -52,7 +54,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
             <SidebarContent>
                 <SidebarMenu>
                     <SidebarMenuItem>
-                        <SidebarMenuButton asChild tooltip={{children: "Dashboard"}} isActive={router.pathname === '/dashboard'}>
+                        <SidebarMenuButton asChild tooltip={{children: "Dashboard"}} isActive={pathname === '/dashboard'}>
                             <Link href="/dashboard">
                                 <LayoutDashboard/>
                                 <span>Dashboard</span>
@@ -60,7 +62,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
                         </SidebarMenuButton>
                     </SidebarMenuItem>
                     <SidebarMenuItem>
-                        <SidebarMenuButton asChild tooltip={{children: "Offers"}} isActive={router.pathname === '/dashboard/offers'}>
+                        <SidebarMenuButton asChild tooltip={{children: "Offers"}} isActive={pathname === '/dashboard/offers'}>
                              <Link href="/dashboard/offers">
                                 <ShoppingBag />
                                 <span>Offers</span>
@@ -68,7 +70,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
                         </SidebarMenuButton>
                     </SidebarMenuItem>
                      <SidebarMenuItem>
-                        <SidebarMenuButton asChild tooltip={{children: "Branches"}} isActive={router.pathname === '/dashboard/branches'}>
+                        <SidebarMenuButton asChild tooltip={{children: "Branches"}} isActive={pathname === '/dashboard/branches'}>
                              <Link href="/dashboard/branches">
                                 <GitBranchPlus />
                                 <span>Branches</span>

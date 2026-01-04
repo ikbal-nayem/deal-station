@@ -1,7 +1,7 @@
+
 import { axiosIns } from '@/config/api.config';
 import { IUser } from '@/interfaces/auth.interface';
-import { IApiRequest, IApiResponse, IObject } from '@/interfaces/common.interface';
-import { IOrganizationUser } from '@/interfaces/master-data.interface';
+import { IApiResponse, IObject } from '@/interfaces/common.interface';
 
 export const UserService = {
 	saveProfileImage: async (formData: FormData): Promise<IApiResponse<any>> => {

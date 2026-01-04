@@ -8,8 +8,9 @@ import { useAuth } from '@/context/AuthContext';
 import { mockOrganizations } from '@/lib/mock-organizations';
 import { mockUsers } from '@/lib/mock-users';
 import { mockOffers } from '@/lib/mock-data';
+import { useState, useEffect } from 'react';
 
-const data = [
+const generateData = () => [
   { name: 'Jan', total: Math.floor(Math.random() * 20) + 10 },
   { name: 'Feb', total: Math.floor(Math.random() * 20) + 10 },
   { name: 'Mar', total: Math.floor(Math.random() * 20) + 10 },
@@ -23,6 +24,12 @@ export default function AdminDashboardPage() {
   const orgCount = mockOrganizations.length;
   const userCount = mockUsers.length;
   const offerCount = mockOffers.length;
+  const [data, setData] = useState(generateData());
+
+  useEffect(() => {
+    // This ensures chart data is generated on the client and avoids hydration mismatches
+    setData(generateData());
+  }, []);
   
   return (
     <div className="space-y-6">
