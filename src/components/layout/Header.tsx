@@ -49,16 +49,19 @@ export default function Header({ children }: HeaderProps) {
       <div className="flex items-center gap-2">
         <ThemeToggle />
         {isLoading ? (
-          <div className="w-24 h-9 animate-pulse bg-muted rounded-full" />
+          <div className="w-24 h-9 animate-pulse bg-muted rounded-md" />
         ) : isLoggedIn && user ? (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="flex items-center gap-2 rounded-full p-1 h-auto">
-                <Avatar className="h-8 w-8">
+               <Button variant="ghost" className="flex items-center gap-3 rounded-full p-1 h-auto pr-3">
+                 <Avatar className="h-8 w-8">
                   <AvatarImage src={avatarUrl} alt={userName} />
                   <AvatarFallback>{userFallback}</AvatarFallback>
                 </Avatar>
-                {userName && <span className="hidden sm:block">{userName}</span>}
+                <div className='hidden sm:flex flex-col items-start'>
+                    <span className="text-sm font-medium">{userName}</span>
+                    <Badge variant="secondary" className="text-xs h-auto px-1 py-0">{user.roles[0].replace(/_/g, ' ')}</Badge>
+                </div>
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-56">
@@ -67,10 +70,6 @@ export default function Header({ children }: HeaderProps) {
                 <p className="text-xs leading-none text-muted-foreground">{user.email}</p>
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <div className="px-2 py-1.5">
-                 <Badge variant="secondary" className="w-full justify-center">{user.roles[0].replace(/_/g, ' ')}</Badge>
-              </div>
-              
               {(user.roles.includes(ROLES.ADMIN) || user.roles.includes(ROLES.SUPER_ADMIN)) && !pathname.startsWith('/admin') && (
                 <DropdownMenuItem asChild>
                   <Link href={getDashboardLink()}>
