@@ -27,7 +27,7 @@ const mapApiUserToAppContextUser = (apiUser: any): IUser => {
 		id: apiUser.id,
 		username: apiUser.username,
 		email: apiUser.email,
-		roles: apiUser.roles || [],
+		roles: Array.isArray(apiUser.roles) ? apiUser.roles : [],
 		firstName: apiUser.firstName,
 		lastName: apiUser.lastName,
 		fullName: apiUser.fullName,
@@ -79,7 +79,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 				...authInfo
 			}
 			LocalStorageService.set(AUTH_INFO, userToStore);
-
 			setUser(userDetails);
 			
 			if (userDetails.roles.includes(ROLES.ADMIN) || userDetails.roles.includes(ROLES.SUPER_ADMIN)) {

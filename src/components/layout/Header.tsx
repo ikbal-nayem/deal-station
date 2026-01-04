@@ -21,7 +21,6 @@ import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { ROLES } from '@/constants/auth.constant';
 import { ENV } from '@/constants/env.constant';
 
-
 interface HeaderProps {
   children?: React.ReactNode;
 }
@@ -34,17 +33,17 @@ export default function Header({ children }: HeaderProps) {
     if (user?.roles.includes(ROLES.ADMIN) || user?.roles.includes(ROLES.SUPER_ADMIN)) return '/admin';
     if (user?.roles.includes(ROLES.OPERATOR)) return '/dashboard';
     return '/';
-  }
+  };
 
-  const userName = user && user.firstName && user.lastName ? `${user.firstName} ${user.lastName}` : '';
-  const userFallback = user && user.firstName && user.lastName ? `${user.firstName.charAt(0)}${user.lastName.charAt(0)}` : '';
+  const userName = user && user.firstName && user.lastName ? `${user.firstName} ${user.lastName}` : 'User';
+  const userFallback = user && user.firstName && user.lastName ? `${user.firstName.charAt(0)}${user.lastName.charAt(0)}` : 'U';
   const avatarUrl = user?.profileImage ? `${ENV.API_GATEWAY}/${user.profileImage.filePath}` : undefined;
 
   return (
     <header className="flex shrink-0 items-center justify-between border-b p-2">
       <div className="flex items-center gap-2">
         {children}
-        <Logo/>
+        <Logo />
       </div>
       <div className="flex items-center gap-2">
         <ThemeToggle />
@@ -53,8 +52,8 @@ export default function Header({ children }: HeaderProps) {
         ) : isLoggedIn && user ? (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-               <Button variant="ghost" className="flex items-center gap-3 rounded-full p-1 h-auto pr-3">
-                 <Avatar className="h-8 w-8">
+              <Button variant="ghost" className="flex items-center gap-3 rounded-full p-1 h-auto pr-3">
+                <Avatar className="h-8 w-8">
                   <AvatarImage src={avatarUrl} alt={userName} />
                   <AvatarFallback>{userFallback}</AvatarFallback>
                 </Avatar>
@@ -70,7 +69,7 @@ export default function Header({ children }: HeaderProps) {
                 <p className="text-xs leading-none text-muted-foreground">{user.email}</p>
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
-              {(user.roles.includes(ROLES.ADMIN) || user.roles.includes(ROLES.SUPER_ADMIN)) && !pathname.startsWith('/admin') && (
+              {(user.roles.includes(ROLES.ADMIN) || user.roles.includes(ROLES.SUPER_ADMIN)) && (
                 <DropdownMenuItem asChild>
                   <Link href={getDashboardLink()}>
                     <LayoutDashboard className="mr-2 h-4 w-4" />
