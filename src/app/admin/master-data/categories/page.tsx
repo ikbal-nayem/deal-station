@@ -1,22 +1,22 @@
 
 'use client';
 
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Dialog, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Form } from "@/components/ui/form";
+import { FormInput } from "@/components/ui/form-input";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { useToast } from "@/hooks/use-toast";
+import { ICommonMasterData } from "@/interfaces/master-data.interface";
+import { mockCategories } from "@/lib/mock-data";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Edit, MoreHorizontal, PlusCircle, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Button } from "@/components/ui/button";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogTrigger, DialogClose } from "@/components/ui/dialog";
-import { Form } from "@/components/ui/form";
-import { useToast } from "@/hooks/use-toast";
-import { PlusCircle, MoreHorizontal, Edit, Trash2 } from "lucide-react";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { type Category } from "@/lib/types";
-import { mockCategories } from "@/lib/mock-data";
-import { FormInput } from "@/components/ui/form-input";
 
 const categoryFormSchema = z.object({
   name: z.string().min(2, { message: "Category name must be at least 2 characters." }),
@@ -26,16 +26,16 @@ type CategoryFormValues = z.infer<typeof categoryFormSchema>;
 
 export default function CategoriesPage() {
     const { toast } = useToast();
-    const [categories, setCategories] = useState<Category[]>(mockCategories);
+    const [categories, setCategories] = useState<ICommonMasterData[]>(mockCategories);
     const [isDialogOpen, setDialogOpen] = useState(false);
-    const [currentCategory, setCurrentCategory] = useState<Category | null>(null);
+    const [currentCategory, setCurrentCategory] = useState<ICommonMasterData | null>(null);
 
     const form = useForm<CategoryFormValues>({
         resolver: zodResolver(categoryFormSchema),
         defaultValues: { name: '' }
     });
 
-    const handleEditClick = (category: Category) => {
+    const handleEditClick = (category: ICommonMasterData) => {
         setCurrentCategory(category);
         form.reset({ name: category.name });
         setDialogOpen(true);
@@ -60,7 +60,7 @@ export default function CategoriesPage() {
             setCategories(cats => cats.map(c => c.id === currentCategory.id ? { ...c, ...values } : c));
             toast({ title: "Category Updated", description: `${values.name} has been updated.` });
         } else {
-            const newCategory: Category = { id: `cat-${Date.now()}`, ...values };
+            const newCategory: ICommonMasterData = { id: `cat-${Date.now()}`, ...values };
             setCategories(cats => [newCategory, ...cats]);
             toast({ title: "Category Added", description: `${values.name} has been created.` });
         }

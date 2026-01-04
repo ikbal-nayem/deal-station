@@ -3,9 +3,8 @@ import { IFile } from './common.interface';
 
 export interface ICommonMasterData {
 	id: string;
-	nameEn: string;
-	nameBn: string;
-	active: boolean;
+	name: string;
+	active?: boolean;
 	code?: string;
 }
 
@@ -21,8 +20,7 @@ export interface IOrganizationUser {
 	email: string;
 	phone: string;
 	organizationId: string;
-	organizationNameEn: string;
-	organizationNameBn: string;
+	organizationName: string;
 	fullName: string;
 	firstName: string;
 	lastName: string;

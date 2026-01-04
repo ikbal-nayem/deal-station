@@ -1,7 +1,8 @@
 
+import { ICommonMasterData } from '@/interfaces/master-data.interface';
 import type { Offer, Category, Tag } from './types';
 
-export const mockCategories: Category[] = [
+export const mockCategories: ICommonMasterData[] = [
     { id: 'cat-1', name: 'Food & Drink' },
     { id: 'cat-2', name: 'Health & Wellness' },
     { id: 'cat-3', name: 'Shopping' },
@@ -9,7 +10,7 @@ export const mockCategories: Category[] = [
     { id: 'cat-5', name: 'Services' },
 ];
 
-export const mockTags: Tag[] = [
+export const mockTags: ICommonMasterData[] = [
     { id: 'tag-1', name: 'Vegan' },
     { id: 'tag-2', name: 'Outdoor Seating' },
     { id: 'tag-3', name: 'Family Friendly' },

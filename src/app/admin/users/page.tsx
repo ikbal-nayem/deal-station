@@ -36,6 +36,7 @@ import { Form } from '@/components/ui/form';
 import { FormInput } from '@/components/ui/form-input';
 import { FormSelect } from '@/components/ui/form-select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { ROLES } from '@/constants/auth.constant';
 import { useToast } from '@/hooks/use-toast';
 import { IUser } from '@/interfaces/auth.interface';
 import { mockOrganizations } from '@/lib/mock-organizations';
@@ -45,8 +46,6 @@ import { Edit, MoreHorizontal, PlusCircle, Trash2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
-import { ROLES } from '@/constants/auth.constant';
-import { IOrganizationUser, IRole } from '@/interfaces/master-data.interface';
 
 const userFormSchema = z
 	.object({
