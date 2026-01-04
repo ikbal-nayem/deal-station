@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { Button } from '@/components/ui/button';
@@ -33,7 +34,7 @@ export default function RegisterPage() {
 
   useEffect(() => {
 		if (!isAuthLoading && isLoggedIn) {
-			if (user?.roles.includes(ROLES.ADMIN)) {
+			if (user?.roles.includes(ROLES.ADMIN) || user?.roles.includes(ROLES.SUPER_ADMIN)) {
 				router.replace('/admin');
 			} else if (user?.roles.includes(ROLES.OPERATOR)) {
 				router.replace('/dashboard');

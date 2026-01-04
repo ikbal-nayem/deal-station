@@ -41,7 +41,7 @@ import { useToast } from '@/hooks/use-toast';
 import { IUser } from '@/interfaces/auth.interface';
 import { mockOrganizations } from '@/lib/mock-organizations';
 import { mockUsers as initialUsers } from '@/lib/mock-users';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { zodResolver } from "@hookform/resolvers/zod";
 import { Edit, MoreHorizontal, PlusCircle, Trash2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';

@@ -121,7 +121,7 @@ export default function OrganizationUsersPage() {
                                         <DropdownMenuContent align="end">
                                             <DropdownMenuItem onClick={() => handleEditUser(user)} className="cursor-pointer"><Edit className="mr-2 h-4 w-4"/> Edit</DropdownMenuItem>
                                             <AlertDialog>
-                                                <AlertDialogTrigger asChild><Button variant="ghost" className="w-full justify-start text-sm text-danger hover:text-danger px-2 py-1.5 h-auto font-normal"><Trash2 className="mr-2 h-4 w-4"/> Delete</Button></AlertDialogTrigger>
+                                                <AlertDialogTrigger asChild><Button variant="ghost" className="w-full justify-start text-sm text-destructive hover:text-destructive px-2 py-1.5 h-auto font-normal"><Trash2 className="mr-2 h-4 w-4"/> Delete</Button></AlertDialogTrigger>
                                                 <AlertDialogContent>
                                                     <AlertDialogHeader><AlertDialogTitle>Are you sure?</AlertDialogTitle><AlertDialogDescription>This will remove {user.firstName} from the organization.</AlertDialogDescription></AlertDialogHeader>
                                                     <AlertDialogFooter><AlertDialogCancel>Cancel</AlertDialogCancel><AlertDialogAction onClick={() => handleRemoveUser(user.id!)}>Remove</AlertDialogAction></AlertDialogFooter>

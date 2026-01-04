@@ -165,9 +165,10 @@ export default function AdminOffersPage() {
                                             label="Organization"
                                             placeholder="Select an organization"
                                             required
-                                        >
-                                            {mockOrganizations.map(org => (<SelectItem key={org.id} value={org.id}>{org.name}</SelectItem>))}
-                                        </FormSelect>
+                                            options={mockOrganizations}
+                                            getOptionLabel={(option) => option.name}
+                                            getOptionValue={(option) => option.id}
+                                        />
                                         <FormInput control={form.control} name="discount" label="Discount Value" placeholder="e.g., 20% OFF or FREE" required />
                                     </div>
                                     
@@ -194,9 +195,10 @@ export default function AdminOffersPage() {
                                             label="Category"
                                             placeholder="Select a category"
                                             required
-                                        >
-                                            {mockCategories.map(cat => (<SelectItem key={cat.id} value={cat.id}>{cat.name}</SelectItem>))}
-                                        </FormSelect>
+                                            options={mockCategories}
+                                            getOptionLabel={(option) => option.name}
+                                            getOptionValue={(option) => option.id}
+                                        />
                                         <FormSwitch
                                             control={form.control}
                                             name="isMemberOnly"
@@ -317,5 +319,3 @@ export default function AdminOffersPage() {
         </div>
     );
 }
-
-    

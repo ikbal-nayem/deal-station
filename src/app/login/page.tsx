@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import Header from '@/components/layout/Header';
@@ -19,12 +20,12 @@ export default function LoginPage() {
 	const [email, setEmail] = useState('');
 	const [password, setPassword] = useState('');
 	const [isLoading, setIsLoading] = useState(false);
-	const { login, isLoggedIn, user, isLoading: isAuthLoading } = useAuth();
+	const { login, isLoggedIn, user, isAuthLoading } = useAuth();
 	const router = useRouter();
 
 	useEffect(() => {
 		if (!isAuthLoading && isLoggedIn) {
-			if (user?.roles.includes(ROLES.ADMIN)) {
+			if (user?.roles.includes(ROLES.ADMIN) || user?.roles.includes(ROLES.SUPER_ADMIN)) {
 				router.replace('/admin');
 			} else if (user?.roles.includes(ROLES.OPERATOR)) {
 				router.replace('/dashboard');
