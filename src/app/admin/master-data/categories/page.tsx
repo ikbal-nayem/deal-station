@@ -1,4 +1,3 @@
-
 'use client';
 
 import { Button } from '@/components/ui/button';
@@ -23,7 +22,7 @@ import {
 import { Form } from '@/components/ui/form';
 import { FormInput } from '@/components/ui/form-input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from '@/hooks/use-toast';
 import { IApiRequest } from '@/interfaces/common.interface';
 import { ICommonMasterData } from '@/interfaces/master-data.interface';
 import { MasterDataService } from '@/services/api/master-data.service';
@@ -45,7 +44,6 @@ const initPayload: IApiRequest = {
 };
 
 export default function CategoriesPage() {
-	const { toast } = useToast();
 	const [categories, setCategories] = useState<ICommonMasterData[]>([]);
 	const [isDialogOpen, setDialogOpen] = useState(false);
 	const [currentCategory, setCurrentCategory] = useState<ICommonMasterData | null>(null);
@@ -62,11 +60,10 @@ export default function CategoriesPage() {
 		try {
 			const response = await MasterDataService.category.getList(initPayload);
 			setCategories(response.body);
-		} catch (error) {
-			toast({
-				variant: 'danger',
+		} catch (error: any) {
+			toast.error({
 				title: 'Error',
-				description: 'Could not fetch categories.',
+				description: error.message || 'Could not fetch categories.',
 			});
 		} finally {
 			setIsLoading(false);
@@ -92,15 +89,13 @@ export default function CategoriesPage() {
 	const handleDeleteClick = async (categoryId: string) => {
 		try {
 			await MasterDataService.category.delete(categoryId);
-			toast({
-				variant: 'success',
+			toast.success({
 				title: 'Category Deleted',
 				description: 'The category has been successfully removed.',
 			});
 			fetchCategories();
 		} catch (error) {
-			toast({
-				variant: 'danger',
+			toast.error({
 				title: 'Error',
 				description: 'Could not delete category.',
 			});
