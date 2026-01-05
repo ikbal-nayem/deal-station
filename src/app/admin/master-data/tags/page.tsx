@@ -1,19 +1,9 @@
 
 'use client';
 
-import {
-	AlertDialog,
-	AlertDialogAction,
-	AlertDialogCancel,
-	AlertDialogContent,
-	AlertDialogDescription,
-	AlertDialogFooter,
-	AlertDialogHeader,
-	AlertDialogTitle,
-	AlertDialogTrigger,
-} from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { ConfirmationDialog } from '@/components/ui/confirmation-dialog';
 import {
 	Dialog,
 	DialogClose,
@@ -210,27 +200,18 @@ export default function TagsPage() {
 													<DropdownMenuItem onClick={() => handleEditClick(tag)} className='cursor-pointer'>
 														<Edit className='mr-2' /> Edit
 													</DropdownMenuItem>
-													<AlertDialog>
-														<AlertDialogTrigger asChild>
-															<div className='relative flex cursor-default select-none items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-none transition-colors focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 text-danger hover:bg-danger/10'>
+													<ConfirmationDialog
+														trigger={
+															<div className='relative flex cursor-pointer select-none items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-none transition-colors focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 text-danger hover:bg-danger/10'>
 																<Trash2 className='mr-2' /> Delete
 															</div>
-														</AlertDialogTrigger>
-														<AlertDialogContent>
-															<AlertDialogHeader>
-																<AlertDialogTitle>Are you sure?</AlertDialogTitle>
-																<AlertDialogDescription>
-																	This will permanently delete the tag.
-																</AlertDialogDescription>
-															</AlertDialogHeader>
-															<AlertDialogFooter>
-																<AlertDialogCancel>Cancel</AlertDialogCancel>
-																<AlertDialogAction onClick={() => handleDeleteClick(tag.id)}>
-																	Delete
-																</AlertDialogAction>
-															</AlertDialogFooter>
-														</AlertDialogContent>
-													</AlertDialog>
+														}
+														title='Are you sure?'
+														description='This will permanently delete the tag.'
+														onConfirm={() => handleDeleteClick(tag.id)}
+														confirmText='Delete'
+														confirmVariant='danger'
+													/>
 												</DropdownMenuContent>
 											</DropdownMenu>
 										</TableCell>
