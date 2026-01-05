@@ -11,21 +11,20 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogT
 import { Form, FormField, FormLabel, FormControl, FormMessage, FormItem } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
 import { PlusCircle, MoreHorizontal, Edit, Trash2, Tag, Star } from "lucide-react";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { mockOffers as initialOffers } from "@/lib/mock-data";
 import { mockOrganizations } from "@/lib/mock-organizations";
 import { mockCategories } from "@/lib/mock-data";
 import { mockTags } from "@/lib/mock-data";
 import { type Offer } from "@/lib/types";
 import { FormInput } from "@/components/ui/form-input";
-import { SelectItem } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { FormSelect } from "@/components/ui/form-select";
 import { FormTextarea } from "@/components/ui/form-textarea";
 import { FormSwitch } from "@/components/ui/form-switch";
+import { ConfirmationDialog } from "@/components/ui/confirmation-dialog";
 
 const offerFormSchema = z.object({
   title: z.string().min(3, "Title must be at least 3 characters."),
@@ -285,21 +284,19 @@ export default function AdminOffersPage() {
                                     <DropdownMenuContent align="end">
                                         <DropdownMenuLabel>Actions</DropdownMenuLabel>
                                         <DropdownMenuItem onClick={() => handleEditClick(offer)} className="cursor-pointer"><Edit className="mr-2 h-4 w-4" /> Edit</DropdownMenuItem>
-                                         <AlertDialog>
-                                            <AlertDialogTrigger asChild>
-                                                <Button variant="ghost" className="w-full justify-start text-sm text-danger hover:text-danger px-2 py-1.5 h-auto font-normal"><Trash2 className="mr-2 h-4 w-4" /> Delete</Button>
-                                            </AlertDialogTrigger>
-                                            <AlertDialogContent>
-                                                <AlertDialogHeader>
-                                                    <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                                                    <AlertDialogDescription>This action cannot be undone and will permanently delete the offer.</AlertDialogDescription>
-                                                </AlertDialogHeader>
-                                                <AlertDialogFooter>
-                                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                                    <AlertDialogAction onClick={() => handleDeleteClick(offer.id)}>Delete</AlertDialogAction>
-                                                </AlertDialogFooter>
-                                            </AlertDialogContent>
-                                        </AlertDialog>
+                                        <DropdownMenuSeparator />
+                                         <ConfirmationDialog
+                                            trigger={
+                                                <div className='relative flex cursor-pointer select-none items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-none transition-colors focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 text-danger hover:bg-danger/10'>
+                                                    <Trash2 className="mr-2 h-4 w-4" /> Delete
+                                                </div>
+                                            }
+                                            title="Are you sure?"
+                                            description="This will permanently delete the offer."
+                                            onConfirm={() => handleDeleteClick(offer.id)}
+                                            confirmText='Delete'
+                                            confirmVariant='danger'
+                                        />
                                     </DropdownMenuContent>
                                 </DropdownMenu>
                             </CardFooter>

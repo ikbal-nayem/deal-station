@@ -10,11 +10,11 @@ import { useLocation } from '@/hooks/use-location';
 import OfferList from '@/components/deal-station/OfferList';
 import OfferDetailsSheet from '@/components/deal-station/OfferDetailsSheet';
 import { List, Map as MapIcon } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
 import dynamic from 'next/dynamic';
 import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
 import Header from '@/components/layout/Header';
+import { toast } from '@/hooks/use-toast';
 
 const ClientMapView = dynamic(() => import('@/components/deal-station/ClientMapView'), {
   ssr: false,
@@ -34,7 +34,6 @@ export default function LocalPerksPage() {
   const [searchQuery, setSearchQuery] = React.useState('');
   const { isLoggedIn } = useAuth();
   const router = useRouter();
-  const { toast } = useToast();
 
   React.useEffect(() => {
     if (locationError) {
@@ -43,7 +42,7 @@ export default function LocalPerksPage() {
         description: locationError,
       });
     }
-  }, [locationError, toast]);
+  }, [locationError]);
 
   React.useEffect(() => {
     // Here you would fetch offers based on the user's location.

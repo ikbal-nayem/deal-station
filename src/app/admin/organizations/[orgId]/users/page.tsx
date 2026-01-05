@@ -16,9 +16,10 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { mockUsers as initialUsers } from '@/lib/mock-users';
 import { IUser } from '@/interfaces/auth.interface';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { FormInput } from '@/components/ui/form-input';
 import { ROLES } from '@/constants/auth.constant';
+import { ConfirmationDialog } from '@/components/ui/confirmation-dialog';
 
 const userFormSchema = z.object({
   firstName: z.string().min(2, "First name is required"),
@@ -120,13 +121,15 @@ export default function OrganizationUsersPage() {
                                         <DropdownMenuTrigger asChild><Button variant="ghost" className="h-8 w-8 p-0"><MoreHorizontal /></Button></DropdownMenuTrigger>
                                         <DropdownMenuContent align="end">
                                             <DropdownMenuItem onClick={() => handleEditUser(user)} className="cursor-pointer"><Edit className="mr-2 h-4 w-4"/> Edit</DropdownMenuItem>
-                                            <AlertDialog>
-                                                <AlertDialogTrigger asChild><Button variant="ghost" className="w-full justify-start text-sm text-destructive hover:text-destructive px-2 py-1.5 h-auto font-normal"><Trash2 className="mr-2 h-4 w-4"/> Delete</Button></AlertDialogTrigger>
-                                                <AlertDialogContent>
-                                                    <AlertDialogHeader><AlertDialogTitle>Are you sure?</AlertDialogTitle><AlertDialogDescription>This will remove {user.firstName} from the organization.</AlertDialogDescription></AlertDialogHeader>
-                                                    <AlertDialogFooter><AlertDialogCancel>Cancel</AlertDialogCancel><AlertDialogAction onClick={() => handleRemoveUser(user.id!)}>Remove</AlertDialogAction></AlertDialogFooter>
-                                                </AlertDialogContent>
-                                            </AlertDialog>
+                                            <DropdownMenuSeparator />
+                                            <ConfirmationDialog
+                                                trigger={<div className='relative flex cursor-pointer select-none items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-none transition-colors focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 text-danger hover:bg-danger/10'><Trash2 className="mr-2 h-4 w-4"/> Delete</div>}
+                                                title="Are you sure?"
+                                                description={`This will remove ${user.firstName} from the organization.`}
+                                                onConfirm={() => handleRemoveUser(user.id!)}
+                                                confirmText='Remove'
+                                                confirmVariant='danger'
+                                            />
                                         </DropdownMenuContent>
                                      </DropdownMenu>
                                 </TableCell>

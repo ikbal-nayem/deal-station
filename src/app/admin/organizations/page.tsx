@@ -12,7 +12,7 @@ import { Form } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
 import { PlusCircle, MoreHorizontal, Edit, Trash2, Eye, Search } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { ConfirmationDialog } from "@/components/ui/confirmation-dialog";
 import Link from 'next/link';
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -278,18 +278,19 @@ export default function OrganizationsPage() {
                                                 <DropdownMenuLabel>Actions</DropdownMenuLabel>
                                                 <DropdownMenuItem asChild>
                                                     <Link href={`/admin/organizations/${org.id}`} className="cursor-pointer">
-                                                        <Eye className="mr-2" />
+                                                        <Eye className="mr-2 h-4 w-4" />
                                                         View Details
                                                     </Link>
                                                 </DropdownMenuItem>
                                                 <DropdownMenuItem onClick={() => handleEditClick(org)} className="cursor-pointer">
-                                                    <Edit className="mr-2" />
+                                                    <Edit className="mr-2 h-4 w-4" />
                                                     Edit
                                                 </DropdownMenuItem>
+                                                <DropdownMenuSeparator />
                                                 <ConfirmationDialog
 														trigger={
 															<div className='relative flex cursor-pointer select-none items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-none transition-colors focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 text-danger hover:bg-danger/10'>
-																<Trash2 className='mr-2' /> Delete
+																<Trash2 className='mr-2 h-4 w-4' /> Delete
 															</div>
 														}
 														title='Are you sure?'

@@ -17,6 +17,7 @@ import {
 	DropdownMenuContent,
 	DropdownMenuItem,
 	DropdownMenuLabel,
+	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Form } from '@/components/ui/form';
@@ -223,12 +224,13 @@ export default function TagsPage() {
 												<DropdownMenuContent align='end'>
 													<DropdownMenuLabel>Actions</DropdownMenuLabel>
 													<DropdownMenuItem onClick={() => handleEditClick(tag)} className='cursor-pointer'>
-														<Edit className='mr-2' /> Edit
+														<Edit className='mr-2 h-4 w-4' /> Edit
 													</DropdownMenuItem>
+													<DropdownMenuSeparator />
 													<ConfirmationDialog
 														trigger={
 															<div className='relative flex cursor-pointer select-none items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-none transition-colors focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 text-danger hover:bg-danger/10'>
-																<Trash2 className='mr-2' /> Delete
+																<Trash2 className='mr-2 h-4 w-4' /> Delete
 															</div>
 														}
 														title='Are you sure?'
