@@ -28,7 +28,7 @@ export const MasterDataService = {
 		return axiosIns.get(`/master-data/enum/${enumType}`);
 	},
 
-	skill: createMasterDataCrud<ICommonMasterData>('skill'),
+	category: createMasterDataCrud<ICommonMasterData>('category'),
 	country: {
 		get: async (): Promise<IApiResponse<ICommonMasterData[]>> => {
 			return axiosIns.get(`/master-data/country/get?deleted=false`);
