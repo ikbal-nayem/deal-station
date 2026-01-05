@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Badge } from '@/components/ui/badge';
@@ -22,7 +23,7 @@ import {
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Form } from '@/components/ui/form';
+import { Form, FormMessage } from '@/components/ui/form';
 import { FormInput } from '@/components/ui/form-input';
 import { FormMultiSelect } from '@/components/ui/form-multi-select';
 import { Input } from '@/components/ui/input';
@@ -49,7 +50,7 @@ const userFormSchema = z.object({
 	email: z.string().email('Invalid email address'),
 	phone: z
 		.string()
-		.regex(/^01[3-9]\d{8}$/, 'Phone number must be a valid Bangladeshi number.')
+		.regex(/^(?:\+8801|01)[3-9]\d{8}$/, 'Must be a valid Bangladeshi phone number.')
 		.optional()
 		.or(z.literal('')),
 	roles: z.array(z.string()).min(1, 'At least one role is required.'),
@@ -143,12 +144,17 @@ export default function UsersPage() {
 
 	const handleEditClick = (user: IUser) => {
 		setCurrentUser(user);
+		const userRoleIds =
+			user.roles
+				?.map((roleCode) => allRoles.find((r) => r.roleCode === roleCode)?.id)
+				.filter((id): id is string => !!id) || [];
+
 		form.reset({
 			firstName: user.firstName,
 			lastName: user.lastName,
 			email: user.email,
 			phone: user.phone,
-			roles: user.roles,
+			roles: userRoleIds,
 		});
 		setDialogOpen(true);
 	};
@@ -251,7 +257,7 @@ export default function UsersPage() {
 									control={form.control}
 									name='phone'
 									label='Phone (Optional)'
-									placeholder='01XXXXXXXXX'
+									placeholder='01...'
 								/>
 
 								<FormMultiSelect

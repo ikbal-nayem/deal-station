@@ -8,7 +8,6 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useToast } from '@/hooks/use-toast';
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogTrigger, DialogClose } from "@/components/ui/dialog";
 import { Form } from "@/components/ui/form";
 import { useForm } from "react-hook-form";
@@ -137,7 +136,7 @@ export default function OrganizationUsersPage() {
                         ))}
                     </TableBody>
                 </Table>
-                {users.length === 0 && <p className="text-center text-muted-foreground py-4">No users found.</p>}
+                {users.length === 0 && <p className="text-center text-muted-foreground py-4">No users found for this organization.</p>}
             </CardContent>
         </Card>
     );
