@@ -34,8 +34,10 @@ import { useDebounce } from '@/hooks/use-debounce';
 import { toast } from '@/hooks/use-toast';
 import { IUser } from '@/interfaces/auth.interface';
 import { IMeta } from '@/interfaces/common.interface';
+import { IRole } from '@/interfaces/master-data.interface';
 import { mockOrganizations } from '@/lib/mock-organizations';
 import { mockUsers as initialUsers } from '@/lib/mock-users';
+import { AuthService } from '@/services/api/auth.service';
 import { UserService } from '@/services/api/user.service';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Edit, MoreHorizontal, PlusCircle, Search, Trash2 } from 'lucide-react';
@@ -47,12 +49,8 @@ const userFormSchema = z.object({
 	firstName: z.string().min(2, 'First name is required'),
 	lastName: z.string().min(2, 'Last name is required'),
 	email: z.string().email('Invalid email address'),
-	phone: z
-		.string()
-		.regex(/^01[3-9]\d{8}$/, 'Phone number must be valid (e.g., 01...)')
-		.optional()
-		.or(z.literal('')),
-	roles: z.array(z.nativeEnum(ROLES)).min(1, 'At least one role is required.'),
+	phone: z.string().regex(/^\+8801[3-9]\d{8}$/, 'Phone must be a valid BD number (+880...)').optional().or(z.literal('')),
+	roles: z.array(z.string()).min(1, 'At least one role is required.'),
 });
 
 type UserFormValues = z.infer<typeof userFormSchema>;
@@ -65,6 +63,7 @@ export default function UsersPage() {
 	const [currentUser, setCurrentUser] = useState<IUser | null>(null);
 	const [searchQuery, setSearchQuery] = useState('');
 	const debouncedSearchQuery = useDebounce(searchQuery, 300);
+	const [allRoles, setAllRoles] = useState<IRole[]>([]);
 	const [meta, setMeta] = useState<IMeta>({
 		page: 0,
 		limit: 10,
@@ -83,7 +82,30 @@ export default function UsersPage() {
 		},
 	});
 
-	const watchedRoles = form.watch('roles');
+	useEffect(() => {
+		const fetchRoles = async () => {
+			try {
+				const response = await AuthService.getRoles();
+				setAllRoles(response.body);
+			} catch (error) {
+				toast.error({ title: 'Error', description: 'Could not fetch roles.' });
+			}
+		};
+		fetchRoles();
+	}, []);
+
+	const assignableRoles = useMemo(() => {
+		if (!authUser) return [];
+		if (authUser.roles.includes(ROLES.SUPER_ADMIN) || authUser.roles.includes(ROLES.ADMIN)) {
+			return allRoles.filter((role) => [ROLES.ADMIN, ROLES.OPERATOR].includes(role.roleCode as ROLES));
+		}
+		if (authUser.roles.includes(ROLES.ORG_ADMIN)) {
+			return allRoles.filter((role) =>
+				[ROLES.ORG_ADMIN, ROLES.ORG_OPERATOR].includes(role.roleCode as ROLES)
+			);
+		}
+		return [];
+	}, [allRoles, authUser]);
 
 	const paginatedUsers = useMemo(() => {
 		const filtered = users.filter(
@@ -140,14 +162,24 @@ export default function UsersPage() {
 
 	const handleFormSubmit = async (values: UserFormValues) => {
 		setSubmitting(true);
+		const payload = {
+			...values,
+			roles: values.roles.map((roleId) => ({ id: roleId })),
+		};
+
 		try {
 			if (currentUser) {
-				await UserService.updateUser({ id: currentUser.id, ...values });
-				const updatedUser = { ...currentUser, ...values, username: values.email };
+				await UserService.updateUser({ id: currentUser.id, ...payload });
+				const updatedUser: IUser = {
+					...currentUser,
+					...values,
+					roles: values.roles as ROLES[],
+					username: values.email,
+				};
 				setUsers((users) => users.map((u) => (u.id === currentUser.id ? updatedUser : u)));
 				toast.success({ title: 'User Updated', description: `${values.firstName} has been updated.` });
 			} else {
-				const response = await UserService.createUser(values);
+				const response = await UserService.createUser(payload);
 				setUsers((users) => [response.body, ...users]);
 				toast.success({ title: 'User Added', description: `${values.firstName} has been created.` });
 			}
@@ -166,12 +198,6 @@ export default function UsersPage() {
 		if (!orgId) return '-';
 		return mockOrganizations.find((o) => o.id === orgId)?.name || 'Unknown Org';
 	};
-
-	const availableRoles = Object.values(ROLES).filter(
-		(role) => authUser?.roles.includes(ROLES.SUPER_ADMIN) || role !== ROLES.SUPER_ADMIN
-	);
-
-	const assignableRoles = availableRoles.filter((role) => role !== ROLES.SUPER_ADMIN);
 
 	return (
 		<div className='space-y-6'>
@@ -223,7 +249,7 @@ export default function UsersPage() {
 									control={form.control}
 									name='phone'
 									label='Phone (Optional)'
-									placeholder='01XXXXXXXXX'
+									placeholder='+8801XXXXXXXXX'
 								/>
 
 								<FormMultiSelect
@@ -232,9 +258,9 @@ export default function UsersPage() {
 									label='Roles'
 									required
 									placeholder='Select roles...'
-									options={assignableRoles.map((role) => ({ value: role, label: role.replace(/_/g, ' ') }))}
-									getOptionValue={(option) => option.value}
-									getOptionLabel={(option) => option.label}
+									options={assignableRoles}
+									getOptionValue={(option) => option.id}
+									getOptionLabel={(option) => option.name.replace(/_/g, ' ')}
 								/>
 
 								<DialogFooter>
