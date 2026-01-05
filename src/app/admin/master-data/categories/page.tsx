@@ -1,8 +1,8 @@
-
 'use client';
 
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { ConfirmationDialog } from '@/components/ui/confirmation-dialog';
 import {
 	Dialog,
 	DialogClose,
@@ -21,21 +21,19 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Form } from '@/components/ui/form';
 import { FormInput } from '@/components/ui/form-input';
+import { Input } from '@/components/ui/input';
+import { Pagination } from '@/components/ui/pagination';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { useToast } from '@/hooks/use-toast';
-import { IApiRequest } from '@/interfaces/common.interface';
+import { useDebounce } from '@/hooks/use-debounce';
+import { toast } from '@/hooks/use-toast';
+import { IApiRequest, IMeta } from '@/interfaces/common.interface';
 import { ICommonMasterData } from '@/interfaces/master-data.interface';
 import { MasterDataService } from '@/services/api/master-data.service';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Edit, MoreHorizontal, PlusCircle, Search, Trash2 } from 'lucide-react';
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
-import { ConfirmationDialog } from '@/components/ui/confirmation-dialog';
-import { Input } from '@/components/ui/input';
-import { Pagination } from '@/components/ui/pagination';
-import { useDebounce } from '@/hooks/use-debounce';
-import { IMeta } from '@/interfaces/common.interface';
 
 const categoryFormSchema = z.object({
 	name: z.string().min(2, { message: 'Category name must be at least 2 characters.' }),
@@ -44,7 +42,6 @@ const categoryFormSchema = z.object({
 type CategoryFormValues = z.infer<typeof categoryFormSchema>;
 
 export default function CategoriesPage() {
-	const { toast } = useToast();
 	const [categories, setCategories] = useState<ICommonMasterData[]>([]);
 	const [meta, setMeta] = useState<IMeta>({ page: 0, limit: 10 });
 	const [isDialogOpen, setDialogOpen] = useState(false);
@@ -60,26 +57,27 @@ export default function CategoriesPage() {
 	});
 
 	const fetchCategories = useMemo(
-		() => async (page = 0, search = '') => {
-			setIsLoading(true);
-			const payload: IApiRequest = {
-				body: { active: true, name: { contains: search, mode: 'insensitive' } },
-				meta: { page, limit: 10 },
-			};
-			try {
-				const response = await MasterDataService.category.getList(payload);
-				setCategories(response.body);
-				setMeta(response.meta);
-			} catch (error: any) {
-				toast.error({
-					title: 'Error',
-					description: error.message || 'Could not fetch categories.',
-				});
-			} finally {
-				setIsLoading(false);
-			}
-		},
-		[toast]
+		() =>
+			async (page = 0, search = '') => {
+				setIsLoading(true);
+				const payload: IApiRequest = {
+					body: { ...(search && { name: search }) },
+					meta: { page, limit: 20 },
+				};
+				try {
+					const response = await MasterDataService.category.getList(payload);
+					setCategories(response.body);
+					setMeta(response.meta);
+				} catch (error: any) {
+					toast.error({
+						title: 'Error',
+						description: error.message || 'Could not fetch categories.',
+					});
+				} finally {
+					setIsLoading(false);
+				}
+			},
+		[]
 	);
 
 	useEffect(() => {
@@ -194,8 +192,7 @@ export default function CategoriesPage() {
 			</div>
 
 			<Card>
-				<CardHeader>
-					<CardTitle>Category List</CardTitle>
+				<CardHeader className='pb-0'>
 					<div className='relative mt-2'>
 						<Search className='absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground' />
 						<Input

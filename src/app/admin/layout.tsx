@@ -16,6 +16,7 @@ import {
 	SidebarTrigger,
 } from '@/components/ui/sidebar';
 import { ROLES } from '@/constants/auth.constant';
+import { ROUTES } from '@/constants/routes.constant';
 import { useAuth } from '@/context/AuthContext';
 import { Building, ChevronDown, LayoutDashboard, LayoutGrid, ShoppingBag, Tag, Users } from 'lucide-react';
 import Link from 'next/link';
@@ -39,7 +40,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
 			!isLoading &&
 			(!isLoggedIn || (!user?.roles.includes(ROLES.ADMIN) && !user?.roles.includes(ROLES.SUPER_ADMIN)))
 		) {
-			router.replace('/login');
+			router.replace(ROUTES.AUTH.LOGIN);
 		}
 	}, [isLoggedIn, user, router, isLoading]);
 
