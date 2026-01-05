@@ -5,8 +5,8 @@ pipeline {
         REGISTRY="imagerepo.gems.gov.bd"
         DEPLOYMENT_ENV="stage"
         IMAGE_CREATED_BY="jenkins"
-        PROJECT_NAME="web-recruitment"
-        K8S_NAMESPACE="iifc-recruit-stage"
+        PROJECT_NAME="dealstation-web"
+        K8S_NAMESPACE="station-dev"
 
         GIT_TAG=sh(returnStdout: true, script: '''
             echo $(git describe --tags)
@@ -52,7 +52,7 @@ pipeline {
         DOCKER_REGISTRY_URL="https://$REGISTRY"
 
 
-       INSIGHT_HOSTNAME="stage-iifc-recruit.gov.bd"
+       INSIGHT_HOSTNAME="stage-dealstation.projukti.net"
                 
     }
 post {
@@ -61,10 +61,10 @@ post {
 
             discordSend(
                 description: "**${K8S_SERVICE_NAME}-${DEPLOYMENT_ENV}**",
-                scmWebUrl: 'https://github.com/IIFC-Recruitment/recruitment-web.git',
+                scmWebUrl: 'https://github.com/DEAL-STATION/dealstation-web.git',
                 showChangeset: true,
                 footer: "Status:  ${currentBuild.currentResult}, build ${env.BUILD_NUMBER} Job ${env.JOB_NAME}\nMore info at: ${env.BUILD_URL}",
-                webhookURL: 'https://discord.com/api/webhooks/1419622507308388432/lhwPqah_L0eawHzwU58QMEbCdO6NYBOk1jIgbIb8GuVpI_BOt57YmRdOpTci04Riamif',
+                webhookURL: 'https://discord.com/api/webhooks/1457619208094486583/bA17iBbvGAazKERBu04crz5x_bn3aQZPWkXw4-inWy-Y2uitW1aUb2Nq22L8le9EMbmf',
             )
     } 
 }
