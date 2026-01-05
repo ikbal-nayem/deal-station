@@ -1,7 +1,6 @@
-
 import { axiosIns } from '@/config/api.config';
 import { IUser } from '@/interfaces/auth.interface';
-import { IApiResponse, IObject } from '@/interfaces/common.interface';
+import { IApiRequest, IApiResponse, IObject } from '@/interfaces/common.interface';
 
 export const UserService = {
 	saveProfileImage: async (formData: FormData): Promise<IApiResponse<any>> => {
@@ -12,6 +11,10 @@ export const UserService = {
 
 	getUserDetails: async (): Promise<IApiResponse<IUser>> => {
 		return axiosIns.get('/user/get-details');
+	},
+
+	searchUsers: async (payload: IApiRequest): Promise<IApiResponse<IUser[]>> => {
+		return axiosIns.post('/user/search', payload);
 	},
 
 	createUser: async (payload: IObject): Promise<IApiResponse<IUser>> => {

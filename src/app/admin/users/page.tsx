@@ -33,14 +33,13 @@ import { useAuth } from '@/context/AuthContext';
 import { useDebounce } from '@/hooks/use-debounce';
 import { toast } from '@/hooks/use-toast';
 import { IUser } from '@/interfaces/auth.interface';
-import { IMeta } from '@/interfaces/common.interface';
+import { IApiRequest, IMeta } from '@/interfaces/common.interface';
 import { IRole } from '@/interfaces/master-data.interface';
-import { mockUsers as initialUsers } from '@/lib/mock-users';
 import { AuthService } from '@/services/api/auth.service';
 import { UserService } from '@/services/api/user.service';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Edit, MoreHorizontal, PlusCircle, Search, Trash2 } from 'lucide-react';
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
@@ -50,7 +49,7 @@ const userFormSchema = z.object({
 	email: z.string().email('Invalid email address'),
 	phone: z
 		.string()
-		.regex(/^01[3-9]\d{8}$/, 'Phone number must be valid (01...)')
+		.regex(/^01[3-9]\d{8}$/, 'Phone number must be a valid Bangladeshi number.')
 		.optional()
 		.or(z.literal('')),
 	roles: z.array(z.string()).min(1, 'At least one role is required.'),
@@ -68,24 +67,44 @@ const defaultValues = {
 
 export default function UsersPage() {
 	const { user: authUser } = useAuth();
-	const [users, setUsers] = useState<IUser[]>(initialUsers);
+	const [users, setUsers] = useState<IUser[]>([]);
+	const [isLoading, setLoading] = useState(true);
 	const [isDialogOpen, setDialogOpen] = useState(false);
 	const [isSubmitting, setSubmitting] = useState(false);
 	const [currentUser, setCurrentUser] = useState<IUser | null>(null);
 	const [searchQuery, setSearchQuery] = useState('');
 	const debouncedSearchQuery = useDebounce(searchQuery, 300);
 	const [allRoles, setAllRoles] = useState<IRole[]>([]);
-	const [meta, setMeta] = useState<IMeta>({
-		page: 0,
-		limit: 10,
-		totalRecords: initialUsers.length,
-		totalPageCount: Math.ceil(initialUsers.length / 10),
-	});
+	const [meta, setMeta] = useState<IMeta>({ page: 0, limit: 10 });
 
 	const form = useForm<UserFormValues>({
 		resolver: zodResolver(userFormSchema),
 		defaultValues,
 	});
+
+	const fetchUsers = useCallback(async (page = 0, search = '') => {
+		setLoading(true);
+		const payload: IApiRequest = {
+			body: { ...(search && { searchKey: search }) },
+			meta: { page, limit: 10 },
+		};
+		try {
+			const response = await UserService.searchUsers(payload);
+			setUsers(response.body);
+			setMeta(response.meta);
+		} catch (error: any) {
+			toast.error({
+				title: 'Error',
+				description: error.message || 'Could not fetch users.',
+			});
+		} finally {
+			setLoading(false);
+		}
+	}, []);
+
+	useEffect(() => {
+		fetchUsers(0, debouncedSearchQuery);
+	}, [debouncedSearchQuery, fetchUsers]);
 
 	useEffect(() => {
 		const fetchRoles = async () => {
@@ -110,22 +129,6 @@ export default function UsersPage() {
 		return [];
 	}, [allRoles, authUser]);
 
-	const paginatedUsers = useMemo(() => {
-		const filtered = users.filter(
-			(user) =>
-				`${user.firstName} ${user.lastName}`.toLowerCase().includes(debouncedSearchQuery.toLowerCase()) ||
-				user.email.toLowerCase().includes(debouncedSearchQuery.toLowerCase())
-		);
-		setMeta((prev) => ({
-			...prev,
-			totalRecords: filtered.length,
-			totalPageCount: Math.ceil(filtered.length / 10),
-		}));
-		const start = meta.page * meta.limit;
-		const end = start + meta.limit;
-		return filtered.slice(start, end);
-	}, [users, debouncedSearchQuery, meta.page, meta.limit]);
-
 	useEffect(() => {
 		if (!isDialogOpen) {
 			form.reset();
@@ -135,11 +138,18 @@ export default function UsersPage() {
 
 	const handlePageChange = (page: number) => {
 		setMeta((prev) => ({ ...prev, page }));
+		fetchUsers(page, debouncedSearchQuery);
 	};
 
 	const handleEditClick = (user: IUser) => {
 		setCurrentUser(user);
-		form.reset(defaultValues);
+		form.reset({
+			firstName: user.firstName,
+			lastName: user.lastName,
+			email: user.email,
+			phone: user.phone,
+			roles: user.roles,
+		});
 		setDialogOpen(true);
 	};
 
@@ -149,37 +159,38 @@ export default function UsersPage() {
 		setDialogOpen(true);
 	};
 
-	const handleDeleteClick = (userId: string) => {
-		setUsers((users) => users.filter((u) => u.id !== userId));
-		toast.error({
-			title: 'User Deleted',
-			description: 'The user has been successfully removed.',
-		});
+	const handleDeleteClick = async (userId: string) => {
+		try {
+			await UserService.deleteUser(userId);
+			toast.error({
+				title: 'User Deleted',
+				description: 'The user has been successfully removed.',
+			});
+			fetchUsers(meta.page, debouncedSearchQuery);
+		} catch (error: any) {
+			toast.error({
+				title: 'Error',
+				description: error.message || 'Could not delete user.',
+			});
+		}
 	};
 
 	const handleFormSubmit = async (values: UserFormValues) => {
 		setSubmitting(true);
 		const payload = {
 			...values,
-			roles: values.roles.map((roleId) => assignableRoles.find((r) => r.id === roleId)?.roleCode),
+			roles: values.roles.map((roleId) => allRoles.find((r) => r.id === roleId)?.roleCode),
 		};
 		try {
 			if (currentUser) {
 				await UserService.updateUser({ id: currentUser.id, ...payload });
-				const updatedUser: IUser = {
-					...currentUser,
-					...values,
-					roles: values.roles as ROLES[],
-					username: values.email,
-				};
-				setUsers((users) => users.map((u) => (u.id === currentUser.id ? updatedUser : u)));
 				toast.success({ title: 'User Updated', description: `${values.firstName} has been updated.` });
 			} else {
-				const response = await UserService.createUser(payload);
-				setUsers((users) => [response.body, ...users]);
+				await UserService.createUser(payload);
 				toast.success({ title: 'User Added', description: `${values.firstName} has been created.` });
 			}
 			setDialogOpen(false);
+			fetchUsers(meta.page, debouncedSearchQuery);
 		} catch (error: any) {
 			toast.error({
 				title: 'Error',
@@ -292,52 +303,66 @@ export default function UsersPage() {
 							</TableRow>
 						</TableHeader>
 						<TableBody>
-							{paginatedUsers.map((user) => (
-								<TableRow key={user.id}>
-									<TableCell className='font-medium'>
-										{user.firstName} {user.lastName}
-									</TableCell>
-									<TableCell>{user.email}</TableCell>
-									<TableCell>
-										<div className='flex flex-wrap gap-1'>
-											{user.roles.map((role) => (
-												<Badge key={role} variant='secondary'>
-													{role?.replace(/_/g, ' ')}
-												</Badge>
-											))}
-										</div>
-									</TableCell>
-									<TableCell className='text-right'>
-										<DropdownMenu>
-											<DropdownMenuTrigger asChild>
-												<Button variant='ghost' className='h-8 w-8 p-0'>
-													<span className='sr-only'>Open menu</span>
-													<MoreHorizontal />
-												</Button>
-											</DropdownMenuTrigger>
-											<DropdownMenuContent align='end'>
-												<DropdownMenuLabel>Actions</DropdownMenuLabel>
-												<DropdownMenuItem onClick={() => handleEditClick(user)} className='cursor-pointer'>
-													<Edit className='mr-2 h-4 w-4' /> Edit
-												</DropdownMenuItem>
-												<DropdownMenuSeparator />
-												<ConfirmationDialog
-													trigger={
-														<div className='relative flex cursor-pointer select-none items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-none transition-colors focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 text-danger hover:bg-danger/10'>
-															<Trash2 className='mr-2 h-4 w-4' /> Delete
-														</div>
-													}
-													title='Are you sure?'
-													description='This action cannot be undone. This will permanently delete the user.'
-													onConfirm={() => handleDeleteClick(user.id!)}
-													confirmText='Delete'
-													confirmVariant='danger'
-												/>
-											</DropdownMenuContent>
-										</DropdownMenu>
+							{isLoading ? (
+								<TableRow>
+									<TableCell colSpan={4} className='text-center'>
+										Loading...
 									</TableCell>
 								</TableRow>
-							))}
+							) : users.length > 0 ? (
+								users.map((user) => (
+									<TableRow key={user.id}>
+										<TableCell className='font-medium'>
+											{user.firstName} {user.lastName}
+										</TableCell>
+										<TableCell>{user.email}</TableCell>
+										<TableCell>
+											<div className='flex flex-wrap gap-1'>
+												{user.roles.map((role) => (
+													<Badge key={role} variant='secondary'>
+														{role?.replace(/_/g, ' ')}
+													</Badge>
+												))}
+											</div>
+										</TableCell>
+										<TableCell className='text-right'>
+											<DropdownMenu>
+												<DropdownMenuTrigger asChild>
+													<Button variant='ghost' className='h-8 w-8 p-0'>
+														<span className='sr-only'>Open menu</span>
+														<MoreHorizontal />
+													</Button>
+												</DropdownMenuTrigger>
+												<DropdownMenuContent align='end'>
+													<DropdownMenuLabel>Actions</DropdownMenuLabel>
+													<DropdownMenuItem onClick={() => handleEditClick(user)} className='cursor-pointer'>
+														<Edit className='mr-2 h-4 w-4' /> Edit
+													</DropdownMenuItem>
+													<DropdownMenuSeparator />
+													<ConfirmationDialog
+														trigger={
+															<div className='relative flex cursor-pointer select-none items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-none transition-colors focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 text-danger hover:bg-danger/10'>
+																<Trash2 className='mr-2 h-4 w-4' /> Delete
+															</div>
+														}
+														title='Are you sure?'
+														description='This action cannot be undone. This will permanently delete the user.'
+														onConfirm={() => handleDeleteClick(user.id!)}
+														confirmText='Delete'
+														confirmVariant='danger'
+													/>
+												</DropdownMenuContent>
+											</DropdownMenu>
+										</TableCell>
+									</TableRow>
+								))
+							) : (
+								<TableRow>
+									<TableCell colSpan={4} className='text-center'>
+										No users found.
+									</TableCell>
+								</TableRow>
+							)}
 						</TableBody>
 					</Table>
 				</CardContent>
