@@ -1,6 +1,8 @@
+
 import { ACCESS_TOKEN, AUTH_INFO, REFRESH_TOKEN } from '@/constants/auth.constant';
 import { ENV } from '@/constants/env.constant';
 import { ROUTES } from '@/constants/routes.constant';
+import { CookieService, LocalStorageService, clearAuthInfo } from '@/services/storage.service';
 import axios from 'axios';
 
 let isRefreshing = false;
@@ -32,13 +34,17 @@ class AxiosInstance {
 		this.setupInterceptors();
 	}
 
-	private async getAuthToken(tokenType: typeof ACCESS_TOKEN | typeof REFRESH_TOKEN) {
-		try {
-			const { cookies } = require('next/headers');
-			const cookieStore = await cookies();
-			return cookieStore.get(tokenType)?.value || null;
-		} catch (e) {
-			return null;
+	private async getAuthToken(tokenType: typeof ACCESS_TOKEN | typeof REFRESH_TOKEN): Promise<string | null> {
+		if (typeof window === 'undefined') {
+			try {
+				const { cookies } = await import('next/headers');
+				return cookies().get(tokenType)?.value || null;
+			} catch (e) {
+				console.error('Failed to get cookies on server:', e);
+				return null;
+			}
+		} else {
+			return CookieService.get(tokenType);
 		}
 	}
 
@@ -147,17 +153,10 @@ class AxiosInstance {
 
 	private logout() {
 		if (typeof window !== 'undefined') {
-			(void (async () => {
-				try {
-					const storage = await import('@/services/storage.service');
-					storage.clearAuthInfo();
-				} catch (err) {
-					console.info('Failed to clear auth info on client:', err);
-				}
-				failedQueue = [];
-				isRefreshing = false;
-				window.location.href = ROUTES.AUTH.LOGIN;
-			})());
+			clearAuthInfo();
+			failedQueue = [];
+			isRefreshing = false;
+			window.location.href = ROUTES.AUTH.LOGIN;
 		} else {
 			failedQueue = [];
 			isRefreshing = false;
