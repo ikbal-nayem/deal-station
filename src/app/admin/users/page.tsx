@@ -22,10 +22,9 @@ import {
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Form } from '@/components/ui/form';
 import { FormInput } from '@/components/ui/form-input';
 import { FormSelect } from '@/components/ui/form-select';
-import { Checkbox } from '@/components/ui/checkbox';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { ROLES } from '@/constants/auth.constant';
 import { useAuth } from '@/context/AuthContext';
@@ -44,13 +43,14 @@ import { Pagination } from '@/components/ui/pagination';
 import { useDebounce } from '@/hooks/use-debounce';
 import { IMeta } from '@/interfaces/common.interface';
 import { UserService } from '@/services/api/user.service';
+import { FormMultiSelect } from '@/components/ui/form-multi-select';
 
 const userFormSchema = z
 	.object({
 		firstName: z.string().min(2, 'First name is required'),
 		lastName: z.string().min(2, 'Last name is required'),
 		email: z.string().email('Invalid email address'),
-		phone: z.string().regex(/^\+[1-9]\d{1,14}$/, 'Phone number must be in E.164 format (e.g., +14155552671)').optional().or(z.literal('')),
+		phone: z.string().regex(/^\+8801[3-9]\d{8}$/, 'Phone must be a valid Bangladesh number (e.g., +8801...)').optional().or(z.literal('')),
 		roles: z.array(z.nativeEnum(ROLES)).min(1, 'At least one role is required.'),
 		organizationId: z.string().optional(),
 	})
@@ -173,6 +173,9 @@ export default function UsersPage() {
 	const availableRoles = Object.values(ROLES).filter(
 		(role) => authUser?.roles.includes(ROLES.SUPER_ADMIN) || role !== ROLES.SUPER_ADMIN
 	);
+	
+	const assignableRoles = availableRoles.filter(role => role !== ROLES.SUPER_ADMIN);
+
 
 	return (
 		<div className='space-y-6'>
@@ -212,49 +215,18 @@ export default function UsersPage() {
 									control={form.control}
 									name='phone'
 									label='Phone (Optional)'
-									placeholder='+14155552671'
+									placeholder='+8801XXXXXXXXX'
 								/>
 
-								<FormField
+								<FormMultiSelect
 									control={form.control}
 									name='roles'
-									render={() => (
-										<FormItem>
-											<FormLabel required>Roles</FormLabel>
-											<div className='grid grid-cols-2 gap-2'>
-												{availableRoles.map((role) => (
-													<FormField
-														key={role}
-														control={form.control}
-														name='roles'
-														render={({ field }) => {
-															return (
-																<FormItem
-																	key={role}
-																	className='flex flex-row items-start space-x-3 space-y-0'
-																>
-																	<FormControl>
-																		<Checkbox
-																			checked={field.value?.includes(role)}
-																			onCheckedChange={(checked) => {
-																				return checked
-																					? field.onChange([...field.value, role])
-																					: field.onChange(field.value?.filter((value) => value !== role));
-																			}}
-																		/>
-																	</FormControl>
-																	<FormLabel className='font-normal'>
-																		{role.replace(/_/g, ' ')}
-																	</FormLabel>
-																</FormItem>
-															);
-														}}
-													/>
-												))}
-											</div>
-											<FormMessage />
-										</FormItem>
-									)}
+									label='Roles'
+									required
+									placeholder='Select roles...'
+									options={assignableRoles.map(role => ({ value: role, label: role.replace(/_/g, ' ') }))}
+									getOptionValue={(option) => option.value}
+									getOptionLabel={(option) => option.label}
 								/>
 
 								{watchedRoles?.includes(ROLES.OPERATOR) && (
