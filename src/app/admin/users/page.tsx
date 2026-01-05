@@ -1,20 +1,9 @@
 
 'use client';
 
-import {
-	AlertDialog,
-	AlertDialogAction,
-	AlertDialogCancel,
-	AlertDialogContent,
-	AlertDialogDescription,
-	AlertDialogFooter,
-	AlertDialogHeader,
-	AlertDialogTitle,
-	AlertDialogTrigger,
-} from '@/components/ui/alert-dialog';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import {
 	Dialog,
 	DialogClose,
@@ -43,10 +32,15 @@ import { IUser } from '@/interfaces/auth.interface';
 import { mockOrganizations } from '@/lib/mock-organizations';
 import { mockUsers as initialUsers } from '@/lib/mock-users';
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Edit, MoreHorizontal, PlusCircle, Trash2 } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { Edit, MoreHorizontal, PlusCircle, Search, Trash2 } from 'lucide-react';
+import { useEffect, useState, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
+import { ConfirmationDialog } from '@/components/ui/confirmation-dialog';
+import { Input } from '@/components/ui/input';
+import { Pagination } from '@/components/ui/pagination';
+import { useDebounce } from '@/hooks/use-debounce';
+import { IMeta } from '@/interfaces/common.interface';
 
 const userFormSchema = z
 	.object({
@@ -81,6 +75,9 @@ export default function UsersPage() {
 	const [users, setUsers] = useState<IUser[]>(initialUsers);
 	const [isDialogOpen, setDialogOpen] = useState(false);
 	const [currentUser, setCurrentUser] = useState<IUser | null>(null);
+	const [searchQuery, setSearchQuery] = useState('');
+	const debouncedSearchQuery = useDebounce(searchQuery, 300);
+	const [meta, setMeta] = useState<IMeta>({ page: 0, limit: 10, totalRecords: initialUsers.length, totalPageCount: Math.ceil(initialUsers.length / 10) });
 
 	const form = useForm<UserFormValues>({
 		resolver: zodResolver(userFormSchema),
@@ -96,12 +93,27 @@ export default function UsersPage() {
 
 	const watchedRole = form.watch('role');
 
+    const paginatedUsers = useMemo(() => {
+        const filtered = users.filter(user => 
+            `${user.firstName} ${user.lastName}`.toLowerCase().includes(debouncedSearchQuery.toLowerCase()) ||
+            user.email.toLowerCase().includes(debouncedSearchQuery.toLowerCase())
+        );
+        setMeta(prev => ({...prev, totalRecords: filtered.length, totalPageCount: Math.ceil(filtered.length / 10)}));
+        const start = meta.page * meta.limit;
+        const end = start + meta.limit;
+        return filtered.slice(start, end);
+    }, [users, debouncedSearchQuery, meta.page, meta.limit]);
+
 	useEffect(() => {
 		if (!isDialogOpen) {
 			form.reset();
 			setCurrentUser(null);
 		}
 	}, [isDialogOpen, form]);
+
+    const handlePageChange = (page: number) => {
+        setMeta(prev => ({...prev, page}));
+    }
 
 	const handleEditClick = (user: IUser) => {
 		setCurrentUser(user);
@@ -238,6 +250,18 @@ export default function UsersPage() {
 				</Dialog>
 			</div>
 			<Card>
+                <CardHeader>
+					<CardTitle>User List</CardTitle>
+					<div className='relative mt-2'>
+						<Search className='absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground' />
+						<Input
+							placeholder='Search users...'
+							className='pl-10'
+							value={searchQuery}
+							onChange={(e) => setSearchQuery(e.target.value)}
+						/>
+					</div>
+				</CardHeader>
 				<CardContent>
 					<Table>
 						<TableHeader>
@@ -250,7 +274,7 @@ export default function UsersPage() {
 							</TableRow>
 						</TableHeader>
 						<TableBody>
-							{users.map((user) => (
+							{paginatedUsers.map((user) => (
 								<TableRow key={user.id}>
 									<TableCell className='font-medium'>
 										{user.firstName} {user.lastName}
@@ -273,30 +297,18 @@ export default function UsersPage() {
 												<DropdownMenuItem onClick={() => handleEditClick(user)} className='cursor-pointer'>
 													<Edit className='mr-2' /> Edit
 												</DropdownMenuItem>
-												<AlertDialog>
-													<AlertDialogTrigger asChild>
-														<Button
-															variant='ghost'
-															className='w-full justify-start text-sm text-danger hover:text-danger px-2 py-1.5 h-auto font-normal'
-														>
+												<ConfirmationDialog
+													trigger={
+														<div className='relative flex cursor-pointer select-none items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-none transition-colors focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 text-danger hover:bg-danger/10'>
 															<Trash2 className='mr-2' /> Delete
-														</Button>
-													</AlertDialogTrigger>
-													<AlertDialogContent>
-														<AlertDialogHeader>
-															<AlertDialogTitle>Are you sure?</AlertDialogTitle>
-															<AlertDialogDescription>
-																This will permanently delete the user.
-															</AlertDialogDescription>
-														</AlertDialogHeader>
-														<AlertDialogFooter>
-															<AlertDialogCancel>Cancel</AlertDialogCancel>
-															<AlertDialogAction onClick={() => handleDeleteClick(user.id!)}>
-																Delete
-															</AlertDialogAction>
-														</AlertDialogFooter>
-													</AlertDialogContent>
-												</AlertDialog>
+														</div>
+													}
+													title='Are you sure?'
+													description='This action cannot be undone. This will permanently delete the user.'
+													onConfirm={() => handleDeleteClick(user.id!)}
+													confirmText='Delete'
+													confirmVariant='danger'
+												/>
 											</DropdownMenuContent>
 										</DropdownMenu>
 									</TableCell>
@@ -305,6 +317,9 @@ export default function UsersPage() {
 						</TableBody>
 					</Table>
 				</CardContent>
+                 <CardFooter>
+                    <Pagination meta={meta} onPageChange={handlePageChange} noun="User" />
+                </CardFooter>
 			</Card>
 		</div>
 	);

@@ -1,29 +1,31 @@
 
 'use client';
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogTrigger, DialogClose } from "@/components/ui/dialog";
 import { Form } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
-import { PlusCircle, MoreHorizontal, Edit, Trash2, Eye } from "lucide-react";
+import { PlusCircle, MoreHorizontal, Edit, Trash2, Eye, Search } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { ConfirmationDialog } from "@/components/ui/confirmation-dialog";
 import Link from 'next/link';
 import { ScrollArea } from "@/components/ui/scroll-area";
-
-import { mockOrganizations as initialOrgs } from "@/lib/mock-organizations";
-import type { Organization } from "@/lib/types";
 import { format } from "date-fns";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { FormInput } from "@/components/ui/form-input";
 import { FormImageUpload } from "@/components/ui/form-image-upload";
-
+import { mockOrganizations as initialOrgs } from "@/lib/mock-organizations";
+import type { Organization } from "@/lib/types";
+import { Input } from "@/components/ui/input";
+import { Pagination } from "@/components/ui/pagination";
+import { useDebounce } from "@/hooks/use-debounce";
+import { IMeta } from "@/interfaces/common.interface";
 
 const orgFormSchema = z.object({
   name: z.string().min(2, { message: "Organization name must be at least 2 characters." }),
@@ -41,6 +43,9 @@ export default function OrganizationsPage() {
     const [organizations, setOrganizations] = useState<Organization[]>(initialOrgs);
     const [isDialogOpen, setDialogOpen] = useState(false);
     const [currentOrg, setCurrentOrg] = useState<Organization | null>(null);
+    const [searchQuery, setSearchQuery] = useState('');
+	const debouncedSearchQuery = useDebounce(searchQuery, 300);
+    const [meta, setMeta] = useState<IMeta>({ page: 0, limit: 10, totalRecords: initialOrgs.length, totalPageCount: Math.ceil(initialOrgs.length / 10) });
     
     const form = useForm<OrgFormValues>({
         resolver: zodResolver(orgFormSchema),
@@ -53,6 +58,14 @@ export default function OrganizationsPage() {
             logoUrl: null,
         }
     });
+
+    const paginatedOrgs = useMemo(() => {
+        const filtered = organizations.filter(org => org.name.toLowerCase().includes(debouncedSearchQuery.toLowerCase()));
+        setMeta(prev => ({...prev, totalRecords: filtered.length, totalPageCount: Math.ceil(filtered.length / 10)}));
+        const start = meta.page * meta.limit;
+        const end = start + meta.limit;
+        return filtered.slice(start, end);
+    }, [organizations, debouncedSearchQuery, meta.page, meta.limit]);
 
     useEffect(() => {
         if (!isDialogOpen) {
@@ -68,6 +81,10 @@ export default function OrganizationsPage() {
         }
     }, [isDialogOpen, form]);
 
+    const handlePageChange = (page: number) => {
+        setMeta(prev => ({ ...prev, page }));
+    };
+
     const handleEditClick = (org: Organization) => {
         setCurrentOrg(org);
         form.reset({
@@ -76,7 +93,7 @@ export default function OrganizationsPage() {
             website: org.website || '',
             phone: org.phone || '',
             address: org.address || '',
-            logoUrl: null,
+            logoUrl: null, // We handle the existing URL separately
         });
         setDialogOpen(true);
     };
@@ -105,7 +122,6 @@ export default function OrganizationsPage() {
 
 
         if (currentOrg) {
-            // Update existing organization
             const updatedOrg = { ...currentOrg, ...values, logoUrl };
             setOrganizations(orgs => orgs.map(o => o.id === currentOrg.id ? updatedOrg : o));
             toast({
@@ -113,7 +129,6 @@ export default function OrganizationsPage() {
                 description: `${values.name} has been successfully updated.`,
             });
         } else {
-            // Add new organization
             const newOrg: Organization = {
                 id: `org-${Date.now()}`,
                 createdAt: new Date().toISOString(),
@@ -213,6 +228,18 @@ export default function OrganizationsPage() {
             </div>
 
             <Card>
+				<CardHeader>
+					<CardTitle>Organization List</CardTitle>
+					<div className='relative mt-2'>
+						<Search className='absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground' />
+						<Input
+							placeholder='Search organizations...'
+							className='pl-10'
+							value={searchQuery}
+							onChange={(e) => setSearchQuery(e.target.value)}
+						/>
+					</div>
+				</CardHeader>
                 <CardContent>
                     <Table>
                         <TableHeader>
@@ -225,7 +252,7 @@ export default function OrganizationsPage() {
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            {organizations.map((org) => (
+                            {paginatedOrgs.map((org) => (
                                 <TableRow key={org.id}>
                                     <TableCell className="font-medium">
                                         <div className="flex items-center gap-3">
@@ -259,29 +286,18 @@ export default function OrganizationsPage() {
                                                     <Edit className="mr-2" />
                                                     Edit
                                                 </DropdownMenuItem>
-                                                <AlertDialog>
-                                                    <AlertDialogTrigger asChild>
-                                                         <Button variant="ghost" className="w-full justify-start text-sm text-destructive hover:text-destructive px-2 py-1.5 h-auto font-normal">
-                                                            <Trash2 className="mr-2" />
-                                                            Delete
-                                                        </Button>
-                                                    </AlertDialogTrigger>
-                                                    <AlertDialogContent>
-                                                        <AlertDialogHeader>
-                                                            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                                                            <AlertDialogDescription>
-                                                                This action cannot be undone. This will permanently delete the organization
-                                                                and all associated data.
-                                                            </AlertDialogDescription>
-                                                        </AlertDialogHeader>
-                                                        <AlertDialogFooter>
-                                                            <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                                            <AlertDialogAction onClick={() => handleDeleteClick(org.id)}>
-                                                                Delete
-                                                            </AlertDialogAction>
-                                                        </AlertDialogFooter>
-                                                    </AlertDialogContent>
-                                                </AlertDialog>
+                                                <ConfirmationDialog
+														trigger={
+															<div className='relative flex cursor-pointer select-none items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-none transition-colors focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 text-danger hover:bg-danger/10'>
+																<Trash2 className='mr-2' /> Delete
+															</div>
+														}
+														title='Are you sure?'
+														description='This action cannot be undone. This will permanently delete the organization and all associated data.'
+														onConfirm={() => handleDeleteClick(org.id)}
+														confirmText='Delete'
+														confirmVariant='danger'
+													/>
                                             </DropdownMenuContent>
                                         </DropdownMenu>
                                     </TableCell>
@@ -290,6 +306,9 @@ export default function OrganizationsPage() {
                         </TableBody>
                     </Table>
                 </CardContent>
+                <CardFooter>
+                    <Pagination meta={meta} onPageChange={handlePageChange} noun="Organization" />
+                </CardFooter>
             </Card>
         </div>
     );

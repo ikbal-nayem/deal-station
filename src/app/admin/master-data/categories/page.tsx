@@ -1,8 +1,8 @@
+
 'use client';
 
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { ConfirmationDialog } from '@/components/ui/confirmation-dialog';
+import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import {
 	Dialog,
 	DialogClose,
@@ -22,15 +22,20 @@ import {
 import { Form } from '@/components/ui/form';
 import { FormInput } from '@/components/ui/form-input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { toast } from '@/hooks/use-toast';
+import { useToast } from '@/hooks/use-toast';
 import { IApiRequest } from '@/interfaces/common.interface';
 import { ICommonMasterData } from '@/interfaces/master-data.interface';
 import { MasterDataService } from '@/services/api/master-data.service';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Edit, MoreHorizontal, PlusCircle, Trash2 } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { Edit, MoreHorizontal, PlusCircle, Search, Trash2 } from 'lucide-react';
+import { useEffect, useState, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
+import { ConfirmationDialog } from '@/components/ui/confirmation-dialog';
+import { Input } from '@/components/ui/input';
+import { Pagination } from '@/components/ui/pagination';
+import { useDebounce } from '@/hooks/use-debounce';
+import { IMeta } from '@/interfaces/common.interface';
 
 const categoryFormSchema = z.object({
 	name: z.string().min(2, { message: 'Category name must be at least 2 characters.' }),
@@ -38,41 +43,52 @@ const categoryFormSchema = z.object({
 
 type CategoryFormValues = z.infer<typeof categoryFormSchema>;
 
-const initPayload: IApiRequest = {
-	body: { active: true },
-	meta: { page: 0, limit: 20 },
-};
-
 export default function CategoriesPage() {
+	const { toast } = useToast();
 	const [categories, setCategories] = useState<ICommonMasterData[]>([]);
+	const [meta, setMeta] = useState<IMeta>({ page: 0, limit: 10 });
 	const [isDialogOpen, setDialogOpen] = useState(false);
 	const [currentCategory, setCurrentCategory] = useState<ICommonMasterData | null>(null);
 	const [isLoading, setIsLoading] = useState(true);
 	const [isSubmitting, setIsSubmitting] = useState(false);
+	const [searchQuery, setSearchQuery] = useState('');
+	const debouncedSearchQuery = useDebounce(searchQuery, 300);
 
 	const form = useForm<CategoryFormValues>({
 		resolver: zodResolver(categoryFormSchema),
 		defaultValues: { name: '' },
 	});
 
-	const fetchCategories = async () => {
-		setIsLoading(true);
-		try {
-			const response = await MasterDataService.category.getList(initPayload);
-			setCategories(response.body);
-		} catch (error: any) {
-			toast.error({
-				title: 'Error',
-				description: error.message || 'Could not fetch categories.',
-			});
-		} finally {
-			setIsLoading(false);
-		}
-	};
+	const fetchCategories = useMemo(
+		() => async (page = 0, search = '') => {
+			setIsLoading(true);
+			const payload: IApiRequest = {
+				body: { active: true, name: { contains: search, mode: 'insensitive' } },
+				meta: { page, limit: 10 },
+			};
+			try {
+				const response = await MasterDataService.category.getList(payload);
+				setCategories(response.body);
+				setMeta(response.meta);
+			} catch (error: any) {
+				toast.error({
+					title: 'Error',
+					description: error.message || 'Could not fetch categories.',
+				});
+			} finally {
+				setIsLoading(false);
+			}
+		},
+		[toast]
+	);
 
 	useEffect(() => {
-		fetchCategories();
-	}, []);
+		fetchCategories(0, debouncedSearchQuery);
+	}, [debouncedSearchQuery, fetchCategories]);
+
+	const handlePageChange = (page: number) => {
+		fetchCategories(page, debouncedSearchQuery);
+	};
 
 	const handleEditClick = (category: ICommonMasterData) => {
 		setCurrentCategory(category);
@@ -89,11 +105,12 @@ export default function CategoriesPage() {
 	const handleDeleteClick = async (categoryId: string) => {
 		try {
 			await MasterDataService.category.delete(categoryId);
-			toast.success({
+			toast({
+				variant: 'success',
 				title: 'Category Deleted',
 				description: 'The category has been successfully removed.',
 			});
-			fetchCategories();
+			fetchCategories(meta.page, debouncedSearchQuery);
 		} catch (error) {
 			toast.error({
 				title: 'Error',
@@ -121,7 +138,7 @@ export default function CategoriesPage() {
 				});
 			}
 			setDialogOpen(false);
-			fetchCategories();
+			fetchCategories(meta.page, debouncedSearchQuery);
 		} catch (error) {
 			toast({
 				variant: 'danger',
@@ -177,6 +194,18 @@ export default function CategoriesPage() {
 			</div>
 
 			<Card>
+				<CardHeader>
+					<CardTitle>Category List</CardTitle>
+					<div className='relative mt-2'>
+						<Search className='absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground' />
+						<Input
+							placeholder='Search categories...'
+							className='pl-10'
+							value={searchQuery}
+							onChange={(e) => setSearchQuery(e.target.value)}
+						/>
+					</div>
+				</CardHeader>
 				<CardContent>
 					<Table>
 						<TableHeader>
@@ -236,6 +265,9 @@ export default function CategoriesPage() {
 						</TableBody>
 					</Table>
 				</CardContent>
+				<CardFooter>
+					<Pagination meta={meta} onPageChange={handlePageChange} isLoading={isLoading} noun='Category' />
+				</CardFooter>
 			</Card>
 		</div>
 	);

@@ -2,8 +2,7 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { ConfirmationDialog } from '@/components/ui/confirmation-dialog';
+import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import {
 	Dialog,
 	DialogClose,
@@ -27,10 +26,15 @@ import { useToast } from '@/hooks/use-toast';
 import { ICommonMasterData } from '@/interfaces/master-data.interface';
 import { MasterDataService } from '@/services/api/master-data.service';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Edit, MoreHorizontal, PlusCircle, Trash2 } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { Edit, MoreHorizontal, PlusCircle, Search, Trash2 } from 'lucide-react';
+import { useEffect, useState, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
+import { ConfirmationDialog } from '@/components/ui/confirmation-dialog';
+import { Input } from '@/components/ui/input';
+import { Pagination } from '@/components/ui/pagination';
+import { useDebounce } from '@/hooks/use-debounce';
+import { IApiRequest, IMeta } from '@/interfaces/common.interface';
 
 const tagFormSchema = z.object({
 	name: z.string().min(2, { message: 'Tag name must be at least 2 characters.' }),
@@ -41,35 +45,50 @@ type TagFormValues = z.infer<typeof tagFormSchema>;
 export default function TagsPage() {
 	const { toast } = useToast();
 	const [tags, setTags] = useState<ICommonMasterData[]>([]);
+	const [meta, setMeta] = useState<IMeta>({ page: 0, limit: 10 });
 	const [isDialogOpen, setDialogOpen] = useState(false);
 	const [currentTag, setCurrentTag] = useState<ICommonMasterData | null>(null);
 	const [isLoading, setIsLoading] = useState(true);
 	const [isSubmitting, setIsSubmitting] = useState(false);
+	const [searchQuery, setSearchQuery] = useState('');
+	const debouncedSearchQuery = useDebounce(searchQuery, 300);
 
 	const form = useForm<TagFormValues>({
 		resolver: zodResolver(tagFormSchema),
 		defaultValues: { name: '' },
 	});
 
-	const fetchTags = async () => {
-		setIsLoading(true);
-		try {
-			const response = await MasterDataService.tag.getList({ body: { active: true } });
-			setTags(response.body);
-		} catch (error) {
-			toast({
-				variant: 'danger',
-				title: 'Error',
-				description: 'Could not fetch tags.',
-			});
-		} finally {
-			setIsLoading(false);
-		}
-	};
+	const fetchTags = useMemo(
+		() => async (page = 0, search = '') => {
+			setIsLoading(true);
+			const payload: IApiRequest = {
+				body: { active: true, name: { contains: search, mode: 'insensitive' } },
+				meta: { page, limit: 10 },
+			};
+			try {
+				const response = await MasterDataService.tag.getList(payload);
+				setTags(response.body);
+				setMeta(response.meta);
+			} catch (error) {
+				toast({
+					variant: 'danger',
+					title: 'Error',
+					description: 'Could not fetch tags.',
+				});
+			} finally {
+				setIsLoading(false);
+			}
+		},
+		[toast]
+	);
 
 	useEffect(() => {
-		fetchTags();
-	}, []);
+		fetchTags(0, debouncedSearchQuery);
+	}, [debouncedSearchQuery, fetchTags]);
+
+	const handlePageChange = (page: number) => {
+		fetchTags(page, debouncedSearchQuery);
+	};
 
 	const handleEditClick = (tag: ICommonMasterData) => {
 		setCurrentTag(tag);
@@ -91,7 +110,7 @@ export default function TagsPage() {
 				title: 'Tag Deleted',
 				description: 'The tag has been successfully removed.',
 			});
-			fetchTags();
+			fetchTags(meta.page, debouncedSearchQuery);
 		} catch (error) {
 			toast({
 				variant: 'danger',
@@ -112,7 +131,7 @@ export default function TagsPage() {
 				toast({ variant: 'success', title: 'Tag Added', description: `${values.name} has been created.` });
 			}
 			setDialogOpen(false);
-			fetchTags();
+			fetchTags(meta.page, debouncedSearchQuery);
 		} catch (error) {
 			toast({
 				variant: 'danger',
@@ -168,6 +187,18 @@ export default function TagsPage() {
 			</div>
 
 			<Card>
+				<CardHeader>
+					<CardTitle>Tag List</CardTitle>
+					<div className='relative mt-2'>
+						<Search className='absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground' />
+						<Input
+							placeholder='Search tags...'
+							className='pl-10'
+							value={searchQuery}
+							onChange={(e) => setSearchQuery(e.target.value)}
+						/>
+					</div>
+				</CardHeader>
 				<CardContent>
 					<Table>
 						<TableHeader>
@@ -227,6 +258,9 @@ export default function TagsPage() {
 						</TableBody>
 					</Table>
 				</CardContent>
+				<CardFooter>
+					<Pagination meta={meta} onPageChange={handlePageChange} isLoading={isLoading} noun='Tag' />
+				</CardFooter>
 			</Card>
 		</div>
 	);
