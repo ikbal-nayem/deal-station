@@ -3,7 +3,7 @@
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import {
 	Dialog,
 	DialogClose,
@@ -22,9 +22,10 @@ import {
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Form } from '@/components/ui/form';
+import { Form, FormControl, FormField, FormItem, FormLabel } from '@/components/ui/form';
 import { FormInput } from '@/components/ui/form-input';
 import { FormSelect } from '@/components/ui/form-select';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { ROLES } from '@/constants/auth.constant';
 import { useAuth } from '@/context/AuthContext';
@@ -32,7 +33,7 @@ import { useToast } from '@/hooks/use-toast';
 import { IUser } from '@/interfaces/auth.interface';
 import { mockOrganizations } from '@/lib/mock-organizations';
 import { mockUsers as initialUsers } from '@/lib/mock-users';
-import { zodResolver } from "@hookform/resolvers/zod";
+import { zodResolver } from '@hookform/resolvers/zod';
 import { Edit, MoreHorizontal, PlusCircle, Search, Trash2 } from 'lucide-react';
 import { useEffect, useState, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
@@ -42,43 +43,39 @@ import { Input } from '@/components/ui/input';
 import { Pagination } from '@/components/ui/pagination';
 import { useDebounce } from '@/hooks/use-debounce';
 import { IMeta } from '@/interfaces/common.interface';
+import { UserService } from '@/services/api/user.service';
 
 const userFormSchema = z
 	.object({
 		firstName: z.string().min(2, 'First name is required'),
 		lastName: z.string().min(2, 'Last name is required'),
 		email: z.string().email('Invalid email address'),
-		phone: z.string().optional(),
-		role: z.nativeEnum(ROLES),
+		phone: z.string().regex(/^\+[1-9]\d{1,14}$/, 'Phone number must be in E.164 format (e.g., +14155552671)').optional().or(z.literal('')),
+		roles: z.array(z.nativeEnum(ROLES)).min(1, 'At least one role is required.'),
 		organizationId: z.string().optional(),
 	})
-	.refine((data) => data.role !== ROLES.OPERATOR || !!data.organizationId, {
-		message: 'Organization is required for this role',
+	.refine((data) => !data.roles.includes(ROLES.OPERATOR) || !!data.organizationId, {
+		message: 'Organization is required for the Operator role.',
 		path: ['organizationId'],
 	});
 
 type UserFormValues = z.infer<typeof userFormSchema>;
 
-const mapToIUser = (user: UserFormValues, id?: string): IUser => ({
-	id: id || `user-${Date.now()}`,
-	username: user.email,
-	email: user.email,
-	firstName: user.firstName,
-	lastName: user.lastName,
-	phone: user.phone,
-	roles: [user.role],
-	organizationId: user.role === ROLES.OPERATOR ? user.organizationId : undefined,
-});
-
 export default function UsersPage() {
 	const { toast } = useToast();
-    const { user: authUser } = useAuth();
+	const { user: authUser } = useAuth();
 	const [users, setUsers] = useState<IUser[]>(initialUsers);
 	const [isDialogOpen, setDialogOpen] = useState(false);
+	const [isSubmitting, setSubmitting] = useState(false);
 	const [currentUser, setCurrentUser] = useState<IUser | null>(null);
 	const [searchQuery, setSearchQuery] = useState('');
 	const debouncedSearchQuery = useDebounce(searchQuery, 300);
-	const [meta, setMeta] = useState<IMeta>({ page: 0, limit: 10, totalRecords: initialUsers.length, totalPageCount: Math.ceil(initialUsers.length / 10) });
+	const [meta, setMeta] = useState<IMeta>({
+		page: 0,
+		limit: 10,
+		totalRecords: initialUsers.length,
+		totalPageCount: Math.ceil(initialUsers.length / 10),
+	});
 
 	const form = useForm<UserFormValues>({
 		resolver: zodResolver(userFormSchema),
@@ -87,23 +84,24 @@ export default function UsersPage() {
 			lastName: '',
 			email: '',
 			phone: '',
-			role: ROLES.USER,
+			roles: [],
 			organizationId: '',
 		},
 	});
 
-	const watchedRole = form.watch('role');
+	const watchedRoles = form.watch('roles');
 
-    const paginatedUsers = useMemo(() => {
-        const filtered = users.filter(user => 
-            `${user.firstName} ${user.lastName}`.toLowerCase().includes(debouncedSearchQuery.toLowerCase()) ||
-            user.email.toLowerCase().includes(debouncedSearchQuery.toLowerCase())
-        );
-        setMeta(prev => ({...prev, totalRecords: filtered.length, totalPageCount: Math.ceil(filtered.length / 10)}));
-        const start = meta.page * meta.limit;
-        const end = start + meta.limit;
-        return filtered.slice(start, end);
-    }, [users, debouncedSearchQuery, meta.page, meta.limit]);
+	const paginatedUsers = useMemo(() => {
+		const filtered = users.filter(
+			(user) =>
+				`${user.firstName} ${user.lastName}`.toLowerCase().includes(debouncedSearchQuery.toLowerCase()) ||
+				user.email.toLowerCase().includes(debouncedSearchQuery.toLowerCase())
+		);
+		setMeta((prev) => ({ ...prev, totalRecords: filtered.length, totalPageCount: Math.ceil(filtered.length / 10) }));
+		const start = meta.page * meta.limit;
+		const end = start + meta.limit;
+		return filtered.slice(start, end);
+	}, [users, debouncedSearchQuery, meta.page, meta.limit]);
 
 	useEffect(() => {
 		if (!isDialogOpen) {
@@ -112,9 +110,9 @@ export default function UsersPage() {
 		}
 	}, [isDialogOpen, form]);
 
-    const handlePageChange = (page: number) => {
-        setMeta(prev => ({...prev, page}));
-    }
+	const handlePageChange = (page: number) => {
+		setMeta((prev) => ({ ...prev, page }));
+	};
 
 	const handleEditClick = (user: IUser) => {
 		setCurrentUser(user);
@@ -123,7 +121,7 @@ export default function UsersPage() {
 			lastName: user.lastName,
 			email: user.email,
 			phone: user.phone || '',
-			role: user.roles[0],
+			roles: user.roles,
 			organizationId: user.organizationId || '',
 		});
 		setDialogOpen(true);
@@ -143,22 +141,38 @@ export default function UsersPage() {
 		});
 	};
 
-	const handleFormSubmit = (values: UserFormValues) => {
-		if (currentUser) {
-			setUsers((users) => users.map((u) => (u.id === currentUser.id ? { ...mapToIUser(values, u.id), id: u.id } : u)));
-			toast({ title: 'User Updated', description: `${values.firstName} has been updated.` });
-		} else {
-			const newUser = mapToIUser(values);
-			setUsers((users) => [newUser, ...users]);
-			toast({ title: 'User Added', description: `${values.firstName} has been created.` });
+	const handleFormSubmit = async (values: UserFormValues) => {
+		setSubmitting(true);
+		try {
+			if (currentUser) {
+				await UserService.updateUser({ id: currentUser.id, ...values });
+				const updatedUser = { ...currentUser, ...values, username: values.email };
+				setUsers((users) => users.map((u) => (u.id === currentUser.id ? updatedUser : u)));
+				toast({ title: 'User Updated', description: `${values.firstName} has been updated.` });
+			} else {
+				const response = await UserService.createUser(values);
+				setUsers((users) => [response.body, ...users]);
+				toast({ title: 'User Added', description: `${values.firstName} has been created.` });
+			}
+			setDialogOpen(false);
+		} catch (error: any) {
+			toast.error({
+				title: 'Error',
+				description: error.message || `Could not ${currentUser ? 'update' : 'create'} user.`,
+			});
+		} finally {
+			setSubmitting(false);
 		}
-		setDialogOpen(false);
 	};
 
 	const getOrgName = (orgId?: string) => {
 		if (!orgId) return '-';
 		return mockOrganizations.find((o) => o.id === orgId)?.name || 'Unknown Org';
 	};
+
+	const availableRoles = Object.values(ROLES).filter(
+		(role) => authUser?.roles.includes(ROLES.SUPER_ADMIN) || role !== ROLES.SUPER_ADMIN
+	);
 
 	return (
 		<div className='space-y-6'>
@@ -179,24 +193,12 @@ export default function UsersPage() {
 								<DialogHeader>
 									<DialogTitle>{currentUser ? 'Edit User' : 'Add New User'}</DialogTitle>
 									<DialogDescription>
-										{currentUser ? "Update the user's details." : 'Create a new user and assign them a role.'}
+										{currentUser ? "Update the user's details." : 'Create a new user and assign them roles.'}
 									</DialogDescription>
 								</DialogHeader>
 								<div className='grid grid-cols-2 gap-4'>
-									<FormInput
-										control={form.control}
-										name='firstName'
-										label='First Name'
-										placeholder='John'
-										required
-									/>
-									<FormInput
-										control={form.control}
-										name='lastName'
-										label='Last Name'
-										placeholder='Doe'
-										required
-									/>
+									<FormInput control={form.control} name='firstName' label='First Name' placeholder='John' required />
+									<FormInput control={form.control} name='lastName' label='Last Name' placeholder='Doe' required />
 								</div>
 								<FormInput
 									control={form.control}
@@ -210,21 +212,52 @@ export default function UsersPage() {
 									control={form.control}
 									name='phone'
 									label='Phone (Optional)'
-									placeholder='555-123-4567'
+									placeholder='+14155552671'
 								/>
 
-								<FormSelect
+								<FormField
 									control={form.control}
-									name='role'
-									label='Role'
-									placeholder='Select a role'
-									required
-									options={Object.values(ROLES).filter(role => authUser?.roles.includes(ROLES.SUPER_ADMIN) || role !== ROLES.SUPER_ADMIN)}
-									getOptionValue={(option) => option}
-									getOptionLabel={(option) => option.replace(/_/g, ' ')}
+									name='roles'
+									render={() => (
+										<FormItem>
+											<FormLabel required>Roles</FormLabel>
+											<div className='grid grid-cols-2 gap-2'>
+												{availableRoles.map((role) => (
+													<FormField
+														key={role}
+														control={form.control}
+														name='roles'
+														render={({ field }) => {
+															return (
+																<FormItem
+																	key={role}
+																	className='flex flex-row items-start space-x-3 space-y-0'
+																>
+																	<FormControl>
+																		<Checkbox
+																			checked={field.value?.includes(role)}
+																			onCheckedChange={(checked) => {
+																				return checked
+																					? field.onChange([...field.value, role])
+																					: field.onChange(field.value?.filter((value) => value !== role));
+																			}}
+																		/>
+																	</FormControl>
+																	<FormLabel className='font-normal'>
+																		{role.replace(/_/g, ' ')}
+																	</FormLabel>
+																</FormItem>
+															);
+														}}
+													/>
+												))}
+											</div>
+											<FormMessage />
+										</FormItem>
+									)}
 								/>
 
-								{watchedRole === ROLES.OPERATOR && (
+								{watchedRoles?.includes(ROLES.OPERATOR) && (
 									<FormSelect
 										control={form.control}
 										name='organizationId'
@@ -239,11 +272,13 @@ export default function UsersPage() {
 
 								<DialogFooter>
 									<DialogClose asChild>
-										<Button type='button' variant='secondary'>
+										<Button type='button' variant='secondary' disabled={isSubmitting}>
 											Cancel
 										</Button>
 									</DialogClose>
-									<Button type='submit'>{currentUser ? 'Save Changes' : 'Create User'}</Button>
+									<Button type='submit' disabled={isSubmitting}>
+										{isSubmitting ? 'Saving...' : currentUser ? 'Save Changes' : 'Create User'}
+									</Button>
 								</DialogFooter>
 							</form>
 						</Form>
@@ -251,7 +286,7 @@ export default function UsersPage() {
 				</Dialog>
 			</div>
 			<Card>
-                <CardHeader>
+				<CardHeader>
 					<CardTitle>User List</CardTitle>
 					<div className='relative mt-2'>
 						<Search className='absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground' />
@@ -282,7 +317,13 @@ export default function UsersPage() {
 									</TableCell>
 									<TableCell>{user.email}</TableCell>
 									<TableCell>
-										<Badge variant='secondary'>{user.roles[0]?.replace(/_/g, ' ')}</Badge>
+										<div className='flex flex-wrap gap-1'>
+											{user.roles.map((role) => (
+												<Badge key={role} variant='secondary'>
+													{role.replace(/_/g, ' ')}
+												</Badge>
+											))}
+										</div>
 									</TableCell>
 									<TableCell>{getOrgName(user.organizationId)}</TableCell>
 									<TableCell className='text-right'>
@@ -298,7 +339,7 @@ export default function UsersPage() {
 												<DropdownMenuItem onClick={() => handleEditClick(user)} className='cursor-pointer'>
 													<Edit className='mr-2 h-4 w-4' /> Edit
 												</DropdownMenuItem>
-                                                <DropdownMenuSeparator />
+												<DropdownMenuSeparator />
 												<ConfirmationDialog
 													trigger={
 														<div className='relative flex cursor-pointer select-none items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-none transition-colors focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 text-danger hover:bg-danger/10'>
@@ -319,9 +360,9 @@ export default function UsersPage() {
 						</TableBody>
 					</Table>
 				</CardContent>
-                 <CardFooter>
-                    <Pagination meta={meta} onPageChange={handlePageChange} noun="User" />
-                </CardFooter>
+				<CardFooter>
+					<Pagination meta={meta} onPageChange={handlePageChange} noun='User' />
+				</CardFooter>
 			</Card>
 		</div>
 	);
