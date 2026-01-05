@@ -1,8 +1,8 @@
-
 'use client';
 
 import { axiosIns } from '@/config/api.config';
 import { ACCESS_TOKEN, AUTH_INFO, REFRESH_TOKEN, ROLES } from '@/constants/auth.constant';
+import { ROUTES } from '@/constants/routes.constant';
 import { IUser } from '@/interfaces/auth.interface';
 import { AuthService } from '@/services/api/auth.service';
 import { UserService } from '@/services/api/user.service';
@@ -21,26 +21,6 @@ interface AuthContextType {
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
-
-const mapApiUserToAppContextUser = (apiUser: any): IUser => {
-	return {
-		id: apiUser.id,
-		username: apiUser.username,
-		email: apiUser.email,
-		roles: Array.isArray(apiUser.roles) ? apiUser.roles : [],
-		firstName: apiUser.firstName,
-		lastName: apiUser.lastName,
-		fullName: apiUser.fullName,
-		phone: apiUser.phone,
-		profileImage: apiUser.profileImage,
-		dateOfBirth: apiUser.dateOfBirth,
-		gender: apiUser.gender,
-		genderDTO: apiUser.genderDTO,
-		organizationId: apiUser.organizationId,
-		organization: apiUser.organization,
-	};
-};
-
 
 export function AuthProvider({ children }: { children: ReactNode }) {
 	const [user, setUser] = useState<IUser | null>(null);
@@ -72,19 +52,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 			axiosIns.defaults.headers.common['Authorization'] = `Bearer ${authInfo.access_token}`;
 
 			const userDetailsResponse = await UserService.getUserDetails();
-			const userDetails = mapApiUserToAppContextUser(userDetailsResponse.body);
-			
+			const userDetails = userDetailsResponse.body;
+
 			const userToStore = {
 				...userDetails,
-				...authInfo
-			}
+				...authInfo,
+			};
 			LocalStorageService.set(AUTH_INFO, userToStore);
 			setUser(userDetails);
-			
+
 			if (userDetails.roles.includes(ROLES.ADMIN) || userDetails.roles.includes(ROLES.SUPER_ADMIN)) {
-				router.push('/admin');
-			} else if (userDetails.roles.includes(ROLES.OPERATOR)) {
-				router.push('/dashboard');
+				router.push(ROUTES.ADMIN.DASHBOARD);
 			} else {
 				router.push('/');
 			}
@@ -96,7 +74,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 	const logout = () => {
 		clearAuthInfo();
 		setUser(null);
-		router.push('/login');
+		router.push(ROUTES.AUTH.LOGIN);
 	};
 
 	const value = { isLoggedIn: !!user, user, setUser, isLoading: isAuthLoading, login, logout, isAuthLoading };

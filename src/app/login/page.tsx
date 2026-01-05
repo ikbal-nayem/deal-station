@@ -1,20 +1,19 @@
-
-
 'use client';
 
 import Header from '@/components/layout/Header';
+import SplashScreen from '@/components/layout/SplashScreen';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { ROLES } from '@/constants/auth.constant';
+import { ROUTES } from '@/constants/routes.constant';
 import { useAuth } from '@/context/AuthContext';
 import { toast } from '@/hooks/use-toast';
 import { LogIn } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import SplashScreen from '@/components/layout/SplashScreen';
-import { ROLES } from '@/constants/auth.constant';
 
 export default function LoginPage() {
 	const [email, setEmail] = useState('');
@@ -26,9 +25,7 @@ export default function LoginPage() {
 	useEffect(() => {
 		if (!isAuthLoading && isLoggedIn) {
 			if (user?.roles.includes(ROLES.ADMIN) || user?.roles.includes(ROLES.SUPER_ADMIN)) {
-				router.replace('/admin');
-			} else if (user?.roles.includes(ROLES.OPERATOR)) {
-				router.replace('/dashboard');
+				router.replace(ROUTES.ADMIN.DASHBOARD);
 			} else {
 				router.replace('/');
 			}
@@ -40,15 +37,8 @@ export default function LoginPage() {
 		setIsLoading(true);
 		try {
 			await login(email, password);
-			toast({
-                variant: 'success',
-				title: 'Login Successful',
-				description: 'Welcome back! Redirecting...',
-			});
-			// Redirection is handled by AuthContext and the useEffect above
 		} catch (error: any) {
-			toast({
-                variant: 'danger',
+			toast.error({
 				title: 'Login Failed',
 				description: error.message || 'Please check your email and password.',
 			});
@@ -89,7 +79,7 @@ export default function LoginPage() {
 							<div className='space-y-2'>
 								<div className='flex items-center justify-between'>
 									<Label htmlFor='password'>Password</Label>
-									<Link href='/forgot-password' className='text-xs text-primary hover:underline'>
+									<Link href={ROUTES.AUTH.FORGOT_PASSWORD} className='text-xs text-primary hover:underline'>
 										Forgot password?
 									</Link>
 								</div>
@@ -115,7 +105,7 @@ export default function LoginPage() {
 						</p>
 						<p>
 							Don't have an account?{' '}
-							<Link href='/register' className='font-semibold text-primary hover:underline'>
+							<Link href={ROUTES.AUTH.SIGNUP} className='font-semibold text-primary hover:underline'>
 								Register
 							</Link>
 						</p>

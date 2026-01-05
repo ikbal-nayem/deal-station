@@ -1,4 +1,3 @@
-
 'use client';
 
 import {
@@ -32,7 +31,8 @@ import {
 import { Form } from '@/components/ui/form';
 import { FormInput } from '@/components/ui/form-input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from '@/hooks/use-toast';
+import { IApiRequest } from '@/interfaces/common.interface';
 import { ICommonMasterData } from '@/interfaces/master-data.interface';
 import { MasterDataService } from '@/services/api/master-data.service';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -47,8 +47,12 @@ const categoryFormSchema = z.object({
 
 type CategoryFormValues = z.infer<typeof categoryFormSchema>;
 
+const initPayload: IApiRequest = {
+	body: {active: true},
+	meta: { page: 0, limit: 20 },
+};
+
 export default function CategoriesPage() {
-	const { toast } = useToast();
 	const [categories, setCategories] = useState<ICommonMasterData[]>([]);
 	const [isDialogOpen, setDialogOpen] = useState(false);
 	const [currentCategory, setCurrentCategory] = useState<ICommonMasterData | null>(null);
@@ -63,13 +67,10 @@ export default function CategoriesPage() {
 	const fetchCategories = async () => {
 		setIsLoading(true);
 		try {
-			const response = await MasterDataService.category.getList({
-				meta: { sort: [{ field: 'name', order: 'asc' }] },
-			});
+			const response = await MasterDataService.category.getList(initPayload);
 			setCategories(response.body);
 		} catch (error) {
-			toast({
-				variant: 'danger',
+			toast.error({
 				title: 'Error',
 				description: 'Could not fetch categories.',
 			});
@@ -117,10 +118,18 @@ export default function CategoriesPage() {
 		try {
 			if (currentCategory) {
 				await MasterDataService.category.update({ ...currentCategory, ...values });
-				toast({ variant: 'success', title: 'Category Updated', description: `${values.name} has been updated.` });
+				toast({
+					variant: 'success',
+					title: 'Category Updated',
+					description: `${values.name} has been updated.`,
+				});
 			} else {
 				await MasterDataService.category.add(values);
-				toast({ variant: 'success', title: 'Category Added', description: `${values.name} has been created.` });
+				toast({
+					variant: 'success',
+					title: 'Category Added',
+					description: `${values.name} has been created.`,
+				});
 			}
 			setDialogOpen(false);
 			fetchCategories();
@@ -220,7 +229,9 @@ export default function CategoriesPage() {
 														<AlertDialogContent>
 															<AlertDialogHeader>
 																<AlertDialogTitle>Are you sure?</AlertDialogTitle>
-																<AlertDialogDescription>This will permanently delete the category.</AlertDialogDescription>
+																<AlertDialogDescription>
+																	This will permanently delete the category.
+																</AlertDialogDescription>
 															</AlertDialogHeader>
 															<AlertDialogFooter>
 																<AlertDialogCancel>Cancel</AlertDialogCancel>

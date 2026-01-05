@@ -1,7 +1,5 @@
 export const COMMON_URL = {
-	SITE_LOGO: '/iifc-logo.png',
-	JOBSEEKER_BULK_UPLOAD_SAMPLE: '/files/jobseeker-bulk-upload-sample.xlsx',
-	DUMMY_USER_AVATAR: '/dummy-user.png',
+	SITE_LOGO: '/logo/logo-150x150.png',
 };
 
 
