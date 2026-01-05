@@ -3,7 +3,7 @@
 
 import { axiosIns } from '@/config/api.config';
 import { ACCESS_TOKEN, AUTH_INFO, REFRESH_TOKEN, ROLES } from '@/constants/auth.constant';
-import { IAuthInfo, IUser } from '@/interfaces/auth.interface';
+import { IUser } from '@/interfaces/auth.interface';
 import { AuthService } from '@/services/api/auth.service';
 import { UserService } from '@/services/api/user.service';
 import { CookieService, LocalStorageService, clearAuthInfo } from '@/services/storage.service';
