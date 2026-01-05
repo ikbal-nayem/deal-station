@@ -1,6 +1,8 @@
+
 'use client';
 
 import Header from '@/components/layout/Header';
+import Logo from '@/components/layout/Logo';
 import SplashScreen from '@/components/layout/SplashScreen';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import {
@@ -105,7 +107,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
 		<SidebarProvider>
 			<Sidebar>
 				<SidebarHeader>
-					<h1 className='font-bold text-xl border-b border-muted-foreground pt-2 pb-3 px-2'>Admin Panel</h1>
+					<Logo />
 				</SidebarHeader>
 				<SidebarContent>
 					<SidebarMenu>{renderNavLinks(adminNavLinks, user.roles, pathname)}</SidebarMenu>
