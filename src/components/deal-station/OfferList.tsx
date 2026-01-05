@@ -32,7 +32,7 @@ export default function OfferList({
 }: OfferListProps) {
   const hasOffers = offers.length > 0;
   return (
-    <div className="p-4 space-y-4 h-full">
+    <div className="p-4 space-y-4 h-full flex flex-col">
       <div className="pb-4">
         <h2 className="text-2xl font-bold font-headline">Nearby Offers</h2>
         <p className="text-muted-foreground">Special perks waiting for you.</p>
@@ -62,7 +62,7 @@ export default function OfferList({
         ))}
       </div>
 
-      <div className="grid grid-cols-1 gap-4">
+      <div className="flex-1 overflow-y-auto space-y-3 -mr-2 pr-2">
         {hasOffers
           ? offers.map((offer) => (
               <OfferCard 
@@ -86,19 +86,17 @@ export default function OfferList({
 
 function OfferCardSkeleton() {
   return (
-    <div className="flex flex-col space-y-3 p-4 border rounded-lg">
-      <Skeleton className="h-32 w-full rounded-xl" />
-      <div className="space-y-2">
-        <Skeleton className="h-4 w-3/4" />
+    <div className="flex items-center gap-3 p-3 border rounded-lg">
+      <Skeleton className="h-24 w-24 sm:h-32 sm:w-32 rounded-md shrink-0" />
+      <div className="flex-1 space-y-2">
+        <Skeleton className="h-5 w-3/4" />
         <Skeleton className="h-4 w-1/2" />
-      </div>
-       <div className="space-y-2 pt-4">
         <Skeleton className="h-4 w-full" />
-        <Skeleton className="h-4 w-full" />
-      </div>
-      <div className="flex justify-between items-center pt-4">
-        <Skeleton className="h-4 w-1/4" />
-        <Skeleton className="h-4 w-1/4" />
+        <Skeleton className="h-4 w-4/5" />
+        <div className="flex gap-2 pt-2">
+          <Skeleton className="h-6 w-16 rounded-full" />
+          <Skeleton className="h-6 w-20 rounded-full" />
+        </div>
       </div>
     </div>
   );
