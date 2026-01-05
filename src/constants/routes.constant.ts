@@ -11,7 +11,7 @@ export const ROUTES = {
 		USERS: '/admin/master-data/users',
 		MASTER_DATA: {
 			CATEGORIES: '/admin/master-data/categories',
-			PRODUCTS: '/admin/master-data/products',
+			TAGS: '/admin/master-data/tags',
 		},
 	},
 };

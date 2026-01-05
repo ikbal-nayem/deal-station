@@ -63,7 +63,7 @@ export const adminNavLinks: NavLink[] = [
 			},
 			{
 				key: 'MASTER_DATA_TAGS',
-				href: ROUTES.ADMIN.MASTER_DATA.PRODUCTS,
+				href: ROUTES.ADMIN.MASTER_DATA.TAGS,
 				label: 'Tags',
 				icon: Tag,
 			},

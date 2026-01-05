@@ -1,7 +1,7 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { ConfirmationDialog } from '@/components/ui/confirmation-dialog';
 import {
 	Dialog,
@@ -103,16 +103,15 @@ export default function CategoriesPage() {
 	const handleDeleteClick = async (categoryId: string) => {
 		try {
 			await MasterDataService.category.delete(categoryId);
-			toast({
-				variant: 'success',
+			toast.success({
 				title: 'Category Deleted',
 				description: 'The category has been successfully removed.',
 			});
 			fetchCategories(meta.page, debouncedSearchQuery);
-		} catch (error) {
+		} catch (error: any) {
 			toast.error({
 				title: 'Error',
-				description: 'Could not delete category.',
+				description: error.message || 'Could not delete category.',
 			});
 		}
 	};
@@ -122,26 +121,23 @@ export default function CategoriesPage() {
 		try {
 			if (currentCategory) {
 				await MasterDataService.category.update({ ...currentCategory, ...values });
-				toast({
-					variant: 'success',
+				toast.success({
 					title: 'Category Updated',
 					description: `${values.name} has been updated.`,
 				});
 			} else {
 				await MasterDataService.category.add(values);
-				toast({
-					variant: 'success',
+				toast.success({
 					title: 'Category Added',
 					description: `${values.name} has been created.`,
 				});
 			}
 			setDialogOpen(false);
 			fetchCategories(meta.page, debouncedSearchQuery);
-		} catch (error) {
-			toast({
-				variant: 'danger',
+		} catch (error: any) {
+			toast.error({
 				title: 'Error',
-				description: `Could not ${currentCategory ? 'update' : 'create'} category.`,
+				description: error.message || `Could not ${currentCategory ? 'update' : 'create'} category.`,
 			});
 		} finally {
 			setIsSubmitting(false);
