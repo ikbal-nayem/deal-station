@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
@@ -86,13 +87,13 @@ export function FormMultiSelect<TFieldValues extends FieldValues, TOption>({
 										{options.map((option) => (
 											<CommandItem
 												key={getOptionValue(option)}
-												onSelect={() => {
-													const currentValue = field.value || [];
+												onSelect={(currentValue) => {
+													const currentValueArray = field.value || [];
 													const value = getOptionValue(option);
-													if (currentValue.includes(value)) {
-														field.onChange(currentValue.filter((v: string) => v !== value));
+													if (currentValueArray.includes(value)) {
+														field.onChange(currentValueArray.filter((v: string) => v !== value));
 													} else {
-														field.onChange([...currentValue, value]);
+														field.onChange([...currentValueArray, value]);
 													}
 												}}
 											>
