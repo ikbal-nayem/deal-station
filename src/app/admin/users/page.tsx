@@ -35,7 +35,6 @@ import { toast } from '@/hooks/use-toast';
 import { IUser } from '@/interfaces/auth.interface';
 import { IMeta } from '@/interfaces/common.interface';
 import { IRole } from '@/interfaces/master-data.interface';
-import { mockOrganizations } from '@/lib/mock-organizations';
 import { mockUsers as initialUsers } from '@/lib/mock-users';
 import { AuthService } from '@/services/api/auth.service';
 import { UserService } from '@/services/api/user.service';
@@ -49,11 +48,23 @@ const userFormSchema = z.object({
 	firstName: z.string().min(2, 'First name is required'),
 	lastName: z.string().min(2, 'Last name is required'),
 	email: z.string().email('Invalid email address'),
-	phone: z.string().regex(/^\+8801[3-9]\d{8}$/, 'Phone must be a valid BD number (+880...)').optional().or(z.literal('')),
+	phone: z
+		.string()
+		.regex(/^01[3-9]\d{8}$/, 'Phone number must be valid (01...)')
+		.optional()
+		.or(z.literal('')),
 	roles: z.array(z.string()).min(1, 'At least one role is required.'),
 });
 
 type UserFormValues = z.infer<typeof userFormSchema>;
+
+const defaultValues = {
+	firstName: '',
+	lastName: '',
+	email: '',
+	phone: '',
+	roles: [],
+};
 
 export default function UsersPage() {
 	const { user: authUser } = useAuth();
@@ -73,13 +84,7 @@ export default function UsersPage() {
 
 	const form = useForm<UserFormValues>({
 		resolver: zodResolver(userFormSchema),
-		defaultValues: {
-			firstName: '',
-			lastName: '',
-			email: '',
-			phone: '',
-			roles: [],
-		},
+		defaultValues,
 	});
 
 	useEffect(() => {
@@ -87,9 +92,7 @@ export default function UsersPage() {
 			try {
 				const response = await AuthService.getRoles();
 				setAllRoles(response.body);
-			} catch (error) {
-				toast.error({ title: 'Error', description: 'Could not fetch roles.' });
-			}
+			} catch (error) {}
 		};
 		fetchRoles();
 	}, []);
@@ -136,13 +139,7 @@ export default function UsersPage() {
 
 	const handleEditClick = (user: IUser) => {
 		setCurrentUser(user);
-		form.reset({
-			firstName: user.firstName,
-			lastName: user.lastName,
-			email: user.email,
-			phone: user.phone || '',
-			roles: user.roles,
-		});
+		form.reset(defaultValues);
 		setDialogOpen(true);
 	};
 
@@ -154,7 +151,7 @@ export default function UsersPage() {
 
 	const handleDeleteClick = (userId: string) => {
 		setUsers((users) => users.filter((u) => u.id !== userId));
-		toast({
+		toast.error({
 			title: 'User Deleted',
 			description: 'The user has been successfully removed.',
 		});
@@ -164,9 +161,8 @@ export default function UsersPage() {
 		setSubmitting(true);
 		const payload = {
 			...values,
-			roles: values.roles.map((roleId) => ({ id: roleId })),
+			roles: values.roles.map((roleId) => assignableRoles.find((r) => r.id === roleId)?.roleCode),
 		};
-
 		try {
 			if (currentUser) {
 				await UserService.updateUser({ id: currentUser.id, ...payload });
@@ -192,11 +188,6 @@ export default function UsersPage() {
 		} finally {
 			setSubmitting(false);
 		}
-	};
-
-	const getOrgName = (orgId?: string) => {
-		if (!orgId) return '-';
-		return mockOrganizations.find((o) => o.id === orgId)?.name || 'Unknown Org';
 	};
 
 	return (
@@ -249,7 +240,7 @@ export default function UsersPage() {
 									control={form.control}
 									name='phone'
 									label='Phone (Optional)'
-									placeholder='+8801XXXXXXXXX'
+									placeholder='01XXXXXXXXX'
 								/>
 
 								<FormMultiSelect
@@ -260,7 +251,7 @@ export default function UsersPage() {
 									placeholder='Select roles...'
 									options={assignableRoles}
 									getOptionValue={(option) => option.id}
-									getOptionLabel={(option) => option.name.replace(/_/g, ' ')}
+									getOptionLabel={(option) => option.name}
 								/>
 
 								<DialogFooter>
@@ -297,7 +288,6 @@ export default function UsersPage() {
 								<TableHead>Name</TableHead>
 								<TableHead>Email</TableHead>
 								<TableHead>Role</TableHead>
-								<TableHead>Organization</TableHead>
 								<TableHead className='text-right'>Actions</TableHead>
 							</TableRow>
 						</TableHeader>
@@ -317,7 +307,6 @@ export default function UsersPage() {
 											))}
 										</div>
 									</TableCell>
-									<TableCell>{getOrgName(user.organizationId)}</TableCell>
 									<TableCell className='text-right'>
 										<DropdownMenu>
 											<DropdownMenuTrigger asChild>
