@@ -19,9 +19,10 @@ interface OfferCardProps {
   offer: Offer;
   onShowDetailsClick: (offer: Offer) => void;
   onShowOnMapClick: (offer: Offer) => void;
+  layout?: 'list' | 'grid';
 }
 
-export default function OfferCard({ offer, onShowDetailsClick, onShowOnMapClick }: OfferCardProps) {
+export default function OfferCard({ offer, onShowDetailsClick, onShowOnMapClick, layout = 'list' }: OfferCardProps) {
   const { isLoggedIn } = useAuth();
   const router = useRouter();
   const showLoginOverlay = offer.isMemberOnly && !isLoggedIn;
@@ -42,20 +43,28 @@ export default function OfferCard({ offer, onShowDetailsClick, onShowOnMapClick 
     onShowOnMapClick(offer);
   }
 
+  const imageClasses = cn(
+    'object-cover rounded-md transition-transform duration-300',
+    showLoginOverlay && 'blur-sm',
+    layout === 'list' ? 'w-24 h-24 sm:w-32 sm:h-32' : 'w-full aspect-video'
+  );
+
   return (
     <Card
-      className="relative overflow-hidden group/card w-full flex flex-row items-center p-3 gap-3"
+      className={cn(
+        "relative overflow-hidden group/card w-full flex items-center p-3 gap-3 cursor-pointer",
+        layout === 'grid' ? "flex-col h-full" : "flex-row",
+        showLoginOverlay && "pointer-events-none"
+      )}
+      onClick={handleDetailsClick}
     >
-        <div className="relative shrink-0">
+        <div className={cn("relative shrink-0", layout === 'grid' && 'w-full')}>
             <Image
                 src={placeholderImage.imageUrl}
                 alt={offer.title}
-                width={128}
-                height={128}
-                className={cn(
-                    'w-24 h-24 sm:w-32 sm:h-32 object-cover rounded-md transition-transform duration-300',
-                    showLoginOverlay && 'blur-sm'
-                )}
+                width={layout === 'list' ? 128 : 400}
+                height={layout === 'list' ? 128 : 225}
+                className={imageClasses}
                 data-ai-hint={placeholderImage.imageHint}
             />
             {offer.isMemberOnly && (
@@ -69,10 +78,10 @@ export default function OfferCard({ offer, onShowDetailsClick, onShowOnMapClick 
             )}
         </div>
 
-        <div className={cn("flex flex-col flex-1 h-full", showLoginOverlay && 'blur-sm')}>
+        <div className={cn("flex flex-col h-full flex-1 w-full", showLoginOverlay && 'blur-sm')}>
             <h3 className="font-bold font-headline line-clamp-1">{offer.title}</h3>
             <p className="text-sm text-muted-foreground line-clamp-1">{offer.companyName}</p>
-            <p className="text-xs text-muted-foreground mt-1 line-clamp-2 flex-grow">{offer.description}</p>
+            <p className={cn("text-xs text-muted-foreground mt-1 flex-grow", layout === 'list' ? 'line-clamp-2' : 'line-clamp-3')}>{offer.description}</p>
             <div className="flex flex-wrap gap-2 items-center mt-2">
                  <Badge variant="secondary" className='whitespace-nowrap'>{offer.discount}</Badge>
                  <div className="text-xs text-muted-foreground/80 flex items-center gap-1">

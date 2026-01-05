@@ -29,6 +29,7 @@ export default function LocalPerksPage() {
   const [isSheetOpen, setSheetOpen] = React.useState(false);
   const { location, error: locationError } = useLocation();
   const [view, setView] = React.useState<'list' | 'map'>('list');
+  const [offerDisplay, setOfferDisplay] = React.useState<'list' | 'grid'>('list');
   const [categories, setCategories] = React.useState<string[]>([]);
   const [selectedCategory, setSelectedCategory] = React.useState<string>('All');
   const [searchQuery, setSearchQuery] = React.useState('');
@@ -143,6 +144,8 @@ export default function LocalPerksPage() {
             onCategoryChange={setSelectedCategory}
             searchQuery={searchQuery}
             onSearchChange={setSearchQuery}
+            display={offerDisplay}
+            setDisplay={setOfferDisplay}
           />
         </div>
 
