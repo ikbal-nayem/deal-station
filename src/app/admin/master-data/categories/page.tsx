@@ -1,3 +1,4 @@
+
 'use client';
 
 import {
@@ -9,6 +10,7 @@ import {
 	AlertDialogFooter,
 	AlertDialogHeader,
 	AlertDialogTitle,
+	AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -31,7 +33,7 @@ import {
 import { Form } from '@/components/ui/form';
 import { FormInput } from '@/components/ui/form-input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { toast } from '@/hooks/use-toast';
+import { useToast } from '@/hooks/use-toast';
 import { IApiRequest } from '@/interfaces/common.interface';
 import { ICommonMasterData } from '@/interfaces/master-data.interface';
 import { MasterDataService } from '@/services/api/master-data.service';
@@ -48,11 +50,12 @@ const categoryFormSchema = z.object({
 type CategoryFormValues = z.infer<typeof categoryFormSchema>;
 
 const initPayload: IApiRequest = {
-	body: {active: true},
+	body: { active: true },
 	meta: { page: 0, limit: 20 },
 };
 
 export default function CategoriesPage() {
+	const { toast } = useToast();
 	const [categories, setCategories] = useState<ICommonMasterData[]>([]);
 	const [isDialogOpen, setDialogOpen] = useState(false);
 	const [currentCategory, setCurrentCategory] = useState<ICommonMasterData | null>(null);
@@ -70,7 +73,8 @@ export default function CategoriesPage() {
 			const response = await MasterDataService.category.getList(initPayload);
 			setCategories(response.body);
 		} catch (error) {
-			toast.error({
+			toast({
+				variant: 'danger',
 				title: 'Error',
 				description: 'Could not fetch categories.',
 			});

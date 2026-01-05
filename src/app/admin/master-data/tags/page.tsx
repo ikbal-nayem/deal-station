@@ -10,6 +10,7 @@ import {
 	AlertDialogFooter,
 	AlertDialogHeader,
 	AlertDialogTitle,
+	AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -63,7 +64,7 @@ export default function TagsPage() {
 	const fetchTags = async () => {
 		setIsLoading(true);
 		try {
-			const response = await MasterDataService.category.getList({ entity: 'tag' });
+			const response = await MasterDataService.tag.getList({ body: { active: true } });
 			setTags(response.body);
 		} catch (error) {
 			toast({
@@ -94,7 +95,7 @@ export default function TagsPage() {
 
 	const handleDeleteClick = async (tagId: string) => {
 		try {
-			await MasterDataService.category.delete({ entity: 'tag', id: tagId });
+			await MasterDataService.tag.delete(tagId);
 			toast({
 				variant: 'success',
 				title: 'Tag Deleted',
@@ -114,10 +115,10 @@ export default function TagsPage() {
 		setIsSubmitting(true);
 		try {
 			if (currentTag) {
-				await MasterDataService.category.update({ entity: 'tag', payload: { ...currentTag, ...values } });
+				await MasterDataService.tag.update({ ...currentTag, ...values });
 				toast({ variant: 'success', title: 'Tag Updated', description: `${values.name} has been updated.` });
 			} else {
-				await MasterDataService.category.add({ entity: 'tag', payload: values });
+				await MasterDataService.tag.add(values);
 				toast({ variant: 'success', title: 'Tag Added', description: `${values.name} has been created.` });
 			}
 			setDialogOpen(false);
