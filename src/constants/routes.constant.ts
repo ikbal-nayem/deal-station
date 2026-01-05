@@ -8,10 +8,10 @@ export const ROUTES = {
 
 	ADMIN: {
 		DASHBOARD: '/admin',
+		USERS: '/admin/master-data/users',
 		MASTER_DATA: {
 			CATEGORIES: '/admin/master-data/categories',
 			PRODUCTS: '/admin/master-data/products',
-			USERS: '/admin/master-data/users',
 		},
 	},
 };

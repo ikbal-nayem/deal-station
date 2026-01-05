@@ -1,18 +1,10 @@
-
 import { NavPermission } from '@/config/access.config';
 import { ROUTES } from '@/constants/routes.constant';
 import type { LucideIcon } from 'lucide-react';
-import {
-	Building,
-	LayoutDashboard,
-	LayoutGrid,
-	ShoppingBag,
-	Tag,
-	Users,
-} from 'lucide-react';
+import { Building, LayoutDashboard, LayoutGrid, ShoppingBag, Tag, Users } from 'lucide-react';
 
 export interface NavLink {
-	key: NavPermission | string; // Unique key for permission mapping
+	key: NavPermission | string;
 	href: string;
 	label: string;
 	icon?: LucideIcon;
@@ -24,10 +16,10 @@ export interface NavLink {
 export const adminNavLinks: NavLink[] = [
 	{
 		key: 'DASHBOARD',
-		href: '/admin',
+		href: ROUTES.ADMIN.DASHBOARD,
 		label: 'Dashboard',
 		icon: LayoutDashboard,
-		isActive: (pathname) => pathname === '/admin',
+		isActive: (pathname) => pathname === ROUTES.ADMIN.DASHBOARD,
 	},
 	{
 		key: 'ORGANIZATIONS',
@@ -65,13 +57,13 @@ export const adminNavLinks: NavLink[] = [
 		submenu: [
 			{
 				key: 'MASTER_DATA_CATEGORIES',
-				href: '/admin/master-data/categories',
+				href: ROUTES.ADMIN.MASTER_DATA.CATEGORIES,
 				label: 'Categories',
 				icon: LayoutGrid,
 			},
 			{
 				key: 'MASTER_DATA_TAGS',
-				href: '/admin/master-data/tags',
+				href: ROUTES.ADMIN.MASTER_DATA.PRODUCTS,
 				label: 'Tags',
 				icon: Tag,
 			},

@@ -1,4 +1,3 @@
-
 'use client';
 
 import Header from '@/components/layout/Header';
@@ -21,10 +20,10 @@ import { ROUTES } from '@/constants/routes.constant';
 import { useAuth } from '@/context/AuthContext';
 import { checkPermission } from '@/lib/check-permission';
 import { NavLink, adminNavLinks } from '@/lib/nav-links';
-import { ChevronDown, ChevronRight } from 'lucide-react';
+import { ChevronDown } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { Fragment, ReactNode, useEffect, useState } from 'react';
+import { ReactNode, useEffect } from 'react';
 
 const renderNavLinks = (links: NavLink[], userRoles: ROLES[], pathname: string): React.ReactNode => {
 	return links.map((link) => {
