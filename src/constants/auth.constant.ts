@@ -5,6 +5,7 @@ export const REFRESH_TOKEN = 'refresh_token';
 export enum ROLES {
 	SUPER_ADMIN = 'SUPER_ADMIN',
 	ADMIN = 'ADMIN',
-	OPERATOR = 'OPERATOR',
+	ORG_ADMIN = 'ORG_ADMIN',
+	ORG_OPERATOR = 'ORG_OPERATOR',
 	USER = 'USER',
 }
