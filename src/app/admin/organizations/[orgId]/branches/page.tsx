@@ -7,7 +7,7 @@ import { PlusCircle, Trash2, Edit, MoreHorizontal } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from '@/hooks/use-toast';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogTrigger, DialogClose } from "@/components/ui/dialog";
 import { Form } from "@/components/ui/form";
 import { useForm } from "react-hook-form";
@@ -28,7 +28,7 @@ type BranchFormValues = z.infer<typeof branchFormSchema>;
 export default function OrganizationBranchesPage() {
     const params = useParams();
     const orgId = params.orgId as string;
-    const { toast } = useToast();
+    
 
     const [branches, setBranches] = useState<Branch[]>([]);
     const [isBranchDialogOpen, setBranchDialogOpen] = useState(false);
@@ -61,18 +61,18 @@ export default function OrganizationBranchesPage() {
     const handleBranchFormSubmit = (values: BranchFormValues) => {
         if (currentBranch) {
             setBranches(branches.map(b => b.id === currentBranch.id ? { ...b, ...values } : b));
-            toast({ title: "Branch Updated", description: "The branch has been updated." });
+            toast.success({ title: "Branch Updated", description: "The branch has been updated." });
         } else {
             const newBranch: Branch = { id: `branch-${Date.now()}`, ...values, organizationId: orgId };
             setBranches([newBranch, ...branches]);
-            toast({ title: "Branch Added", description: `${values.name} has been added.` });
+            toast.success({ title: "Branch Added", description: `${values.name} has been added.` });
         }
         setBranchDialogOpen(false);
     };
 
     const handleRemoveBranch = (branchId: string) => {
         setBranches(branches.filter(b => b.id !== branchId));
-        toast({ title: "Branch Removed", description: "The branch has been removed." });
+        toast.success({ title: "Branch Removed", description: "The branch has been removed." });
     };
 
     return (
@@ -108,7 +108,7 @@ export default function OrganizationBranchesPage() {
                                 <TableCell>{branch.name}</TableCell>
                                 <TableCell>{branch.address}</TableCell>
                                 <TableCell className="text-right">
-                                    <DropdownMenu>
+                                     <DropdownMenu>
                                         <DropdownMenuTrigger asChild><Button variant="ghost" className="h-8 w-8 p-0"><MoreHorizontal /></Button></DropdownMenuTrigger>
                                         <DropdownMenuContent align="end">
                                             <DropdownMenuItem onClick={() => handleEditBranch(branch)} className="cursor-pointer"><Edit className="mr-2 h-4 w-4"/> Edit</DropdownMenuItem>

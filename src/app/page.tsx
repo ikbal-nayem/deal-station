@@ -149,7 +149,7 @@ export default function LocalPerksPage() {
           />
         </div>
 
-        <div className={cn('flex-1 h-full', view !== 'map' && 'hidden md:block')}>
+        <div className={cn('md:w-1/2 h-full', view !== 'map' && 'hidden md:block')}>
           <ClientMapView 
             offers={filteredOffers} 
             onMarkerClick={handleMarkerClick} 

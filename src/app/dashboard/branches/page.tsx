@@ -5,18 +5,18 @@ import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "@/hooks/use-toast";
 import { useState } from "react";
 
 export default function OrgBranchesPage() {
-    const { toast } = useToast();
+    
     const [branchName, setBranchName] = useState('');
     const [branchLocation, setBranchLocation] = useState('');
 
     const handleAddBranch = (e: React.FormEvent) => {
         e.preventDefault();
         console.log('Adding branch:', { branchName, branchLocation });
-        toast({
+        toast.success({
             title: "Branch Added (Simulated)",
             description: `${branchName} has been added.`,
         });

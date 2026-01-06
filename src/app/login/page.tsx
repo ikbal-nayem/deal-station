@@ -3,7 +3,7 @@
 import AuthLayout from '@/components/layout/AuthLayout';
 import SplashScreen from '@/components/layout/SplashScreen';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form } from '@/components/ui/form';
 import { FormInput } from '@/components/ui/form-input';
 import { ROLES } from '@/constants/auth.constant';
@@ -11,10 +11,9 @@ import { ROUTES } from '@/constants/routes.constant';
 import { useAuth } from '@/context/AuthContext';
 import { toast } from '@/hooks/use-toast';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { LogIn } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
@@ -62,50 +61,55 @@ export default function LoginPage() {
 
 	return (
 		<AuthLayout>
-			<div className='mx-auto grid w-[350px] gap-6'>
-				<div className='grid gap-2 text-center'>
-					<h1 className='text-3xl font-bold font-headline'>Welcome Back!</h1>
-					<p className='text-balance text-muted-foreground'>Enter your credentials to access your account</p>
-				</div>
-				<Form {...form}>
-					<form onSubmit={form.handleSubmit(handleLogin)} className='grid gap-4'>
-						<FormInput
-							control={form.control}
-							name='email'
-							label='Email'
-							type='email'
-							placeholder='m@example.com'
-							required
-							disabled={form.formState.isSubmitting}
-						/>
-						<div className='grid gap-2'>
-							<div className='flex items-center'>
-								<FormInput
-									control={form.control}
-									name='password'
-									label='Password'
-									type='password'
-									required
-									disabled={form.formState.isSubmitting}
-									className='flex-1'
-								/>
+			<Card className='w-full max-w-sm'>
+				<CardHeader className='text-center'>
+					<CardTitle className='text-2xl font-bold font-headline'>Welcome Back!</CardTitle>
+					<CardDescription>Enter your credentials to access your account</CardDescription>
+				</CardHeader>
+				<CardContent className='grid gap-4'>
+					<Form {...form}>
+						<form onSubmit={form.handleSubmit(handleLogin)} className='grid gap-4'>
+							<FormInput
+								control={form.control}
+								name='email'
+								label='Email'
+								type='email'
+								placeholder='m@example.com'
+								required
+								disabled={form.formState.isSubmitting}
+							/>
+							<div className='grid gap-2'>
+								<div className='flex items-center'>
+									<FormInput
+										control={form.control}
+										name='password'
+										label='Password'
+										type='password'
+										required
+										disabled={form.formState.isSubmitting}
+										className='flex-1'
+									/>
+								</div>
+								<Link
+									href={ROUTES.AUTH.FORGOT_PASSWORD}
+									className='ml-auto inline-block text-sm underline'
+								>
+									Forgot your password?
+								</Link>
 							</div>
-							<Link href={ROUTES.AUTH.FORGOT_PASSWORD} className='ml-auto inline-block text-sm underline'>
-								Forgot your password?
-							</Link>
-						</div>
-						<Button type='submit' className='w-full' disabled={form.formState.isSubmitting}>
-							{form.formState.isSubmitting ? 'Signing in...' : 'Sign In'}
-						</Button>
-					</form>
-				</Form>
-				<div className='mt-4 text-center text-sm'>
-					Don&apos;t have an account?{' '}
-					<Link href={ROUTES.AUTH.SIGNUP} className='underline'>
-						Register
-					</Link>
-				</div>
-			</div>
+							<Button type='submit' className='w-full' disabled={form.formState.isSubmitting}>
+								{form.formState.isSubmitting ? 'Signing in...' : 'Sign In'}
+							</Button>
+						</form>
+					</Form>
+					<div className='mt-4 text-center text-sm'>
+						Don&apos;t have an account?{' '}
+						<Link href={ROUTES.AUTH.SIGNUP} className='underline font-semibold'>
+							Register
+						</Link>
+					</div>
+				</CardContent>
+			</Card>
 		</AuthLayout>
 	);
 }

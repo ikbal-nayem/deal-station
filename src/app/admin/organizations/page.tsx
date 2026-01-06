@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogTrigger, DialogClose } from "@/components/ui/dialog";
 import { Form } from "@/components/ui/form";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "@/hooks/use-toast";
 import { PlusCircle, MoreHorizontal, Edit, Trash2, Eye, Search } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
@@ -39,7 +39,7 @@ const orgFormSchema = z.object({
 type OrgFormValues = z.infer<typeof orgFormSchema>;
 
 export default function OrganizationsPage() {
-    const { toast } = useToast();
+    
     const [organizations, setOrganizations] = useState<Organization[]>(initialOrgs);
     const [isDialogOpen, setDialogOpen] = useState(false);
     const [currentOrg, setCurrentOrg] = useState<Organization | null>(null);
@@ -106,7 +106,7 @@ export default function OrganizationsPage() {
     
     const handleDeleteClick = (orgId: string) => {
         setOrganizations(orgs => orgs.filter(o => o.id !== orgId));
-        toast({
+        toast.success({
             title: "Organization Deleted",
             description: "The organization has been successfully removed.",
         })
@@ -124,7 +124,7 @@ export default function OrganizationsPage() {
         if (currentOrg) {
             const updatedOrg = { ...currentOrg, ...values, logoUrl };
             setOrganizations(orgs => orgs.map(o => o.id === currentOrg.id ? updatedOrg : o));
-            toast({
+            toast.success({
                 title: "Organization Updated",
                 description: `${values.name} has been successfully updated.`,
             });
@@ -139,7 +139,7 @@ export default function OrganizationsPage() {
                 logoUrl,
             };
             setOrganizations(orgs => [newOrg, ...orgs]);
-            toast({
+            toast.success({
                 title: "Organization Added",
                 description: `${values.name} has been created.`,
             });

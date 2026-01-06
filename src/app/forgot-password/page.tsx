@@ -3,6 +3,7 @@
 import AuthLayout from '@/components/layout/AuthLayout';
 import SplashScreen from '@/components/layout/SplashScreen';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form } from '@/components/ui/form';
 import { FormInput } from '@/components/ui/form-input';
 import { ROLES } from '@/constants/auth.constant';
@@ -23,7 +24,6 @@ const forgotPasswordSchema = z.object({
 type ForgotPasswordFormValues = z.infer<typeof forgotPasswordSchema>;
 
 export default function ForgotPasswordPage() {
-	const { toast } = useToast();
 	const { isLoggedIn, isAuthLoading, user } = useAuth();
 	const router = useRouter();
 
@@ -45,11 +45,10 @@ export default function ForgotPasswordPage() {
 	}, [isLoggedIn, isAuthLoading, user, router]);
 
 	const handleReset = async (values: ForgotPasswordFormValues) => {
-		// In a real app, you'd call your backend.
 		await new Promise((resolve) => setTimeout(resolve, 1000));
 		console.log('Password reset requested for:', values.email);
 
-		toast({
+		toast.success({
 			title: 'Password Reset Sent',
 			description: 'If an account exists for that email, a reset link has been sent.',
 		});
@@ -61,36 +60,40 @@ export default function ForgotPasswordPage() {
 
 	return (
 		<AuthLayout>
-			<div className='mx-auto grid w-[350px] gap-6'>
-				<div className='grid gap-2 text-center'>
-					<h1 className='text-3xl font-bold font-headline'>Forgot Password?</h1>
-					<p className='text-balance text-muted-foreground'>
+			<Card className='w-full max-w-sm'>
+				<CardHeader className='text-center'>
+					<CardTitle className='text-2xl font-bold font-headline'>Forgot Password?</CardTitle>
+					<CardDescription>
 						No worries! Enter your email and we&apos;ll send you a reset link.
+					</CardDescription>
+				</CardHeader>
+				<CardContent>
+					<Form {...form}>
+						<form onSubmit={form.handleSubmit(handleReset)} className='grid gap-4'>
+							<FormInput
+								control={form.control}
+								name='email'
+								label='Email'
+								type='email'
+								placeholder='m@example.com'
+								required
+								disabled={form.formState.isSubmitting}
+							/>
+							<Button type='submit' className='w-full' disabled={form.formState.isSubmitting}>
+								{form.formState.isSubmitting ? 'Sending...' : 'Send Reset Link'}
+							</Button>
+						</form>
+					</Form>
+				</CardContent>
+				<CardFooter className='justify-center text-sm'>
+					<p>
+						Remembered your password?{' '}
+						<Link href={ROUTES.AUTH.LOGIN} className='underline font-semibold'>
+							Sign in
+						</Link>
 					</p>
-				</div>
-				<Form {...form}>
-					<form onSubmit={form.handleSubmit(handleReset)} className='grid gap-4'>
-						<FormInput
-							control={form.control}
-							name='email'
-							label='Email'
-							type='email'
-							placeholder='m@example.com'
-							required
-							disabled={form.formState.isSubmitting}
-						/>
-						<Button type='submit' className='w-full' disabled={form.formState.isSubmitting}>
-							{form.formState.isSubmitting ? 'Sending...' : 'Send Reset Link'}
-						</Button>
-					</form>
-				</Form>
-				<div className='mt-4 text-center text-sm'>
-					Remembered your password?{' '}
-					<Link href={ROUTES.AUTH.LOGIN} className='underline'>
-						Sign in
-					</Link>
-				</div>
-			</div>
+				</CardFooter>
+			</Card>
 		</AuthLayout>
 	);
 }

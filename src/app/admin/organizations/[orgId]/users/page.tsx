@@ -7,7 +7,7 @@ import { UserPlus, Trash2, Edit, MoreHorizontal } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from '@/hooks/use-toast';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogTrigger, DialogClose } from "@/components/ui/dialog";
 import { Form } from "@/components/ui/form";
 import { useForm } from "react-hook-form";
@@ -31,7 +31,7 @@ type UserFormValues = z.infer<typeof userFormSchema>;
 export default function OrganizationUsersPage() {
     const params = useParams();
     const orgId = params.orgId as string;
-    const { toast } = useToast();
+    
 
     const [users, setUsers] = useState<IUser[]>([]);
     const [isUserDialogOpen, setUserDialogOpen] = useState(false);
@@ -60,7 +60,7 @@ export default function OrganizationUsersPage() {
     const handleUserFormSubmit = (values: UserFormValues) => {
         if (currentUser) {
             setUsers(users.map(u => u.id === currentUser.id ? { ...u, ...values, username: values.email } : u));
-            toast({ title: "User Updated", description: "The user's details have been updated." });
+            toast.success({ title: "User Updated", description: "The user's details have been updated." });
         } else {
             const newUser: IUser = {
 				id: `user-${Date.now()}`,
@@ -70,14 +70,14 @@ export default function OrganizationUsersPage() {
 				organizationId: orgId,
 			};
             setUsers([newUser, ...users]);
-            toast({ title: "User Added", description: `${values.firstName} has been added.` });
+            toast.success({ title: "User Added", description: `${values.firstName} has been added.` });
         }
         setUserDialogOpen(false);
     };
 
     const handleRemoveUser = (userId: string) => {
         setUsers(users.filter(u => u.id !== userId));
-        toast({ title: "User Removed", description: "The user has been removed." });
+        toast.success({ title: "User Removed", description: "The user has been removed." });
     };
 
     return (

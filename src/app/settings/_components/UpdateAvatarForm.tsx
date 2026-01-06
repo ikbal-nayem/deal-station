@@ -4,7 +4,7 @@
 import { useAuth } from "@/context/AuthContext";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "@/hooks/use-toast";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -27,7 +27,7 @@ type AvatarFormValues = z.infer<typeof avatarFormSchema>;
 
 export default function UpdateAvatarForm() {
   const { user, setUser } = useAuth();
-  const { toast } = useToast();
+  
   const [isSubmitting, setSubmitting] = useState(false);
 
   const form = useForm<AvatarFormValues>({
@@ -55,7 +55,7 @@ export default function UpdateAvatarForm() {
         sessionStorage.setItem('auth_info', JSON.stringify(updatedUser));
     }
 
-    toast({
+    toast.success({
       title: "Avatar Updated",
       description: "Your profile picture has been changed successfully.",
     });

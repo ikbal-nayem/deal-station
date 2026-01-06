@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogTrigger, DialogClose, DialogDescription as FormDialogDescription } from "@/components/ui/dialog";
 import { Form, FormField, FormLabel, FormControl, FormMessage, FormItem } from "@/components/ui/form";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "@/hooks/use-toast";
 import { PlusCircle, MoreHorizontal, Edit, Trash2, Tag, Star } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { mockOffers as initialOffers } from "@/lib/mock-data";
@@ -41,7 +41,7 @@ const offerFormSchema = z.object({
 type OfferFormValues = z.infer<typeof offerFormSchema>;
 
 export default function AdminOffersPage() {
-    const { toast } = useToast();
+    
     const [offers, setOffers] = useState<Offer[]>(initialOffers);
     const [isDialogOpen, setDialogOpen] = useState(false);
     const [currentOffer, setCurrentOffer] = useState<Offer | null>(null);
@@ -95,7 +95,7 @@ export default function AdminOffersPage() {
         const selectedCategory = mockCategories.find(c => c.id === values.categoryId);
 
         if (!selectedOrg || !selectedCategory) {
-            toast({ title: "Error", description: "Invalid organization or category selected.", variant: "danger" });
+            toast.error({ title: "Error", description: "Invalid organization or category selected." });
             return;
         }
 
@@ -111,7 +111,7 @@ export default function AdminOffersPage() {
                 distance: currentOffer.distance,
             };
             setOffers(offers => offers.map(o => o.id === currentOffer.id ? updatedOffer : o));
-            toast({ title: "Offer Updated", description: `${values.title} has been updated.` });
+            toast.success({ title: "Offer Updated", description: `${values.title} has been updated.` });
         } else {
             const newOffer: Offer = {
                 id: `offer-${Date.now()}`,
@@ -124,7 +124,7 @@ export default function AdminOffersPage() {
                 distance: '1.0 mi',
             };
             setOffers(offers => [newOffer, ...offers]);
-            toast({ title: "Offer Added", description: `${values.title} has been created.` });
+            toast.success({ title: "Offer Added", description: `${values.title} has been created.` });
         }
         setDialogOpen(false);
     };

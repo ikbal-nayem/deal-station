@@ -122,14 +122,14 @@ export default function TagsPage() {
 		try {
 			if (currentTag) {
 				await MasterDataService.tag.update({ ...currentTag, ...values });
-				toast({ variant: 'success', title: 'Tag Updated', description: `${values.name} has been updated.` });
+				toast.success({ variant: 'success', title: 'Tag Updated', description: `${values.name} has been updated.` });
 			} else {
 				await MasterDataService.tag.add(values);
-				toast({ variant: 'success', title: 'Tag Added', description: `${values.name} has been created.` });
+				toast.success({ variant: 'success', title: 'Tag Added', description: `${values.name} has been created.` });
 			}
 			setDialogOpen(false);
 			fetchTags(meta.page, debouncedSearchQuery);
-		} catch (error: any) {
+		} catch (error: any {
 			toast.error({
 				title: 'Error',
 				description: error?.message || `Could not ${currentTag ? 'update' : 'create'} tag.`,

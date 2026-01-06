@@ -6,18 +6,18 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "@/hooks/use-toast";
 import { useState } from "react";
 
 export default function OrgOffersPage() {
-    const { toast } = useToast();
+    
     const [offerTitle, setOfferTitle] = useState('');
     const [offerDescription, setOfferDescription] = useState('');
 
     const handleAddOffer = (e: React.FormEvent) => {
         e.preventDefault();
         console.log('Adding offer:', { offerTitle, offerDescription });
-        toast({
+        toast.success({
             title: "Offer Added (Simulated)",
             description: `${offerTitle} has been created.`,
         });
