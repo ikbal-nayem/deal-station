@@ -95,7 +95,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
                     )}
                 </div>
             </Header>
-            <main className="p-4 md:p-6 pt-20">
+            <main className="p-4 md:p-6 pt-14">
                 {children}
             </main>
         </SidebarInset>
