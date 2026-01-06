@@ -23,7 +23,7 @@ const buttonVariants = cva(
 
 				secondary: 'bg-secondary text-secondary-foreground hover:bg-secondary/80',
 
-				ghost: 'hover:bg-accent hover:text-accent-foreground',
+				ghost: 'hover:bg-primary/5 hover:text-primary',
 				'lite-danger': 'bg-danger/10 text-danger hover:bg-danger/20',
 				'lite-warning': 'bg-warning/10 text-warning hover:bg-warning/20',
 				'lite-success': 'bg-success/10 text-success hover:bg-success/20',

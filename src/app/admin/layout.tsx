@@ -105,10 +105,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
 	return (
 		<SidebarProvider>
 			<Sidebar>
-				<SidebarHeader>
-					<Logo />
-				</SidebarHeader>
-				<SidebarContent>
+				<SidebarContent className='mt-5'>
 					<SidebarMenu>{renderNavLinks(adminNavLinks, user.roles, pathname)}</SidebarMenu>
 				</SidebarContent>
 			</Sidebar>
