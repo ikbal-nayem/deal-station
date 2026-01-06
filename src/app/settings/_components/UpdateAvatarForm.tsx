@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Button } from '@/components/ui/button';
@@ -53,7 +54,7 @@ export default function UpdateAvatarForm() {
 
 		try {
 			const imageFile = data.avatar[0];
-			const compressedFile = await compressImage(imageFile);
+			const compressedFile = await compressImage(imageFile, 0.2);
 
 			const formData = new FormData();
 			formData.append('file', compressedFile);
@@ -64,7 +65,6 @@ export default function UpdateAvatarForm() {
 			if (user) {
 				const updatedUser = { ...user, profileImage: newProfileImage };
 				setUser(updatedUser);
-				LocalStorageService.set(AUTH_INFO, updatedUser);
 			}
 
 			toast.success({
