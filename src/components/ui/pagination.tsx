@@ -1,9 +1,8 @@
-
 'use client';
 
 import { IMeta } from '@/interfaces/common.interface';
-import { Button } from './button';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { Button } from './button';
 
 interface PaginationProps {
 	meta: IMeta;
@@ -30,6 +29,7 @@ export function Pagination({ meta, isLoading, onPageChange, noun }: PaginationPr
 						key={i}
 						variant={currentPage === i ? 'default' : 'outline'}
 						size='sm'
+						className='h-8 w-8'
 						onClick={() => onPageChange(i)}
 						disabled={isLoading}
 					>
@@ -44,6 +44,7 @@ export function Pagination({ meta, isLoading, onPageChange, noun }: PaginationPr
 					key={0}
 					variant={currentPage === 0 ? 'default' : 'outline'}
 					size='sm'
+					className='h-8 w-8'
 					onClick={() => onPageChange(0)}
 					disabled={isLoading}
 				>
@@ -61,7 +62,7 @@ export function Pagination({ meta, isLoading, onPageChange, noun }: PaginationPr
 				startPage = totalPages - 4;
 				endPage = totalPages - 2;
 			}
-			
+
 			if (startPage > 1) {
 				pageNumbers.push(ellipsis);
 			}
@@ -79,7 +80,7 @@ export function Pagination({ meta, isLoading, onPageChange, noun }: PaginationPr
 					</Button>
 				);
 			}
-			
+
 			if (endPage < totalPages - 2) {
 				pageNumbers.push(ellipsis);
 			}
@@ -102,35 +103,35 @@ export function Pagination({ meta, isLoading, onPageChange, noun }: PaginationPr
 	};
 
 	return (
-        <div className='flex flex-col-reverse items-center gap-4 sm:flex-row sm:justify-between w-full'>
-            <p className='text-sm text-muted-foreground'>
-                Showing{' '}
-                <strong>
-                    {from}-{to}
-                </strong>{' '}
-                of <strong>{meta?.totalRecords}</strong> {noun.toLowerCase()}s
-            </p>
-            <div className='flex items-center space-x-2'>
-                <Button
-                    variant='outline'
-                    size='icon'
-                    className='h-8 w-8'
-                    onClick={() => onPageChange(meta?.prevPage ?? 0)}
-                    disabled={!meta?.prevPage || isLoading}
-                >
-                    <ChevronLeft className='h-4 w-4' />
-                </Button>
-                <div className='hidden md:flex items-center gap-1'>{renderPageNumbers()}</div>
-                <Button
-                    variant='outline'
-                    size='icon'
-                    className='h-8 w-8'
-                    onClick={() => onPageChange(meta?.nextPage ?? 0)}
-                    disabled={!meta?.nextPage || isLoading}
-                >
-                    <ChevronRight className='h-4 w-4' />
-                </Button>
-            </div>
-        </div>
+		<div className='flex flex-col-reverse items-center gap-4 sm:flex-row sm:justify-between w-full'>
+			<p className='text-sm text-muted-foreground'>
+				Showing{' '}
+				<strong>
+					{from}-{to}
+				</strong>{' '}
+				of <strong>{meta?.totalRecords}</strong> {noun.toLowerCase()}s
+			</p>
+			<div className='flex items-center space-x-2'>
+				<Button
+					variant='outline'
+					size='icon'
+					className='h-8 w-8'
+					onClick={() => onPageChange(meta?.prevPage ?? 0)}
+					disabled={!meta?.prevPage || isLoading}
+				>
+					<ChevronLeft className='h-4 w-4' />
+				</Button>
+				<div className='hidden md:flex items-center gap-1'>{renderPageNumbers()}</div>
+				<Button
+					variant='outline'
+					size='icon'
+					className='h-8 w-8'
+					onClick={() => onPageChange(meta?.nextPage ?? 0)}
+					disabled={!meta?.nextPage || isLoading}
+				>
+					<ChevronRight className='h-4 w-4' />
+				</Button>
+			</div>
+		</div>
 	);
-};
+}
