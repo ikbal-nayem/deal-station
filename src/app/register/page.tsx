@@ -26,7 +26,7 @@ const registrationFormSchema = z.object({
 		.string()
 		.min(1, 'Phone number is required')
 		.regex(/^(?:\+8801|01)[3-9]\d{8}$/, 'Must be a valid Bangladeshi phone number.'),
-	password: z.string().min(6, 'Password must be at least 6 characters.'),
+	password: z.string().min(8, 'Password must be at least 8 characters.'),
 });
 
 type RegistrationFormValues = z.infer<typeof registrationFormSchema>;
@@ -48,10 +48,8 @@ export default function RegisterPage() {
 
 	useEffect(() => {
 		if (!isAuthLoading && isLoggedIn) {
-			if (user?.roles.includes(ROLES.ADMIN) || user?.roles.includes(ROLES.SUPER_ADMIN)) {
-				router.replace('/admin');
-			} else if (user?.roles.includes(ROLES.OPERATOR)) {
-				router.replace('/dashboard');
+			if (!user?.roles.includes(ROLES.USER)) {
+				router.replace(ROUTES.ADMIN.DASHBOARD);
 			} else {
 				router.replace('/');
 			}
@@ -65,7 +63,7 @@ export default function RegisterPage() {
 				title: 'Registration Successful',
 				description: 'You can now log in with your new account.',
 			});
-			router.push('/login');
+			router.push(ROUTES.AUTH.LOGIN);
 		} catch (error: any) {
 			toast.error({
 				title: 'Registration Failed',
@@ -111,7 +109,7 @@ export default function RegisterPage() {
 								name='email'
 								label='Email'
 								type='email'
-								placeholder='m@example.com'
+								placeholder='email@example.com'
 								required
 								disabled={form.formState.isSubmitting}
 							/>
@@ -119,7 +117,7 @@ export default function RegisterPage() {
 								control={form.control}
 								name='phone'
 								label='Phone'
-								placeholder='+8801...'
+								placeholder='01...'
 								required
 								disabled={form.formState.isSubmitting}
 							/>
