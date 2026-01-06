@@ -129,7 +129,7 @@ export default function TagsPage() {
 			}
 			setDialogOpen(false);
 			fetchTags(meta.page, debouncedSearchQuery);
-		} catch (error: any {
+		} catch (error: any) {
 			toast.error({
 				title: 'Error',
 				description: error?.message || `Could not ${currentTag ? 'update' : 'create'} tag.`,
