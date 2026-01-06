@@ -9,12 +9,18 @@ export const isServer = typeof window === 'undefined';
 export const LocalStorageService = {
 	set: (key: string, value: any): void => {
 		if (isBrowser) {
-			localStorage.setItem(key, JSON.stringify(value));
+			localStorage.setItem(key, typeof value === 'string' ? value : JSON.stringify(value));
 		}
 	},
 	get: (key: string): any | null => {
 		if (isBrowser) {
-			return JSON.parse(localStorage.getItem(key) || 'null');
+			const item = localStorage.getItem(key);
+			if (!item) return null;
+			try {
+				return JSON.parse(item);
+			} catch (e) {
+				return item; // Return as string if it's not valid JSON
+			}
 		}
 		return null;
 	},
@@ -91,8 +97,8 @@ export class CookieService {
 }
 
 export const clearAuthInfo = () => {
-	CookieService.remove(ACCESS_TOKEN);
-	CookieService.remove(REFRESH_TOKEN);
+	LocalStorageService.delete(ACCESS_TOKEN);
+	LocalStorageService.delete(REFRESH_TOKEN);
 	LocalStorageService.delete(AUTH_INFO);
 	SessionStorageService.delete('redirectUrl');
 };

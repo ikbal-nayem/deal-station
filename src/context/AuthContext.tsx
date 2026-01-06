@@ -1,12 +1,12 @@
 'use client';
 
 import { axiosIns } from '@/config/api.config';
-import { ACCESS_TOKEN, AUTH_INFO, REFRESH_TOKEN, ROLES } from '@/constants/auth.constant';
+import { ACCESS_TOKEN, REFRESH_TOKEN, ROLES } from '@/constants/auth.constant';
 import { ROUTES } from '@/constants/routes.constant';
 import { IUser } from '@/interfaces/auth.interface';
 import { AuthService } from '@/services/api/auth.service';
 import { UserService } from '@/services/api/user.service';
-import { CookieService, LocalStorageService, clearAuthInfo } from '@/services/storage.service';
+import { LocalStorageService, clearAuthInfo } from '@/services/storage.service';
 import { useRouter } from 'next/navigation';
 import React, { ReactNode, createContext, useContext, useEffect, useState } from 'react';
 
@@ -29,7 +29,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
 	useEffect(() => {
 		const loadUser = async () => {
-			const token = CookieService.get(ACCESS_TOKEN);
+			const token = LocalStorageService.get(ACCESS_TOKEN);
 			if (token) {
 				try {
 					axiosIns.defaults.headers.common['Authorization'] = `Bearer ${token}`;
@@ -56,8 +56,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 		const authInfo = response.body;
 
 		if (authInfo && authInfo.access_token) {
-			CookieService.set(ACCESS_TOKEN, authInfo.access_token);
-			CookieService.set(REFRESH_TOKEN, authInfo.refresh_token);
+			LocalStorageService.set(ACCESS_TOKEN, authInfo.access_token);
+			LocalStorageService.set(REFRESH_TOKEN, authInfo.refresh_token);
 			axiosIns.defaults.headers.common['Authorization'] = `Bearer ${authInfo.access_token}`;
 
 			const userDetailsResponse = await UserService.getUserDetails();
