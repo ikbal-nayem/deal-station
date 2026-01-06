@@ -3,7 +3,8 @@
 
 import * as React from 'react';
 import type { Offer } from '@/lib/types';
-import OfferCard from './OfferCard';
+import OfferListItem from './OfferListItem';
+import OfferGridCard from './OfferGridCard';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -89,17 +90,25 @@ export default function OfferList({
 
       <div className={cn(
         "flex-1 overflow-y-auto -mr-2 pr-2",
-        display === 'grid' ? "grid grid-cols-1 sm:grid-cols-2 gap-4" : "space-y-3"
+        display === 'grid' ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" : "space-y-3"
       )}>
         {hasOffers
           ? offers.map((offer) => (
-              <OfferCard 
-                key={offer.id} 
-                offer={offer} 
-                onShowDetailsClick={onShowDetailsClick}
-                onShowOnMapClick={onShowOnMapClick}
-                layout={display}
-              />
+              display === 'list' ? (
+                <OfferListItem
+                  key={offer.id}
+                  offer={offer}
+                  onShowDetailsClick={onShowDetailsClick}
+                  onShowOnMapClick={onShowOnMapClick}
+                />
+              ) : (
+                <OfferGridCard
+                  key={offer.id}
+                  offer={offer}
+                  onShowDetailsClick={onShowDetailsClick}
+                  onShowOnMapClick={onShowOnMapClick}
+                />
+              )
             ))
           : Array.from({ length: 5 }).map((_, i) => <OfferCardSkeleton key={i} layout={display} />)}
         
@@ -116,18 +125,18 @@ export default function OfferList({
 function OfferCardSkeleton({ layout }: { layout: 'list' | 'grid'}) {
     if (layout === 'grid') {
         return (
-            <div className="flex flex-col gap-3 p-3 border rounded-lg h-full">
-                <Skeleton className="w-full aspect-video rounded-md" />
-                <div className="flex-1 space-y-2">
-                    <Skeleton className="h-5 w-3/4" />
-                    <Skeleton className="h-4 w-1/2" />
-                    <Skeleton className="h-4 w-full" />
-                </div>
-                 <div className="flex gap-2 pt-2">
-                    <Skeleton className="h-6 w-16 rounded-full" />
-                    <Skeleton className="h-6 w-20 rounded-full" />
-                </div>
-            </div>
+        <div className="flex flex-col gap-2 p-2 border rounded-lg h-full">
+          <Skeleton className="w-full aspect-video rounded-md" />
+          <div className="flex-1 space-y-2">
+            <Skeleton className="h-4 w-3/4" />
+            <Skeleton className="h-3 w-1/2" />
+            <Skeleton className="h-3 w-full" />
+          </div>
+           <div className="flex gap-2 pt-1">
+            <Skeleton className="h-6 w-14 rounded-full" />
+            <Skeleton className="h-6 w-18 rounded-full" />
+          </div>
+        </div>
         );
     }
   return (

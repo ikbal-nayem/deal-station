@@ -13,13 +13,12 @@ interface ClientMapViewProps {
 
 const ClientMapView = ({ offers, onMarkerClick, center, selectedOfferForMap }: ClientMapViewProps) => {
   return (
-      <MapView
-          offers={offers}
-          onMarkerClick={onMarkerClick}
-          center={center}
-          selectedOfferId={selectedOfferForMap?.id}
-          selectedOfferForMap={selectedOfferForMap}
-      />
+    <MapView
+      offers={offers}
+      onMarkerClick={onMarkerClick}
+      center={center}
+      selectedOfferId={selectedOfferForMap?.id}
+    />
   );
 };
 
