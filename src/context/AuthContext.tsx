@@ -28,14 +28,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 	const router = useRouter();
 
 	useEffect(() => {
-		try {
-			const storedUser = LocalStorageService.get(AUTH_INFO);
-			if (storedUser) setUser(storedUser);
-		} catch (error) {
-			console.error('Failed to parse user from session storage', error);
-			clearAuthInfo();
-		}
-		setIsAuthLoading(false);
+		const loadUser = async () => {
+			const token = CookieService.get(ACCESS_TOKEN);
+			if (token) {
+				try {
+					axiosIns.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+					const userDetailsResponse = await UserService.getUserDetails();
+					setUser(userDetailsResponse.body);
+				} catch (error) {
+					console.error('Failed to fetch user details', error);
+					clearAuthInfo();
+					setUser(null);
+				}
+			}
+			setIsAuthLoading(false);
+		};
+
+		loadUser();
 	}, []);
 
 	const login = async (email: string, pass: string) => {
@@ -53,12 +62,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
 			const userDetailsResponse = await UserService.getUserDetails();
 			const userDetails = userDetailsResponse.body;
-
-			const userToStore = {
-				...userDetails,
-				...authInfo,
-			};
-			LocalStorageService.set(AUTH_INFO, userToStore);
 			setUser(userDetails);
 
 			if (userDetails.roles.includes(ROLES.ADMIN) || userDetails.roles.includes(ROLES.SUPER_ADMIN)) {

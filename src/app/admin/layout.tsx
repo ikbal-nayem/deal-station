@@ -117,7 +117,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
 				<Header>
 					<SidebarTrigger />
 				</Header>
-				<main className='p-4 md:p-6'>{children}</main>
+				<main className='p-4 md:p-6 pt-20'>{children}</main>
 			</SidebarInset>
 		</SidebarProvider>
 	);

@@ -133,7 +133,7 @@ export default function LocalPerksPage() {
           </div>
       </Header>
       
-      <main className="flex flex-1 flex-col md:flex-row overflow-hidden">
+      <main className="flex flex-1 flex-col md:flex-row overflow-hidden pt-14">
         <div className={cn('md:w-1/2 h-full overflow-y-auto border-r', view !== 'list' && 'hidden md:flex')}>
           <OfferList
             offers={filteredOffers}

@@ -38,7 +38,7 @@ export default function Header({ children }: HeaderProps) {
 	const avatarUrl = user?.profileImage ? `${ENV.API_GATEWAY}/${user.profileImage.filePath}` : undefined;
 
 	return (
-		<header className='flex shrink-0 items-center justify-between border-b p-2'>
+		<header className='fixed top-0 left-0 right-0 z-50 flex shrink-0 items-center justify-between border-b p-2 bg-background'>
 			<div className='flex items-center gap-2'>
 				{children}
 				<Logo />
