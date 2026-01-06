@@ -1,12 +1,10 @@
-import Logo from './Logo';
+import Header from './Header';
 
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
 	return (
-		<div className='flex min-h-screen flex-col items-center justify-center bg-muted/30 p-4'>
-			<div className='mb-8'>
-				<Logo />
-			</div>
-			{children}
+		<div className='flex min-h-screen flex-col bg-muted/20'>
+			<Header />
+			<main className='flex flex-1 items-center justify-center p-4'>{children}</main>
 		</div>
 	);
 }
