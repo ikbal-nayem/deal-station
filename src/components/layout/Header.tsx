@@ -1,3 +1,4 @@
+
 'use client';
 
 import { ThemeToggle } from '@/components/ThemeToggle';
@@ -11,9 +12,9 @@ import {
 	DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { ROLES } from '@/constants/auth.constant';
-import { ENV } from '@/constants/env.constant';
 import { ROUTES } from '@/constants/routes.constant';
 import { useAuth } from '@/context/AuthContext';
+import { makePreviewURL } from '@/lib/file-oparations';
 import { LayoutDashboard, LogIn, Settings, UserPlus } from 'lucide-react';
 import Link from 'next/link';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
@@ -35,7 +36,7 @@ export default function Header({ children }: HeaderProps) {
 	const userName = user && user.firstName && user.lastName ? `${user.firstName} ${user.lastName}` : 'User';
 	const userFallback =
 		user && user.firstName && user.lastName ? `${user.firstName.charAt(0)}${user.lastName.charAt(0)}` : 'U';
-	const avatarUrl = user?.profileImage ? `${ENV.API_GATEWAY}/${user.profileImage.filePath}` : undefined;
+	const avatarUrl = user?.profileImage ? makePreviewURL(user.profileImage) : undefined;
 
 	return (
 		<header className='fixed top-0 left-0 right-0 z-50 flex shrink-0 items-center justify-between border-b p-2 bg-background'>
@@ -64,7 +65,7 @@ export default function Header({ children }: HeaderProps) {
 								<p className='text-xs leading-none text-muted-foreground'>{user.email}</p>
 								{user.roles?.map((role) => (
 									<Badge variant='outline' className='w-fit mt-1' key={role}>
-										{role.replace('_', ' ')}
+										{role.replace(/_/g, ' ')}
 									</Badge>
 								))}
 							</DropdownMenuLabel>
