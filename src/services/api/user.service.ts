@@ -21,6 +21,10 @@ export const UserService = {
 		return axiosIns.post('/user/create', payload);
 	},
 
+	publicRegistration: async (payload: IObject): Promise<IApiResponse<IUser>> => {
+		return axiosIns.post('/user/public/registration', payload);
+	},
+
 	createOwnUser: async (payload: IObject): Promise<IApiResponse<IUser>> => {
 		return axiosIns.post('/user/create-own', payload);
 	},
