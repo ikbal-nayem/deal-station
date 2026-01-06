@@ -1,9 +1,10 @@
+
 'use client';
 
 import { axiosIns } from '@/config/api.config';
-import { ACCESS_TOKEN, REFRESH_TOKEN, ROLES } from '@/constants/auth.constant';
+import { AUTH_INFO, ROLES } from '@/constants/auth.constant';
 import { ROUTES } from '@/constants/routes.constant';
-import { IUser } from '@/interfaces/auth.interface';
+import { IAuthInfo, IUser } from '@/interfaces/auth.interface';
 import { AuthService } from '@/services/api/auth.service';
 import { UserService } from '@/services/api/user.service';
 import { LocalStorageService, clearAuthInfo } from '@/services/storage.service';
@@ -29,10 +30,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
 	useEffect(() => {
 		const loadUser = async () => {
-			const token = LocalStorageService.get(ACCESS_TOKEN);
-			if (token) {
+			const authInfo: IAuthInfo | null = LocalStorageService.get(AUTH_INFO);
+			if (authInfo && authInfo.access_token) {
 				try {
-					axiosIns.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+					axiosIns.defaults.headers.common['Authorization'] = `Bearer ${authInfo.access_token}`;
 					const userDetailsResponse = await UserService.getUserDetails();
 					setUser(userDetailsResponse.body);
 				} catch (error) {
@@ -53,11 +54,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 			password: pass,
 		});
 
-		const authInfo = response.body;
+		const authInfo: IAuthInfo = response.body;
 
 		if (authInfo && authInfo.access_token) {
-			LocalStorageService.set(ACCESS_TOKEN, authInfo.access_token);
-			LocalStorageService.set(REFRESH_TOKEN, authInfo.refresh_token);
+			LocalStorageService.set(AUTH_INFO, authInfo);
 			axiosIns.defaults.headers.common['Authorization'] = `Bearer ${authInfo.access_token}`;
 
 			const userDetailsResponse = await UserService.getUserDetails();

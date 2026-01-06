@@ -2,6 +2,7 @@
 import { ACCESS_TOKEN, AUTH_INFO, REFRESH_TOKEN } from '@/constants/auth.constant';
 import { ENV } from '@/constants/env.constant';
 import { ROUTES } from '@/constants/routes.constant';
+import { IAuthInfo } from '@/interfaces/auth.interface';
 import { clearAuthInfo, isBrowser, LocalStorageService } from '@/services/storage.service';
 import axios from 'axios';
 
@@ -34,9 +35,10 @@ class AxiosInstance {
 		this.setupInterceptors();
 	}
 
-	private getAuthToken(tokenType: typeof ACCESS_TOKEN | typeof REFRESH_TOKEN): string | null {
+	private getAuthToken(tokenType: 'access_token' | 'refresh_token'): string | null {
 		if (isBrowser) {
-			return LocalStorageService.get(tokenType);
+			const authInfo: IAuthInfo = LocalStorageService.get(AUTH_INFO);
+			return authInfo ? authInfo[tokenType] : null;
 		}
 		return null;
 	}
@@ -44,7 +46,7 @@ class AxiosInstance {
 	private setupInterceptors() {
 		this.instance.interceptors.request.use(
 			(config) => {
-				const token = this.getAuthToken(ACCESS_TOKEN);
+				const token = this.getAuthToken('access_token');
 				if (token) {
 					config.headers.Authorization = `Bearer ${token}`;
 				}
@@ -83,7 +85,7 @@ class AxiosInstance {
 
 					originalRequest._retry = true;
 					isRefreshing = true;
-					const refreshToken = this.getAuthToken(REFRESH_TOKEN);
+					const refreshToken = this.getAuthToken('refresh_token');
 					if (!refreshToken) {
 						this.logout();
 						return Promise.reject(error);
@@ -96,8 +98,7 @@ class AxiosInstance {
 							.then(async ({ data }) => {
 								const newAuthInfo = data.body;
 								if (isBrowser) {
-									LocalStorageService.set(ACCESS_TOKEN, newAuthInfo.access_token);
-									LocalStorageService.set(REFRESH_TOKEN, newAuthInfo.refresh_token);
+									LocalStorageService.set(AUTH_INFO, newAuthInfo);
 								}
 
 								this.instance.defaults.headers.common['Authorization'] = 'Bearer ' + newAuthInfo.access_token;
