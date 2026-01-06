@@ -1,4 +1,3 @@
-
 'use client';
 
 import AuthLayout from '@/components/layout/AuthLayout';
@@ -75,7 +74,7 @@ export default function LoginPage() {
 								name='email'
 								label='Email'
 								type='email'
-								placeholder='m@example.com'
+								placeholder='main@example.com'
 								required
 								disabled={form.formState.isSubmitting}
 							/>
@@ -88,10 +87,7 @@ export default function LoginPage() {
 									required
 									disabled={form.formState.isSubmitting}
 								/>
-								<Link
-									href={ROUTES.AUTH.FORGOT_PASSWORD}
-									className='ml-auto inline-block text-sm underline'
-								>
+								<Link href={ROUTES.AUTH.FORGOT_PASSWORD} className='ml-auto inline-block text-sm underline'>
 									Forgot your password?
 								</Link>
 							</div>

@@ -22,7 +22,7 @@ export default function SettingsLayout({ children }: { children: ReactNode }) {
 	return (
 		<div className='flex min-h-screen w-full flex-col bg-background'>
 			<Header />
-			<main className='flex-1 p-4 md:p-6 pt-14'>
+			<main className='flex-1 p-4 md:p-6 mt-14'>
 				<div className='mx-auto max-w-4xl space-y-6'>
 					<div>
 						<h1 className='text-xl font-bold'>Settings</h1>

@@ -1,4 +1,3 @@
-
 'use client';
 
 import Header from '@/components/layout/Header';
@@ -117,7 +116,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
 				<Header>
 					<SidebarTrigger />
 				</Header>
-				<main className='p-4 md:p-6 pt-14'>{children}</main>
+				<main className='p-4 md:p-6 mt-14'>{children}</main>
 			</SidebarInset>
 		</SidebarProvider>
 	);

@@ -50,7 +50,7 @@ export function FormInput<TFieldValues extends FieldValues>({
 									type='button'
 									variant='ghost'
 									size='icon'
-									className='absolute right-1 h-8 w-8 text-muted-foreground hover:bg-transparent'
+									className='absolute right-1 h-8 w-8 text-muted-foreground hover:text-primary hover:bg-transparent'
 									onClick={() => setShowPassword(!showPassword)}
 								>
 									{showPassword ? <EyeOff className='h-4 w-4' /> : <Eye className='h-4 w-4' />}
