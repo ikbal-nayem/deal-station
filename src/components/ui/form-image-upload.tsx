@@ -21,7 +21,7 @@ interface FormImageUploadProps<T extends FieldValues> {
 export function FormImageUpload<T extends FieldValues>({
 	control,
 	name,
-	label = 'Logo or Image',
+	label,
 	description,
 	currentImage,
 	fallbackText = '?',
