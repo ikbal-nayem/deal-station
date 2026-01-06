@@ -159,6 +159,9 @@ importers:
       '@types/react-dom':
         specifier: ^18.3.0
         version: 18.3.7(@types/react@18.3.27)
+      env-cmd:
+        specifier: ^11.0.0
+        version: 11.0.0
       genkit-cli:
         specifier: ^1.20.0
         version: 1.27.0(@types/node@20.19.27)(hono@4.11.3)(zod@3.25.76)
@@ -190,6 +193,11 @@ packages:
   '@colors/colors@1.6.0':
     resolution: {integrity: sha512-Ir+AOibqzrIsL6ajt3Rz3LskB7OiMVHqltZmspbW/TJuTVuyOMirVqAkjfY6JISiLHgyNqicAC8AyHHGzNd/dA==}
     engines: {node: '>=0.1.90'}
+
+  '@commander-js/extra-typings@13.1.0':
+    resolution: {integrity: sha512-q5P52BYb1hwVWE6dtID7VvuJWrlfbCv4klj7BjUUOqMz4jbSZD4C9fJ9lRjL2jnBGTg+gDDlaXN51rkWcLk4fg==}
+    peerDependencies:
+      commander: ~13.1.0
 
   '@dabh/diagnostics@2.0.8':
     resolution: {integrity: sha512-R4MSXTVnuMzGD7bzHdW2ZhhdPC/igELENcq5IjEverBvq5hn1SXCWcsi6eSsdWP0/Ur+SItRRjAktmdoX/8R/Q==}
@@ -2650,6 +2658,10 @@ packages:
     resolution: {integrity: sha512-yPVavfyCcRhmorC7rWlkHn15b4wDVgVmBA7kV4QVBsF7kv/9TKJAbAXVTxvTnwP8HHKjRCJDClKbciiYS7p0DQ==}
     engines: {node: '>=16'}
 
+  commander@13.1.0:
+    resolution: {integrity: sha512-/rFeCpNJQbhSZjGVwO9RFV3xPqbnERS8MmIQzCtD/zl6gpJuV/bMLuN92oG3F7d8oDEHHRrujSXNUr8fpjntKw==}
+    engines: {node: '>=18'}
+
   commander@4.1.1:
     resolution: {integrity: sha512-NOKm8xhkzAjzFx8B2v5OAHT+u5pRQc2UCa2Vq9jYL/31o2wi9mxBA7LIFs3sV5VSC49z6pEhfbMULvShKj26WA==}
     engines: {node: '>= 6'}
@@ -2880,6 +2892,11 @@ packages:
 
   end-of-stream@1.4.5:
     resolution: {integrity: sha512-ooEGc6HP26xXq/N+GCGOT0JKCLDGrq2bQUZrQ7gyrJiZANJ/8YDTxTpQBXGMn+WbIQXNVpyWymm7KYVICQnyOg==}
+
+  env-cmd@11.0.0:
+    resolution: {integrity: sha512-gnG7H1PlwPqsGhFJNTv68lsDGyQdK+U9DwLVitcj1+wGq7LeOBgUzZd2puZ710bHcH9NfNeGWe2sbw7pdvAqDw==}
+    engines: {node: '>=20.10.0'}
+    hasBin: true
 
   error@7.0.2:
     resolution: {integrity: sha512-UtVv4l5MhijsYUxPJo4390gzfZvAnTHreNnDjnTZaKIiZ/SemXxAhBkYSKtWa5RtBXbLP8tMgn/n0RUa/H7jXw==}
@@ -4693,6 +4710,10 @@ snapshots:
   '@babel/runtime@7.28.4': {}
 
   '@colors/colors@1.6.0': {}
+
+  '@commander-js/extra-typings@13.1.0(commander@13.1.0)':
+    dependencies:
+      commander: 13.1.0
 
   '@dabh/diagnostics@2.0.8':
     dependencies:
@@ -7720,6 +7741,8 @@ snapshots:
 
   commander@11.1.0: {}
 
+  commander@13.1.0: {}
+
   commander@4.1.1: {}
 
   configstore@5.0.1:
@@ -7912,6 +7935,12 @@ snapshots:
   end-of-stream@1.4.5:
     dependencies:
       once: 1.4.0
+
+  env-cmd@11.0.0:
+    dependencies:
+      '@commander-js/extra-typings': 13.1.0(commander@13.1.0)
+      commander: 13.1.0
+      cross-spawn: 7.0.6
 
   error@7.0.2:
     dependencies:
