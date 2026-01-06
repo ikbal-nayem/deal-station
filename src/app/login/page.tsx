@@ -1,3 +1,4 @@
+
 'use client';
 
 import AuthLayout from '@/components/layout/AuthLayout';
@@ -79,17 +80,14 @@ export default function LoginPage() {
 								disabled={form.formState.isSubmitting}
 							/>
 							<div className='grid gap-2'>
-								<div className='flex items-center'>
-									<FormInput
-										control={form.control}
-										name='password'
-										label='Password'
-										type='password'
-										required
-										disabled={form.formState.isSubmitting}
-										className='flex-1'
-									/>
-								</div>
+								<FormInput
+									control={form.control}
+									name='password'
+									label='Password'
+									type='password'
+									required
+									disabled={form.formState.isSubmitting}
+								/>
 								<Link
 									href={ROUTES.AUTH.FORGOT_PASSWORD}
 									className='ml-auto inline-block text-sm underline'
