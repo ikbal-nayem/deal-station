@@ -1,9 +1,10 @@
+
 import { axiosIns } from '@/config/api.config';
 import { IUser } from '@/interfaces/auth.interface';
-import { IApiRequest, IApiResponse, IObject } from '@/interfaces/common.interface';
+import { IApiRequest, IApiResponse, IObject, IFile } from '@/interfaces/common.interface';
 
 export const UserService = {
-	saveProfileImage: async (formData: FormData): Promise<IApiResponse<any>> => {
+	saveProfileImage: async (formData: FormData): Promise<IApiResponse<IFile>> => {
 		return axiosIns.post('/user/profile-image/save', formData, {
 			headers: { 'Content-Type': 'multipart/form-data' },
 		});

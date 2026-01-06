@@ -12,6 +12,10 @@ import { Form } from "@/components/ui/form";
 import { useState } from "react";
 import { FormImageUpload } from "@/components/ui/form-image-upload";
 import { ENV } from "@/constants/env.constant";
+import { UserService } from "@/services/api/user.service";
+import { compressImage } from "@/lib/compresser";
+import { LocalStorageService } from "@/services/storage.service";
+import { AUTH_INFO } from "@/constants/auth.constant";
 
 const avatarFormSchema = z.object({
   avatar: z.any()
@@ -39,28 +43,43 @@ export default function UpdateAvatarForm() {
 
   const onSubmit = async (data: AvatarFormValues) => {
     setSubmitting(true);
-    // Simulate upload and update
-    await new Promise(resolve => setTimeout(resolve, 1000));
     
-    let newAvatarUrl = user?.profileImage?.filePath;
-    if (data.avatar && data.avatar.length > 0) {
-        newAvatarUrl = URL.createObjectURL(data.avatar[0]);
-    } else if (data.avatar === null) {
-        newAvatarUrl = undefined;
+    if (!data.avatar || data.avatar.length === 0) {
+      toast.warning({ title: "No Image Selected", description: "Please select an image to upload." });
+      setSubmitting(false);
+      return;
     }
 
-    if(user){
-        const updatedUser = { ...user, profileImage: { ...user.profileImage, filePath: newAvatarUrl } as any };
-        setUser(updatedUser);
-        sessionStorage.setItem('auth_info', JSON.stringify(updatedUser));
-    }
+    try {
+      const imageFile = data.avatar[0];
+      const compressedFile = await compressImage(imageFile);
+      
+      const formData = new FormData();
+      formData.append('file', compressedFile);
 
-    toast.success({
-      title: "Avatar Updated",
-      description: "Your profile picture has been changed successfully.",
-    });
-    setSubmitting(false);
-    form.reset({ avatar: null });
+      const response = await UserService.saveProfileImage(formData);
+      const newProfileImage = response.body;
+
+      if(user){
+          const updatedUser = { ...user, profileImage: newProfileImage };
+          setUser(updatedUser);
+          LocalStorageService.set(AUTH_INFO, updatedUser);
+      }
+      
+      toast.success({
+        title: "Avatar Updated",
+        description: "Your profile picture has been changed successfully.",
+      });
+      form.reset({ avatar: null });
+
+    } catch (error: any) {
+        toast.error({
+            title: 'Upload Failed',
+            description: error.message || 'Could not update your profile picture.'
+        });
+    } finally {
+        setSubmitting(false);
+    }
   };
 
   if (!user) return null;
